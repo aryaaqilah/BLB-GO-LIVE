@@ -23,16 +23,16 @@ router.get("/", async (req, res) => {
 });
 
 // 🛒 Ambil Product Non Customized (GET /api/products)
-router.get("/not-customized", async (req, res) => {
-try {
-    // Mencari product yang memiliki array Items dengan panjang 0
-    const products = await Product.find({ Items: { $size: 0 } }).populate(POPULATE_FIELDS);
+// router.get("/not-customized", async (req, res) => {
+// try {
+//     // Mencari product yang memiliki array Items dengan panjang 0
+//     const products = await Product.find({ Items: { $size: 0 } }).populate(POPULATE_FIELDS);
     
-    res.json(products);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+//     res.json(products);
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// });
 
 // 🔎 Ambil Product Berdasarkan ID (GET /api/products/:id)
 router.get("/:id", async (req, res) => {

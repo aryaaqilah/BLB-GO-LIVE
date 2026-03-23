@@ -8,8 +8,11 @@ const orderSchema = new mongoose.Schema({
   Notes: { type: String, required: false },
   ProductPrice: { type: Number, required: true },
   AdministrationFee: { type: mongoose.Schema.Types.ObjectId, ref: 'AdministrationFee', required: true },
-  DiscountId: { type: mongoose.Schema.Types.ObjectId, ref: 'Discount', required: false },
+  // DiscountId: { type: mongoose.Schema.Types.ObjectId, ref: 'Discount', required: false },
   Total: { type: Number, required: true },
+  ShopId: { type: mongoose.Schema.Types.ObjectId, ref: 'Shop', required: true },
+  Token: { type: String, required: true },
+  StatusPembayaran : {type: Number, required: true}
 });
 
 export default mongoose.model("Order", orderSchema);
