@@ -603,8 +603,6 @@ h3,
 .AlignCenter {
   width: fit-content;
   height: fit-content;
-  display: flex;
-  flex-direction: column;
   align-self: center;
 }
 
@@ -2067,7 +2065,7 @@ h3,
     margin-top: 2rem;
     width: 100%;
     order: 99;
-    padding: 1rem;
+    padding: 0.5rem;
     border-radius: 12px;
     font-weight: 600;
   }
