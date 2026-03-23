@@ -1,22 +1,29 @@
 import CardSet from "../../components/Card/CardSet";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { CardModel } from "../../models/CardModel";
-import { StoreCardModel } from "../../models/StoreCardModel";
 import { useNavigate } from "react-router-dom";
 import ProductCard from "../../components/ProductCard/ProductCard";
-import StoreCard from "../../components/StoreCard/StoreCard"; // Import New Component
+import StoreCard from "../../components/StoreCard/StoreCard";
 
-function MostPopularSection({ productData }) {
-  const cards = productData.map((product) => {
-    return new CardModel(
-      product._id,
-      product.Name,
-      product.Price,
-      product.Memo,
-      product.Image,
-      false
-    );
-  });
+const SectionError = ({ onRetry }) => (
+  <div style={{ textAlign: 'center', padding: '2rem' }}>
+    <p className="p1 txt-color-ternary" style={{ marginBottom: '1rem' }}>
+      Oops... terjadi kesalahan, silakan coba lagi.
+    </p>
+    <button className="rounded-button-primary" onClick={onRetry}>
+      Coba Lagi
+    </button>
+  </div>
+);
+
+const SectionLoading = () => (
+  <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
+    <div className="spinner"></div>
+  </div>
+);
+
+function MostPopularSection({ state, onRetry }) {
+  const navigate = useNavigate();
 
   return (
     <section className="ShopMostPopularSection">
@@ -24,25 +31,23 @@ function MostPopularSection({ productData }) {
         <h1 className="txt-color-primary">Ukir Kisah Cintamu</h1>
         <h3 className="txt-color-ternary">Yang terbaik untuk yang terkasih</h3>
       </div>
-      <CardSet cards={cards} navigate={useNavigate()} />
+
+      {state.loading ? (
+        <SectionLoading />
+      ) : state.error ? (
+        <SectionError onRetry={onRetry} />
+      ) : (
+        <CardSet 
+          cards={state.data.map(p => new CardModel(p._id, p.Name, p.Price, p.Memo, p.Image, false))} 
+          navigate={navigate} 
+        />
+      )}
     </section>
   );
 }
 
-// NEW: Store Section Implementation
-const dummyStores = [
-  new StoreCardModel("1", "HER.ROSES", "https://i.ibb.co/LzY8v1C/Logo-Placeholder.png"),
-  new StoreCardModel("2", "FLORA.STUDIO", "https://i.ibb.co/LzY8v1C/Logo-Placeholder.png"),
-  new StoreCardModel("3", "PETALS.CO", "https://i.ibb.co/LzY8v1C/Logo-Placeholder.png"),
-  new StoreCardModel("4", "BLOOM.GARDEN", "https://i.ibb.co/LzY8v1C/Logo-Placeholder.png"),
-];
-
-function StoreSection({ floristData }) {
+function StoreSection({ state, onRetry }) {
   const navigate = useNavigate();
-
-  const handleLihatToko = (florist) => {
-    navigate(`/store/${florist.id}`);
-  };
 
   return (
     <section className="ShopProductSection">
@@ -51,57 +56,62 @@ function StoreSection({ floristData }) {
         <h3 className="txt-color-ternary">Menyediakan yang terbaik untuk Anda</h3>
       </div>
 
-      <div className="product-grid">
-        {floristData.map((florist) => (
-          <StoreCard 
-            key={florist._id} 
-            store={{
-              id: florist._id,
-              name: florist.Name,
-              logo: florist.Logo // Assuming the model has a Logo field
-            }}
-            onSelect={handleLihatToko}
-          />
-        ))}
-      </div>
+      {state.loading ? (
+        <SectionLoading />
+      ) : state.error ? (
+        <SectionError onRetry={onRetry} />
+      ) : (
+        <div className="product-grid">
+          {state.data?.map((shop) => (
+            <StoreCard 
+              key={shop._id} 
+              store={{ id: shop._id, name: shop.Name, logo: shop.Logo }}
+              onSelect={(s) => navigate(`/store/${s.id}`)}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
 
 export default function Shop() {
-  const [productData, setProductData] = useState([]);
-  const [floristData, setFloristData] = useState([]); // State for Stores
+  const [productState, setProductState] = useState({ data: [], loading: true, error: false });
+  const [shopState, setShopState] = useState({ data: [], loading: true, error: false });
 
   const fetchProducts = async () => {
+    setProductState(prev => ({ ...prev, loading: true, error: false }));
     try {
       const response = await fetch("http://localhost:5000/api/products/not-customized");
+      if (!response.ok) throw new Error();
       const data = await response.json();
-      setProductData(data.reverse().slice(0, 4));
+      setProductState({ data: data.reverse().slice(0, 4), loading: false, error: false });
     } catch (error) {
-      console.error("Product fetch error:", error);
+      setProductState({ data: [], loading: false, error: true });
     }
   };
 
-  const fetchFlorists = async () => {
+  const fetchShops = async () => {
+    setShopState(prev => ({ ...prev, loading: true, error: false }));
     try {
-      // Assuming this endpoint exists for your Florists/Stores
-      const response = await fetch("http://localhost:5000/api/florists");
+      const response = await fetch("http://localhost:5000/api/shops");
+      if (!response.ok) throw new Error();
       const data = await response.json();
-      setFloristData(data);
+      setShopState({ data, loading: false, error: false });
     } catch (error) {
-      console.error("Florist fetch error:", error);
+      setShopState({ data: [], loading: false, error: true });
     }
   };
 
   useEffect(() => {
     fetchProducts();
-    fetchFlorists();
+    fetchShops();
   }, []);
 
   return (
     <div>
-      <MostPopularSection productData={productData.slice(0, 5)} />
-      <StoreSection floristData={dummyStores} />
+      <MostPopularSection state={productState} onRetry={fetchProducts} />
+      <StoreSection state={shopState} onRetry={fetchShops} />
     </div>
   );
 }
