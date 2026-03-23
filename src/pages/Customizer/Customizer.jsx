@@ -1028,7 +1028,7 @@ const formattedSummary = summaryData.map(item => [item.ComponentId, item.qty]);
       // !BouquetData.BouquetQuestion ||
       // !BouquetData.BouquetAnswer
     ) {
-      showAlert("Mohon lengkapi nama buket, pertanyaan, dan jawaban!");
+      showAlert("Mohon lengkapi nama buket!");
       return;
     }
 
