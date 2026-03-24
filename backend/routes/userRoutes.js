@@ -12,6 +12,7 @@ import Order from "../models/Order.js"
 import Item from "../models/Item.js"
 import AdministrationFee from "../models/AdministrationFee.js";
 import Discount from "../models/Discount.js";
+import Shop from "../models/Shop.js"
 
 const router = express.Router();
 
@@ -40,13 +41,23 @@ router.get("/", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ "Email": email, "Password": password });
-    
-    if (!user) {
-      return res.status(404).json({ error: "Input Tidak Valid" });
+
+    let account = await User.findOne({ "Email": email, "Password": password });
+    let type = "customer";
+
+    if (!account) {
+      account = await Shop.findOne({ "Email": email, "Password": password });
+      type = "florist";
     }
 
-    res.json(user);
+    if (!account) {
+      return res.status(404).json({ error: "Email atau Password salah" });
+    }
+
+    const responseData = account.toObject();
+    responseData.userType = type;
+
+    res.json(responseData);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -117,66 +128,50 @@ router.delete("/:id", async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
-// 💣 Get Orders bedasarkan User Id (GET /api/users/orders/:id)
 router.get("/orders/:id", async (req, res) => {
   try {
-    console.log("ENTER USER ROUTE FOR PROFILE")
-    const user = await User.findById(req.params.id).populate({
-      path: 'Orders',
-      populate: [
-        { 
-          path: "AddressId", 
-          model: Address,
-          populate: [
-            { 
-              path: "ProvinceId",
-              model: Province
-            },
-            { 
-              path: "CityId",
-              model: City
-            },
-            { 
-              path: "DistrictId",
-              model: District
-            }
-          ]
-        },
-        {
-          path: "DeliveryId",
-          model: Delivery
-        },
-        {
-          path: "ProductId",
-          model: Product,
-          populate: [
-            {
-              path: "ThreeDModel",
-              model: ThreeDModel
-            },
-            {
-              path: "Items",
-              model: Item
-            }
-          ]
-        },
-        {
-          path: "AdministrationFee",
-          model: AdministrationFee
-        },
-        {
-          path: "DiscountId",
-          model: Discount
-        }
-      ]
-    });
-
-    console.log("USERS: ", user)
-    if (!user) return res.status(404).json({ error: "User not found" });
-    res.json(user);
+    const user = await User.findById(req.params.id);
+    
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    const orders = await Order.find({ UserId: req.params.id }).populate([
+      { 
+        path: "AddressId", 
+        model: Address,
+        populate: [
+          { path: "ProvinceId", model: Province },
+          { path: "CityId", model: City },
+          { path: "DistrictId", model: District },
+          { path: "PostalCodeId", model: PostalCode }
+        ]
+      },
+      {
+        path: "DeliveryId",
+        model: Delivery
+      },
+      {
+        path: "ProductId",
+        model: Product,
+        populate: [
+          { path: "ThreeDModel", model: ThreeDModel },
+          { path: "Items", model: Item }
+        ]
+      },
+      {
+        path: "AdministrationFee",
+        model: AdministrationFee
+      },
+      {
+        path: "DiscountId",
+        model: Discount
+      }
+    ]).sort({ CreatedAt: -1 });
+    const userResponse = user.toObject();
+    userResponse.Orders = orders;
+    res.json(userResponse);
 
   } catch (err) {
-    console.error("Population Error:", err);
     res.status(500).json({ error: err.message });
   }
 });

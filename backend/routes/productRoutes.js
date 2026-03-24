@@ -61,4 +61,20 @@ router.delete("/:id", async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
+router.get("/florist/:shopId", async (req, res) => {
+  try {
+    const products = await Product.find({ Shop: req.params.shopId })
+      .populate("ThreeDModel") // Mengambil info file 3D
+      .populate({
+        path: "Items",
+        populate: { path: "ComponentId" }
+      })
+      .sort({ Name: 1 });
+
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

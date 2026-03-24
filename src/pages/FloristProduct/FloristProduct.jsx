@@ -1,141 +1,183 @@
-import React, { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useContext, useCallback } from "react";
+import { FaChevronLeft, FaChevronRight, FaSearch, FaRegTrashAlt, FaRegEdit } from "react-icons/fa";
 import { AuthContext } from "../../contexts/AuthContext";
 import { useAlert } from "../../contexts/AlertContext";
+import { useLoading } from "../../contexts/LoadingContext";
 
-const FloristSidebar = () => {
-  const { logout } = useContext(AuthContext);
+const SectionError = ({ onRetry }) => (
+  <div style={{ textAlign: 'center', padding: '3rem' }}>
+    <p className="p1 txt-color-ternary" style={{ marginBottom: '1.5rem' }}>Oops... terjadi kesalahan silakan coba lagi</p>
+    <button className="rounded-button-primary" onClick={onRetry}>Coba Lagi</button>
+  </div>
+);
+
+const SectionLoading = () => (
+  <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}>
+    <div className="spinner"></div>
+  </div>
+);
+
+const Inventory = () => {
+  const { user } = useContext(AuthContext);
   const { showAlert } = useAlert();
-  const navigate = useNavigate();
+  const { showLoading, hideLoading } = useLoading();
 
-  // --- LOGIKA DATA ---
-  const [allProducts] = useState(Array.from({ length: 96 }, (_, i) => ({
-    name: `Buket Lili ${i + 1}`,
-    image: 'BuketLili.png',
-    description: 'Lili, indah seperti parasnya,......',
-    stock: 100
-  })));
-
-  const [currentPage, setCurrentPage] = useState(3);
+  const [activeTab, setActiveTab] = useState("Buket");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
   const itemsPerPage = 8;
-  const totalPages = Math.ceil(allProducts.length / itemsPerPage);
-  
-  const currentProducts = allProducts.slice(
-    (currentPage - 1) * itemsPerPage, 
-    currentPage * itemsPerPage
-  );
 
-  const goToPage = (pageNumber) => {
-    if (pageNumber >= 1 && pageNumber <= totalPages) {
-      setCurrentPage(pageNumber);
+  const [productState, setProductState] = useState({ data: [], loading: true, error: false });
+  const [itemState, setItemState] = useState({ data: [], loading: true, error: false });
+
+  const fetchProducts = useCallback(async () => {
+    if (!user?._id) return;
+    setProductState(prev => ({ ...prev, loading: true, error: false }));
+    try {
+      const res = await fetch(`http://localhost:5000/api/products/florist/${user._id}`);
+      const data = await res.json();
+      if (res.ok) setProductState({ data, loading: false, error: false });
+      else throw new Error();
+    } catch {
+      setProductState({ data: [], loading: false, error: true });
     }
-  };
+  }, [user?._id]);
 
-  // --- STYLES ---
-  const styles = {
-    container: { padding: '40px', backgroundColor: '#f9f9f9', minHeight: '100vh', fontFamily: 'sans-serif', color: '#333' },
-    header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' },
-    title: { fontSize: '32px', color: '#8d5d4a', margin: 0, fontFamily: 'serif' },
-    searchWrapper: { position: 'relative', display: 'flex', alignItems: 'center' },
-    searchInput: { padding: '8px 12px 8px 35px', borderRadius: '6px', border: '1px solid #ddd', width: '250px', outline: 'none' },
-    tableCard: { backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #eee', overflow: 'hidden' },
-    table: { width: '100%', borderCollapse: 'collapse', textAlign: 'left' },
-    th: { padding: '15px', borderBottom: '1px solid #eee', color: '#666', fontWeight: '500', backgroundColor: '#fafafa' },
-    td: { padding: '15px', borderBottom: '1px solid #f0f0f0', fontSize: '14px' },
-    footer: { marginTop: '25px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-    
-    // Pagination Styles Persis Foto
-    paginationWrapper: { display: 'flex', gap: '20px', alignItems: 'center', color: '#5e6771', userSelect: 'none' },
-    pageNumber: { cursor: 'pointer', fontSize: '16px', transition: '0.2s' },
-    activeBox: { 
-      border: '1.5px solid #d1d5db', 
-      borderRadius: '8px', 
-      padding: '8px 12px', 
-      color: '#374151',
-      fontWeight: '500'
-    },
-    arrow: { cursor: 'pointer', fontSize: '18px', fontWeight: 'bold', padding: '0 10px' },
-    
-    btnGroup: { display: 'flex', gap: '15px' },
-    btnHapus: { padding: '12px 40px', backgroundColor: '#434d4d', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer', fontWeight: '600' },
-    btnTambah: { padding: '12px 40px', backgroundColor: '#a6624f', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer', fontWeight: '600' },
-    iconBtn: { background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#888', marginLeft: '10px' }
+  const fetchItems = useCallback(async () => {
+    if (!user?._id) return;
+    setItemState(prev => ({ ...prev, loading: true, error: false }));
+    try {
+      const res = await fetch(`http://localhost:5000/api/items/florist/${user._id}`);
+      const data = await res.json();
+      if (res.ok) setItemState({ data, loading: false, error: false });
+      else throw new Error();
+    } catch {
+      setItemState({ data: [], loading: false, error: true });
+    }
+  }, [user?._id]);
+
+  useEffect(() => {
+    fetchProducts();
+    fetchItems();
+  }, [fetchProducts, fetchItems]);
+
+  const currentData = activeTab === "Buket" ? productState.data : itemState.data;
+  const isCurrentLoading = activeTab === "Buket" ? productState.loading : itemState.loading;
+  const isCurrentError = activeTab === "Buket" ? productState.error : itemState.error;
+
+  const filteredData = currentData.filter((item) => {
+    const name = activeTab === "Buket" ? item.Name : item.ComponentId?.Name;
+    return name?.toLowerCase().includes(searchQuery.toLowerCase());
+  });
+
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const displayedItems = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setCurrentPage(1);
+    setSearchQuery("");
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
-        <h1 style={styles.title}>Produk</h1>
-        <div style={styles.searchWrapper}>
-          <span style={{ position: 'absolute', left: '12px', color: '#999' }}>🔍</span>
-          <input type="text" placeholder="Cari" style={styles.searchInput} />
-        </div>
+    <div className="FloristDashboardContainer">
+      <h1 className="FloristDashboardTitle">Stok</h1>
+
+      <div className="FloristTabContainer">
+        <button 
+          className={`FloristTabItem ${activeTab === "Buket" ? "FloristTabActive" : ""}`} 
+          onClick={() => handleTabChange("Buket")}
+        >
+          Buket
+        </button>
+        <button 
+          className={`FloristTabItem ${activeTab === "Item" ? "FloristTabActive" : ""}`} 
+          onClick={() => handleTabChange("Item")}
+        >
+          Item
+        </button>
       </div>
 
-      <div style={styles.tableCard}>
-        <table style={styles.table}>
-          <thead>
-            <tr>
-              <th style={styles.th}><input type="checkbox" /></th>
-              <th style={styles.th}>Produk</th>
-              <th style={styles.th}>Gambar</th>
-              <th style={styles.th}>Deskripsi</th>
-              <th style={styles.th}>Stok</th>
-              <th style={styles.th}></th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentProducts.map((item, index) => (
-              <tr key={index}>
-                <td style={styles.td}><input type="checkbox" /></td>
-                <td style={styles.td}>{item.name}</td>
-                <td style={styles.td}><code style={{fontSize:'12px'}}>{item.image}</code></td>
-                <td style={{...styles.td, color: '#666'}}>{item.description}</td>
-                <td style={styles.td}>{item.stock}</td>
-                <td style={{...styles.td, textAlign: 'right'}}>
-                  <button style={styles.iconBtn}>🗑️</button>
-                  <button style={styles.iconBtn}>📝</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <div style={styles.footer}>
-        {/* Pagination Style Baru */}
-        <div style={styles.paginationWrapper}>
-          <div style={styles.arrow} onClick={() => goToPage(currentPage - 1)}>❮</div>
-          
-          {[1, 2].map(num => (
-            <div 
-              key={num} 
-              style={styles.pageNumber} 
-              onClick={() => goToPage(num)}
-            >
-              0{num}
-            </div>
-          ))}
-
-          {/* Halaman Aktif dengan Kotak */}
-          <div style={styles.activeBox}>
-            {currentPage < 10 ? `0${currentPage}` : currentPage}
+      <div className="FloristOrdersTableSection">
+        <div className="FloristOrdersHeader" style={{ justifyContent: 'flex-end' }}>
+          {/* REFACTORED SEARCH BAR */}
+          <div className="FloristSearchWrapper">
+            <FaSearch className="FloristSearchIcon" />
+            <input 
+              type="text" 
+              placeholder="Cari produk atau item..." 
+              className="FloristSearchInput" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
-
-          <div style={styles.pageNumber} onClick={() => goToPage(4)}>04</div>
-          <div style={{color: '#999'}}>...</div>
-          <div style={styles.pageNumber} onClick={() => goToPage(12)}>12</div>
-
-          <div style={styles.arrow} onClick={() => goToPage(currentPage + 1)}>❯</div>
         </div>
 
-        <div style={styles.btnGroup}>
-          <button style={styles.btnHapus}>Hapus</button>
-          <button style={styles.btnTambah}>Tambah</button>
-        </div>
+        {isCurrentLoading ? <SectionLoading /> : isCurrentError ? <SectionError onRetry={activeTab === "Buket" ? fetchProducts : fetchItems} /> : (
+          <>
+            <div className="FloristTableResponsive">
+              <table className="FloristMainTable">
+                <thead>
+                  <tr>
+                    <th style={{ width: "50px" }}><input type="checkbox" /></th>
+                    <th className="p2 weight-semibold">{activeTab === "Buket" ? "Produk" : "Nama Item"}</th>
+                    <th className="p2 weight-semibold">Gambar</th>
+                    <th className="p2 weight-semibold">Deskripsi</th>
+                    <th className="p2 weight-semibold">Stok</th>
+                    <th className="p2 weight-semibold" style={{ textAlign: 'center' }}>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {displayedItems.length > 0 ? displayedItems.map((item) => (
+                    <tr key={item._id}>
+                      <td><input type="checkbox" /></td>
+                      <td className="p2 weight-semibold">{activeTab === "Buket" ? item.Name : item.ComponentId?.Name}</td>
+                      <td className="p2" style={{ fontSize: '0.75rem', color: '#888' }}>
+                        {activeTab === "Buket" ? item.Image?.split('/').pop() : item.ComponentId?.Asset?.split('/').pop()}
+                      </td>
+                      <td className="p2" style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {activeTab === "Buket" ? item.Memo : "Komponen Florist"}
+                      </td>
+                      <td className="p2">{item.Quantity}</td>
+                      <td>
+                        <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', cursor: 'pointer' }}>
+                          <FaRegTrashAlt className="InventoryActionIcon" />
+                          <FaRegEdit className="InventoryActionIcon" />
+                        </div>
+                      </td>
+                    </tr>
+                  )) : (
+                    <tr><td colSpan="6" style={{ textAlign: "center", padding: "3rem" }}>Data tidak ditemukan.</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="InventoryFooterContainer">
+              <div className="FloristPagination">
+                <button className="FloristPagArrow" onClick={() => setCurrentPage(p => p - 1)} disabled={currentPage === 1}><FaChevronLeft /></button>
+                {[...Array(totalPages)].map((_, i) => (
+                  <button 
+                    key={i} 
+                    className={`FloristPagNum ${currentPage === i + 1 ? "FloristPagActive" : ""}`} 
+                    onClick={() => setCurrentPage(i + 1)}
+                  >
+                    {String(i + 1).padStart(2, '0')}
+                  </button>
+                ))}
+                <button className="FloristPagArrow" onClick={() => setCurrentPage(p => p + 1)} disabled={currentPage === totalPages}><FaChevronRight /></button>
+              </div>
+
+              <div className="InventoryActionButtons">
+                <button className="InventoryBtnDelete">Hapus</button>
+                <button className="InventoryBtnAdd">Tambah</button>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
 };
 
-export default FloristSidebar;
+export default Inventory;
