@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { get as getDb } from "idb-keyval";
+import { clear } from "idb-keyval";
 
 function MainSection({
   selectedProduct,
@@ -64,8 +65,11 @@ function MainSection({
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const { showAlert } = useAlert();
+
+  const { showLoading, hideLoading } = useLoading();
   
   const handleCardSelect = async () => {
+    showLoading("Memproses pembayaran...");
     if (!user) {
       showAlert("Silakan login terlebih dahulu untuk melakukan pembelian.");
       navigate("/login");
@@ -299,7 +303,8 @@ function MainSection({
         Total: totalOrder,
         ShopId : selectedProduct.ShopId,
         Token : null,
-        StatusPembayaran : 2
+        StatusPembayaran : 2,
+        UserId : user._id
       };
       console.log("Order Payload:", orderPayload);
       const orderRes = await fetch("http://localhost:5000/api/orders", {
@@ -327,18 +332,20 @@ function MainSection({
 
       const midtransData = await midtransRes.json();
 
+      console.log("midtrans data ", midtransData.token)
+
       if (!midtransRes.ok) {
         throw new Error("Gagal membuat transaksi pembayaran");
       }
 
       const updateToken = await fetch(
-        `http://localhost:3000/api/orders/${savedOrder._id}/token`,
+        `http://localhost:5000/api/orders/${savedOrder._id}/token`,
         {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ token : midtransData.token }),
+          body: JSON.stringify({ token : String(midtransData.token) }),
         }
       );
 
@@ -366,24 +373,35 @@ function MainSection({
         // await fetch(`http://localhost:5000/api/orders/${savedOrder._id}/paid`, {
         //   method: "PUT",
         // });
-
+        await clear();
         navigate("/profile", {
-          state: {
-            selectedProduct,
-            orderId: savedOrder._id,
-          },
+          // state: {
+          //   selectedProduct,
+          //   orderId: savedOrder._id,
+          // },
+            replace: true,
+            state: null,
         });
       },
 
       onPending: function () {
         showAlert("Menunggu pembayaran...");
         const StatusTemp = 2;
-
+        clear();
+        navigate("/profile", {
+          // state: {
+          //   selectedProduct,
+          //   orderId: savedOrder._id,
+          // },
+            replace: true,
+            state: null,
+        });
       },
 
       onError: function () {
         showAlert("Pembayaran gagal!");
         const StatusTemp = 1;
+        clear();
         const updateStatus = fetch(
           `http://localhost:3000/api/orders/${savedOrder._id}/status-pembayaran`,
           {
@@ -394,18 +412,33 @@ function MainSection({
             body: JSON.stringify({ StatusPembayaran : StatusTemp }),
           }
         );
-
+                navigate("/profile", {
+          // state: {
+          //   selectedProduct,
+          //   orderId: savedOrder._id,
+          // },
+            replace: true,
+            state: null,
+        });
       },
 
       onClose: function () {
         showAlert("Kamu menutup pembayaran.");
+        clear();
         const StatusTemp = 2;
-        
+                navigate("/profile", {
+          // state: {
+          //   selectedProduct,
+          //   orderId: savedOrder._id,
+          // },
+            replace: true,
+            state: null,
+        });
         
       },
-
-
     });
+
+
     // ================= MIDTRANS END =================
 
       const userUpdatePayload = {
@@ -415,40 +448,40 @@ function MainSection({
       console.log("User Update Payload:", userUpdatePayload);
       console.log("User Info:", user);
 
-      const userRes = await fetch(
-        `http://localhost:5000/api/users/${user._id}/add-order`,
-        {
-          method: "PUT", // Menggunakan PUT/PATCH untuk update data
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(userUpdatePayload),
-        }
-      );
+      // const userRes = await fetch(
+      //   `http://localhost:5000/api/users/${user._id}/add-order`,
+      //   {
+      //     method: "PUT", // Menggunakan PUT/PATCH untuk update data
+      //     headers: { "Content-Type": "application/json" },
+      //     body: JSON.stringify(userUpdatePayload),
+      //   }
+      // );
 
-      if (userRes.ok) {
-        showAlert("Transaksi Berhasil! Pesanan telah dicatat di akun Anda.");
-        // navigate("/orders", {
-        //   state: {
-        //     selectedProduct: selectedProduct,
-        //     orderId: savedOrder._id,
-        //   },
-        // });
-      } else {
-        console.error("Gagal sinkronisasi ke tabel User");
-        // Tetap pindah halaman karena Order utama sudah sukses
-        // navigate("/orders");
-      }
+      // if (userRes.ok) {
+      //   showAlert("Transaksi Berhasil! Pesanan telah dicatat di akun Anda.");
+      //   // navigate("/orders", {
+      //   //   state: {
+      //   //     selectedProduct: selectedProduct,
+      //   //     orderId: savedOrder._id,
+      //   //   },
+      //   // });
+      // } else {
+      //   console.error("Gagal sinkronisasi ke tabel User");
+      //   // Tetap pindah halaman karena Order utama sudah sukses
+      //   // navigate("/orders");
+      // }
 
-      if (userRes.ok) {
-        showAlert("Pembayaran Berhasil Diproses!");
-        // navigate("/orders", {
-        //   state: {
-        //     selectedProduct: selectedProduct,
-        //     orderId: savedOrder._id,
-        //   },
-        // });
-      } else {
-        showAlert("Gagal memproses order: " + savedOrder.message);
-      }
+      // if (userRes.ok) {
+      //   showAlert("Pembayaran Berhasil Diproses!");
+      //   // navigate("/orders", {
+      //   //   state: {
+      //   //     selectedProduct: selectedProduct,
+      //   //     orderId: savedOrder._id,
+      //   //   },
+      //   // });
+      // } else {
+      //   showAlert("Gagal memproses order: " + savedOrder.message);
+      // }
     } catch (error) {
       console.error("Error Transaction:", error);
       showAlert("Terjadi kesalahan: " + error.message);
@@ -686,6 +719,15 @@ function MainSection({
 export default function Payment() {
   const selectedProduct = window.history.state?.usr?.selectedProduct;
   const addressData = window.history.state?.usr?.addressData;
+  const navigate = useNavigate();
+  const { showAlert } = useAlert();
+  useEffect(() => {
+    if (!selectedProduct) {
+      showAlert("Data produk tidak ditemukan. Silakan ulangi dari awal.");
+
+      navigate("/profile", { replace: true });
+    }
+  }, [selectedProduct, navigate]);
 
   const [adminFee, setAdminFee] = useState([]);
   const [discountData, setDiscountData] = useState([]);

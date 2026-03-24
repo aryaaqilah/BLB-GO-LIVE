@@ -2,7 +2,7 @@ import express from "express";
 import Address from "../models/Address.js";
 
 const router = express.Router();
-const POPULATE_FIELDS = ['ProvinceId', 'CityId', 'DistrictId', 'PostalCodeId'];
+const POPULATE_FIELDS = ['ProvinceId', 'CityId', 'DistrictId'];
 
 // ➕ Tambah Address Baru (POST /api/addresses)
 router.post("/", async (req, res) => {

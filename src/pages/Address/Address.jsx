@@ -219,8 +219,19 @@ function AddressSection({ selectedProduct, modelData, provinceData, cityData, di
 }
 
 export default function Address() {
+  const { showAlert } = useAlert();
   const location = useLocation();
   const productInfo = location.state?.selectedProduct;
+
+    const navigate = useNavigate();
+    useEffect(() => {
+      if (!productInfo) {
+        showAlert("Data produk tidak ditemukan. Silahkan ulangi dari awal.");
+  
+        navigate("/profile", { replace: true });
+      }
+    }, [productInfo, navigate]);
+
   const [modelData, setModelData] = useState(null);
   const [provinceData, setProvinceData] = useState([]);
   const [cityData, setCityData] = useState([]);

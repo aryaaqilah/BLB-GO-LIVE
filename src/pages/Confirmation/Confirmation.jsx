@@ -234,6 +234,15 @@ export default function Confirmation() {
     window.history.state.usr.selectedProduct;
   console.log("Selected Product in Confirmation Page:", selectedProduct);
 
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!selectedProduct) {
+      showAlert("Data produk tidak ditemukan. Silahkan ulangi dari awal.");
+
+      navigate("/profile", { replace: true });
+    }
+  }, [selectedProduct, navigate]);
+
   const [modelScene, setModelScene] = useState(null);
   const [meta, setMeta] = useState(null);
 
@@ -245,6 +254,13 @@ export default function Confirmation() {
       // 1. Ambil Metadata
       const savedMeta = await getDb("pending_order_meta");
       setMeta(savedMeta);
+
+      if (!savedMeta) {
+        // Jika tidak ada data, arahkan kembali ke customizer
+        showAlert("Keranjang kosong, silakan buat desain terlebih dahulu.");
+        navigate("/customizer");
+        return;
+      }
 
       console.log("Nama Buket : ", savedMeta.modelName);
       console.log("Question : ", savedMeta.question);
@@ -276,7 +292,7 @@ export default function Confirmation() {
     loadFromDB();
     hideLoading();
   }, []);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   useEffect(() => {
     const loadAndDestroy = async () => {
       const data = await getDb("pending_order_model");
