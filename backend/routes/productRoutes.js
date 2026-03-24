@@ -1,5 +1,8 @@
 import express from "express";
 import Product from "../models/Product.js";
+import ProductDetail from "../models/ProductDetail.js";
+import Item from '../models/Item.js';
+import Component from '../models/Component.js';
 
 const router = express.Router();
 const POPULATE_FIELDS = ['ThreeDModel', 'Items'];
@@ -14,25 +17,28 @@ router.post("/", async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
-// 🛒 Ambil Semua Product (GET /api/products)
 router.get("/", async (req, res) => {
   try {
-    const products = await Product.find().populate(POPULATE_FIELDS);
-    res.json(products);
-  } catch (err) { res.status(500).json({ error: err.message }); }
-});
+    const products = await Product.find()
+      .populate({
+        path: "ProductDetail",
+        model: ProductDetail,
+        populate: {
+          path: "ItemId",
+          model: Item,
+          populate: {
+            path: "ComponentId",
+            model: Component
+          }
+        }
+      })
+      .sort({ CreatedAt: -1 });
 
-// 🛒 Ambil Product Non Customized (GET /api/products)
-// router.get("/not-customized", async (req, res) => {
-// try {
-//     // Mencari product yang memiliki array Items dengan panjang 0
-//     const products = await Product.find({ Items: { $size: 0 } }).populate(POPULATE_FIELDS);
-    
-//     res.json(products);
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// });
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // 🔎 Ambil Product Berdasarkan ID (GET /api/products/:id)
 router.get("/:id", async (req, res) => {
@@ -63,11 +69,22 @@ router.delete("/:id", async (req, res) => {
 
 router.get("/florist/:shopId", async (req, res) => {
   try {
-    const products = await Product.find({ Shop: req.params.shopId })
-      .populate("ThreeDModel") // Mengambil info file 3D
+    const products = await Product.find({ ShopId: req.params.shopId })
       .populate({
-        path: "Items",
-        populate: { path: "ComponentId" }
+        path: "ThreeDModel",
+        model: "3DModel"
+      })
+      .populate({
+        path: "ProductDetail",
+        model: "ProductDetail",
+        populate: {
+          path: "ItemId",
+          model: "Item",
+          populate: {
+            path: "ComponentId",
+            model: "Component"
+          }
+        }
       })
       .sort({ Name: 1 });
 

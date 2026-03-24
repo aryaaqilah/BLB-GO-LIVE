@@ -64,7 +64,7 @@ router.delete("/:id", async (req, res) => {
 
 router.get("/florist/:shopId", async (req, res) => {
   try {
-    const items = await Item.find({ Shop: req.params.shopId })
+    const items = await Item.find({ ShopId: req.params.shopId })
       .populate("ComponentId")
       .sort({ "ComponentId.Name": 1 });
 
