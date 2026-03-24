@@ -22,17 +22,96 @@ const ShopLanding = () => {
   const navigate = useNavigate();
   const { showLoading, hideLoading } = useLoading();
   const [storeInfo, setStoreInfo] = useState(null);
+  const [addressInfo, setAddressInfo] = useState([]);
   const [products, setProducts] = useState([]);
+
+  const fetchData = async () => {
+      showLoading("Menyiapkan data florist...");
+
+      try {
+        const response = await fetch(
+          `http://localhost:5000/api/shops/${storeId}`
+        );
+        const dataShop = await response.json();
+
+        console.log("ini abis hit shop");
+        console.log(dataShop);
+        setStoreInfo(dataShop);
+
+        // SECTION GET PROVINCE, CITY, DISTRICT =========================================================================
+      const response2 = await fetch(
+        `http://localhost:5000/api/provinces/${dataShop.Address.ProvinceId}`
+      );
+      if (!response.ok) {
+        throw new Error("Gagal mengambil data provinsi");
+      }
+      const dataProv = await response2.json();
+
+      const response3 = await fetch(
+        `http://localhost:5000/api/cities/${dataShop.Address.CityId}`
+      );
+      if (!response2.ok) {
+        throw new Error("Gagal mengambil data kota");
+      }
+      const dataCity = await response3.json();
+      console.log("Hasil pencarian:", dataProv);
+
+      const response4 = await fetch(
+        `http://localhost:5000/api/districts/${dataShop.Address.DistrictId}`
+      );
+      if (!response3.ok) {
+        throw new Error("Gagal mengambil data kecamatan");
+      }
+      const dataDistrict = await response4.json();
+
+      console.log("Hasil pencarian:", dataProv);
+      console.log("Hasil pencarian:", dataCity);
+      console.log("Hasil pencarian:", dataDistrict);
+
+      const addressData = {
+        province: dataProv.provinsi_name,
+        city: dataCity.city_name,
+        district: dataDistrict.district_name
+      }
+
+      setAddressInfo(addressData);
+
+      console.log("infooo ", addressInfo);
+
+      const responseProduct = await fetch(
+          `http://localhost:5000/api/products/shop/${storeId}`
+        );
+        const dataProduct = await responseProduct.json();
+
+        console.log("ini abis hit shop");
+        console.log(dataProduct);
+        const objects = dataProduct.map((item) => ({
+          key : "p",
+          title : item.Name,
+          price : item.Price,
+          description : item.Memo,
+          image : item.Image,
+          truefalse : false
+        }));
+        setProducts(objects);
+        console.log(products);
+      } catch (error) {
+        console.error("❌ Error fetching data:", error);
+      }
+    };
 
   useEffect(() => {
     showLoading("Menghubungi penjual...");
+    
+    fetchData();
 
     const timer = setTimeout(() => {
       // Logic Fix: If storeId is not found, use dummyStores[0] for testing purposes
+      
       const selectedStore = dummyStores.find((s) => s._id === storeId) || dummyStores[0];
       
-      setStoreInfo(selectedStore);
-      setProducts(dummyProducts);
+      // setStoreInfo(selectedStore);
+      // setProducts(dummyProducts);
       
       hideLoading();
     }, 500);
@@ -53,8 +132,8 @@ const ShopLanding = () => {
         <img src={storeInfo.Logo} alt={storeInfo.Name} className="ShopLandingLogo" style={{ width: '120px', height: '120px', borderRadius: '50%' }} />
         <div className="ShopLandingDetails">
           <h1 className="h1 txt-color-primary">{storeInfo.Name}</h1>
-          <p className="p2">Alamat: Tangerang, Banten</p>
-          <p className="p2">No. Telepon: 0812-XXXX-XXXX</p>
+          <p className="p2">Alamat: {addressInfo.city}, {addressInfo.province} </p>
+          <p className="p2">No. Telepon: {storeInfo.PhoneNumber}</p>
           <div className="ShopLandingRatingRow" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px' }}>
             <FaStar color="#FFD700" /> 
             <span className="p2 weight-semibold">4.9</span>

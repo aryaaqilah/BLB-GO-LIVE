@@ -27,7 +27,11 @@ const ProductCard = ({ product }) => {
       <div className="image-container">
         {/* The bouquet image that overlaps the top */}
         <img 
-          src={`http://localhost:5000${product.image}`} 
+          src={
+            product.image?.startsWith("data:image")
+              ? product.image
+              : `http://localhost:5000${product.image}`
+          } 
           alt={product.title} 
           className="product-image-pop" 
         />

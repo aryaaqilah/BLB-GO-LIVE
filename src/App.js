@@ -101,7 +101,7 @@ function AppContent() {
         <Route element={<CustomerLayout isFlorist={isFlorist} />}>
           <Route path="/" element={<Home />} />
           <Route path="/shop" element={<Shop />} />
-          <Route path="/store/:storeId" element={<ShopLanding />} />
+          <Route path="/shop/:storeId" element={<ShopLanding />} />
           <Route path="/about" element={<About />} />
           <Route path="/help" element={<Help />} />
           <Route path="/customizer" element={<Customizer />} />
