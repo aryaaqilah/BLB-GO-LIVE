@@ -51,6 +51,7 @@ function MainSection({ selectedProduct, modelScene, meta }) {
         pesan: pesan,
         items: meta.items,
         thumbnail: meta?.thumbnail,
+        ShopId : meta?.shopId
       };
     }
 

@@ -20,6 +20,21 @@ router.get("/", async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// GET item berdasarkan ShopId
+router.get("/shop/:shopId", async (req, res) => {
+  try {
+    const { shopId } = req.params;
+
+    const items = await Item.find({ ShopId: shopId })
+      .populate("ComponentId")
+      .populate("ShopId");
+
+    res.json(items);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // 📖 Ambil Item Berdasarkan ID (GET /api/items/:id)
 router.get("/:id", async (req, res) => {
   try {

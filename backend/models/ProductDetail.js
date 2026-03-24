@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const productDetailSchema = new mongoose.Schema({
-  Item: { type: mongoose.Schema.Types.ObjectId, ref: 'Item', required: true },
+  ItemId: { type: mongoose.Schema.Types.ObjectId, ref: 'Item', required: true },
   Quantity: { type: Number, required: true },
 });
 

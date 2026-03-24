@@ -4,7 +4,7 @@ const router = express.Router();
 
 const snap = new midtransClient.Snap({
   isProduction: false,
-  serverKey: process.env.MIDTRANS_SERVER_KEY,
+  serverKey: "Mid-server-DBPNAdBY62uOiUXvrVnr4RzK",
 });
 
 // POST /api/payment/create-transaction

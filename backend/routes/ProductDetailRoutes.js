@@ -7,10 +7,10 @@ const router = express.Router();
 // CREATE ProductDetail
 router.post("/", async (req, res) => {
   try {
-    const { Item, Quantity } = req.body;
+    const { ItemId, Quantity } = req.body;
 
     const newProductDetail = new ProductDetail({
-      Item,
+      ItemId,
       Quantity,
     });
 

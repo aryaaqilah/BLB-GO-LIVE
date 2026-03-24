@@ -2,7 +2,7 @@ import express from "express";
 import Order from "../models/Order.js";
 
 const router = express.Router();
-const POPULATE_FIELDS = ['AddressId', 'DeliveryId', 'ProductId', 'AdministrationFee', 'DiscountId'];
+const POPULATE_FIELDS = ['AddressId', 'DeliveryId', 'ProductId', 'AdministrationFee', 'ShopId'];
 
 // 📦 Buat Order Baru (POST /api/orders)
 router.post("/", async (req, res) => {
@@ -46,6 +46,60 @@ router.delete("/:id", async (req, res) => {
     if (!order) return res.status(404).json({ error: "Order not found" });
     res.status(204).send();
   } catch (err) { res.status(400).json({ error: err.message }); }
+});
+
+// 🔐 Update Token Order (PATCH /api/orders/:id/token)
+router.patch("/:id/token", async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({ error: "Token is required" });
+    }
+
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { Token: token },
+      { new: true }
+    ).populate(POPULATE_FIELDS);
+
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    res.json(order);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// 💳 Update Status Pembayaran (PATCH /api/orders/:id/payment-status)
+router.patch("/:id/status-pembayaran", async (req, res) => {
+  try {
+    const { StatusPembayaran } = req.body;
+
+    // validasi harus angka 0 / 1 / 2
+    const allowedStatus = [0, 1, 2];
+    if (!allowedStatus.includes(StatusPembayaran)) {
+      return res.status(400).json({
+        error: "StatusPembayaran harus bernilai 0, 1, atau 2",
+      });
+    }
+
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { StatusPembayaran },
+      { new: true }
+    ).populate(POPULATE_FIELDS);
+
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    res.json(order);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 });
 
 export default router;

@@ -206,12 +206,15 @@ function MainSection({
         for (const itemArray of itemsData) {
           // Karena tiap item adalah array berisi 1 objek, kita ambil indeks ke-0
           const payload = {
-            ComponentId: itemArray[0].ComponentId,
+            ItemId: itemArray[0].ItemId,
             Quantity: itemArray[0].Quantity,
           };
 
+          console.log("PAYLOADDDD")
+          console.log(payload)
+
           try {
-            const response = await fetch("http://localhost:5000/api/items", {
+            const response = await fetch("http://localhost:5000/api/productdetails", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(payload),
@@ -223,10 +226,10 @@ function MainSection({
               console.log(`✅ Tersimpan: ${newId}`);
             }
             console.log(
-              `✅ Berhasil simpan ComponentId: ${payload.ComponentId}`
+              `✅ Berhasil simpan ComponentId: ${payload.ItemId}`
             );
           } catch (error) {
-            console.error(`❌ Gagal simpan ${payload.ComponentId}:`, error);
+            console.error(`❌ Gagal simpan ${payload.ItemId}:`, error);
           }
         }
       };
@@ -254,7 +257,8 @@ function MainSection({
             collectedIds[3].tempId,
             // collectedIds[4].tempId,
           ],
-          Shop : '69a581ef883533f34a8dc3b0'
+          ShopId : selectedProduct.ShopId,
+          IsCustomized : 1
         };
 
         console.log("PRODUCT PAYLOAD : ", productPayload);
@@ -290,9 +294,12 @@ function MainSection({
         ProductId: productIdTemp,
         ProductPrice: productPrice,
         AdministrationFee: adminFee[0]._id,
-        DiscountId:
-          discountData.percentage === null ? null : discountData[0]._id,
+        // DiscountId:
+        //   discountData.percentage === null ? null : discountData[0]._id,
         Total: totalOrder,
+        ShopId : selectedProduct.ShopId,
+        Token : null,
+        StatusPembayaran : 2
       };
       console.log("Order Payload:", orderPayload);
       const orderRes = await fetch("http://localhost:5000/api/orders", {
@@ -324,9 +331,36 @@ function MainSection({
         throw new Error("Gagal membuat transaksi pembayaran");
       }
 
+      const updateToken = await fetch(
+        `http://localhost:3000/api/orders/${savedOrder._id}/token`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ token : midtransData.token }),
+        }
+      );
+
+      const tokenJson = await updateToken.json();
+      console.log("✅ Token updated:", tokenJson);
+
       window.snap.pay(midtransData.token, {
       onSuccess: async function (result) {
         showAlert("Pembayaran berhasil!");
+
+        const StatusTemp = 0;
+
+        const updateStatus = await fetch(
+          `http://localhost:3000/api/orders/${savedOrder._id}/status-pembayaran`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ StatusPembayaran : StatusTemp }),
+          }
+        );
 
         // update order jadi PAID
         // await fetch(`http://localhost:5000/api/orders/${savedOrder._id}/paid`, {
@@ -343,18 +377,34 @@ function MainSection({
 
       onPending: function () {
         showAlert("Menunggu pembayaran...");
+        const StatusTemp = 2;
 
       },
 
       onError: function () {
         showAlert("Pembayaran gagal!");
+        const StatusTemp = 1;
+        const updateStatus = fetch(
+          `http://localhost:3000/api/orders/${savedOrder._id}/status-pembayaran`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ StatusPembayaran : StatusTemp }),
+          }
+        );
 
       },
 
       onClose: function () {
         showAlert("Kamu menutup pembayaran.");
+        const StatusTemp = 2;
+        
         
       },
+
+
     });
     // ================= MIDTRANS END =================
 

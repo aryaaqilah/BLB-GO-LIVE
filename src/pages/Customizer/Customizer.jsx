@@ -292,14 +292,13 @@ const FlowerGallery = ({onAddObject, components}) => {
     showAlert(`Objek '${objectName}' Berhasil Ditambahkan!`);
   };
 
-  // Data objek yang akan ditampilkan
-  const objects = [
-    { name: components[2]?.Name, image: LilyImage, path: components[2]?.Asset },
-    { name: components[1]?.Name, image: TulipImage, path: components[1]?.Asset },
-    { name: components[0]?.Name, image: RoseImage, path: components[0]?.Asset } 
-    // ,
-    // { name: components[3]?.Name, image: WrapperImage, path: components[3]?.Asset }
-  ];
+    const objects = components.map((item) => ({
+      name: item.Name,
+      image: item.Image, // langsung dari backend
+      path: item.Asset,
+      price: item.Price,
+      itemId: item.ItemId
+    }));
 
   return (
     <div className="Customizer-gallery-container">
@@ -634,6 +633,7 @@ const ColorChoose = ({ parcelColor, setParcelColor, ribbonColor, setRibbonColor 
 };
 
 function MainSection() {
+  const shopId = "69a581ef883533f34a8dc3b0";
   const { showAlert } = useAlert();
   const [objects, setObjects] = useState([]);
     const [selectedId, setSelectedId] = useState(null);
@@ -664,34 +664,63 @@ function MainSection() {
 
     const handleGoBack = () => window.history.back();
 
+    // const shopId = "69a581ef883533f34a8dc3b0";
+
     const fetchData = async () => {
       showLoading("Menyiapkan data model...");
-      try{
-        const roseData = await fetch("http://localhost:5000/api/components/694e448285890620cea2e86a");
-        const roseJson = await roseData.json();
-        console.log("🌹 Data Rose dari backend:", roseJson);
 
-        const tulipData = await fetch("http://localhost:5000/api/components/694e44b185890620cea2e86c");
-        const tulipJson = await tulipData.json();
-        console.log("🌹 Data Tulip dari backend:", tulipJson);
-         
-        const lillyData = await fetch("http://localhost:5000/api/components/694e44be85890620cea2e86e");
-        const lillyJson = await lillyData.json();
-        console.log("🌹 Data lilly dari backend:", lillyJson);
-         
-        const wrapperData = await fetch("http://localhost:5000/api/components/694e44d385890620cea2e870");
-        const wrapperJson = await wrapperData.json();
-        console.log("🌹 Data Wrapper dari backend:", wrapperJson);
+      try {
+        const response = await fetch(
+          `http://localhost:5000/api/items/shop/${shopId}`
+        );
+        const dataShop = await response.json();
 
-        setComponents([roseJson, tulipJson, lillyJson]);
+        console.log("ini abis hit shop");
+        console.log(dataShop);
 
-        handleAddWrapper();
-      }catch(error){
+        // ID khusus wrapper
+        const WRAPPER_ID = "694e44d385890620cea2e870";
+
+        // array untuk component biasa
+        const componentList = [];
+
+        // variable untuk wrapper
+        let wrapperData = null;
+
+        dataShop.forEach((item) => {
+          const mappedData = {
+            Name: item.ComponentId.Name,
+            Asset: item.ComponentId.Asset,
+            Image : item.ComponentId.Image,
+            Price: item.Price,
+            ItemId: item._id, // optional, berguna nanti
+          };
+
+          // cek apakah dia wrapper
+          if (item.ComponentId._id === WRAPPER_ID) {
+            wrapperData = mappedData;
+          } else {
+            componentList.push(mappedData);
+          }
+        });
+
+        console.log("Components:", componentList);
+        console.log("Wrapper:", wrapperData);
+
+        // set ke state
+        setComponents(componentList);
+
+        // kalau wrapper ada, inject ke flow kamu
+        if (wrapperData) {
+          handleAddWrapper(wrapperData);
+        }
+
+      } catch (error) {
         console.error("❌ Error fetching data:", error);
       }
+
       hideLoading();
     };
-
     useEffect(() => {
 
       fetchData();
@@ -727,7 +756,7 @@ const getGroupedSummary = () => {
       name: comp.Name,
       qty: count,
       price: subTotal,
-      ComponentId : comp._id
+      ItemId : comp.ItemId
     };
   });
 };
@@ -735,7 +764,7 @@ const getGroupedSummary = () => {
 const summaryData = getGroupedSummary();
 const totalPrice = summaryData.reduce((sum, item) => sum + item.price, 0);
 
-const formattedSummary = summaryData.map(item => [item.ComponentId, item.qty]);
+const formattedSummary = summaryData.map(item => [item.ItemId, item.qty]);
 
     const handleSaveDesign = async () => {
       if (!modelName.trim())
@@ -1067,7 +1096,7 @@ const formattedSummary = summaryData.map(item => [item.ComponentId, item.qty]);
     //   Quantity : 0
     // }];
 
-    const formattedItems = summaryData.map(formattedSummary => [{ComponentId : formattedSummary.ComponentId, Quantity : formattedSummary.qty}]);
+    const formattedItems = summaryData.map(formattedSummary => [{ItemId : formattedSummary.ItemId, Quantity : formattedSummary.qty}]);
     
     console.log("FORMATTED ITEMS ", formattedItems)
 
@@ -1092,6 +1121,7 @@ const formattedSummary = summaryData.map(item => [item.ComponentId, item.qty]);
           modelName,
           question : "",
           answer : "",
+          shopId : shopId,
           items : formattedItems,
           thumbnail: screenshot,
           timestamp: Date.now()
