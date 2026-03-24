@@ -25,6 +25,30 @@ const ShopLanding = () => {
   const [addressInfo, setAddressInfo] = useState([]);
   const [products, setProducts] = useState([]);
 
+  // const getGroupedSummary = () => {
+  //   // Buat rincian berdasarkan data master di state 'components'
+  //   return components.map((comp) => {
+  //     // Hitung berapa banyak objek ini ada di canvas berdasarkan modelPath
+  //     const count = objects.filter((obj) => obj.modelPath === comp.Asset).length;
+  //     const subTotal = count * (comp.Price || 0);
+
+  //     let tempId = ""
+
+  //     return {
+  //       name: comp.Name,
+  //       qty: count,
+  //       price: subTotal,
+  //       ItemId : comp.ItemId
+  //     };
+  //   });
+  // };
+
+  // const summaryData = getGroupedSummary();
+
+  const itemFormatting = (item) => {
+    return item.map(item => ({ItemId : item.ItemId, Quantity : item.qty}));
+  }
+
   const fetchData = async () => {
       showLoading("Menyiapkan data florist...");
 
@@ -39,59 +63,66 @@ const ShopLanding = () => {
         setStoreInfo(dataShop);
 
         // SECTION GET PROVINCE, CITY, DISTRICT =========================================================================
-      const response2 = await fetch(
-        `http://localhost:5000/api/provinces/${dataShop.Address.ProvinceId}`
-      );
-      if (!response.ok) {
-        throw new Error("Gagal mengambil data provinsi");
-      }
-      const dataProv = await response2.json();
-
-      const response3 = await fetch(
-        `http://localhost:5000/api/cities/${dataShop.Address.CityId}`
-      );
-      if (!response2.ok) {
-        throw new Error("Gagal mengambil data kota");
-      }
-      const dataCity = await response3.json();
-      console.log("Hasil pencarian:", dataProv);
-
-      const response4 = await fetch(
-        `http://localhost:5000/api/districts/${dataShop.Address.DistrictId}`
-      );
-      if (!response3.ok) {
-        throw new Error("Gagal mengambil data kecamatan");
-      }
-      const dataDistrict = await response4.json();
-
-      console.log("Hasil pencarian:", dataProv);
-      console.log("Hasil pencarian:", dataCity);
-      console.log("Hasil pencarian:", dataDistrict);
-
-      const addressData = {
-        province: dataProv.provinsi_name,
-        city: dataCity.city_name,
-        district: dataDistrict.district_name
-      }
-
-      setAddressInfo(addressData);
-
-      console.log("infooo ", addressInfo);
-
-      const responseProduct = await fetch(
-          `http://localhost:5000/api/products/shop/${storeId}`
+        const response2 = await fetch(
+          `http://localhost:5000/api/provinces/${dataShop.Address.ProvinceId}`
         );
+        if (!response.ok) {
+          throw new Error("Gagal mengambil data provinsi");
+        }
+        const dataProv = await response2.json();
+
+        const response3 = await fetch(
+          `http://localhost:5000/api/cities/${dataShop.Address.CityId}`
+        );
+        if (!response2.ok) {
+          throw new Error("Gagal mengambil data kota");
+        }
+        const dataCity = await response3.json();
+        console.log("Hasil pencarian:", dataProv);
+
+        const response4 = await fetch(
+          `http://localhost:5000/api/districts/${dataShop.Address.DistrictId}`
+        );
+        if (!response3.ok) {
+          throw new Error("Gagal mengambil data kecamatan");
+        }
+        const dataDistrict = await response4.json();
+
+        console.log("Hasil pencarian:", dataProv);
+        console.log("Hasil pencarian:", dataCity);
+        console.log("Hasil pencarian:", dataDistrict);
+
+        const addressData = {
+          province: dataProv.provinsi_name,
+          city: dataCity.city_name,
+          district: dataDistrict.district_name
+        }
+
+        setAddressInfo(addressData);
+
+        console.log("infooo ", addressInfo);
+
+        const responseProduct = await fetch(
+            `http://localhost:5000/api/products/shop/${storeId}`
+          );
         const dataProduct = await responseProduct.json();
 
         console.log("ini abis hit shop");
         console.log(dataProduct);
         const objects = dataProduct.map((item) => ({
-          key : "p",
+          key : item._id,
           title : item.Name,
           price : item.Price,
           description : item.Memo,
           image : item.Image,
-          truefalse : false
+          truefalse : false,
+          ShopId : dataShop._id,
+          items : Array.isArray(item.ProductDetail)
+    ? item.ProductDetail.map((i) => ({
+        ItemId: i._id,
+        Quantity: i.Quantity
+      }))
+    : []
         }));
         setProducts(objects);
         console.log(products);

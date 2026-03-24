@@ -1,5 +1,6 @@
 import express from "express";
 import Item from "../models/Item.js";
+import mongoose from 'mongoose';
 
 const router = express.Router();
 
@@ -25,11 +26,32 @@ router.get("/shop/:shopId", async (req, res) => {
   try {
     const { shopId } = req.params;
 
-    const items = await Item.find({ ShopId: shopId })
-      .populate("ComponentId")
-      .populate("ShopId");
+    const items = await Item.aggregate([
+      {
+        $match: { 
+          ShopId: new mongoose.Types.ObjectId(shopId)
+          // Price: { $ne: 0 }
+        }
+      },
+      {
+        $group: {
+          _id: "$ComponentId", // grouping berdasarkan ComponentId
+          item: { $first: "$$ROOT" } // ambil 1 item saja
+        }
+      },
+      {
+        $replaceRoot: { newRoot: "$item" } // balik ke format normal
+      }
+    ]);
 
-    res.json(items);
+    // populate manual setelah aggregate
+    const populatedItems = await Item.populate(items, [
+      { path: "ComponentId" },
+      { path: "ShopId" }
+    ]);
+
+    res.json(populatedItems);
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

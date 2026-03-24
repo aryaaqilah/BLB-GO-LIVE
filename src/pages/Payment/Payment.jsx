@@ -238,16 +238,24 @@ function MainSection({
         }
       };
 
-      await postItems(selectedProduct.items);
+      if (selectedProduct.isCustomizable === true){
+          await postItems(selectedProduct.items);
+      }
+      
 
-      console.log("======= collectedIds : ", collectedIds);
-      console.log("======= collectedIds : ", collectedIds[1].tempId);
+      // console.log("======= collectedIds : ", collectedIds);
+      // console.log("======= collectedIds : ", collectedIds[1].tempId);
       const testItem = [{ id: "567890" }];
-      console.log("======= testItem : ", testItem);
+      // console.log("======= testItem : ", testItem);
 
       // SECTION POST PRODUCT =========================================================================
       let productIdTemp = "";
-      if (selectedProduct.isCustomizable && modelScene) {
+      if (selectedProduct.isCustomizable) {
+        const tempIdArray = collectedIds
+        .filter(item => item.tempId) // buang yang kosong {}
+        .map(item => item.tempId);
+
+      console.log(tempIdArray);
         const productPayload = {
           Name: selectedProduct.title,
           Price: productPrice,
@@ -255,12 +263,10 @@ function MainSection({
           Image: selectedProduct.thumbnail,
           ThreeDModel: modelId,
           Memo: selectedProduct.pesan,
-          Items: [
-            collectedIds[1].tempId,
-            collectedIds[2].tempId,
-            collectedIds[3].tempId,
+          ProductDetail: 
+            tempIdArray
             // collectedIds[4].tempId,
-          ],
+          ,
           ShopId : selectedProduct.ShopId,
           IsCustomized : 1
         };
@@ -280,7 +286,7 @@ function MainSection({
 
         productIdTemp = savedProduct._id;
       } else {
-        productIdTemp = "69440c04d3e7dc46622edd26";
+        productIdTemp = selectedProduct.key;
       }
 
       console.log("PRODUCT ID TEMP : ", productIdTemp);
@@ -353,36 +359,41 @@ function MainSection({
       console.log("✅ Token updated:", tokenJson);
 
       window.snap.pay(midtransData.token, {
-      onSuccess: async function (result) {
+      onSuccess: async function () {
+      try {
         showAlert("Pembayaran berhasil!");
 
         const StatusTemp = 0;
 
-        const updateStatus = await fetch(
-          `http://localhost:3000/api/orders/${savedOrder._id}/status-pembayaran`,
+        const response = await fetch(
+          `http://localhost:5000/api/orders/${savedOrder._id}/status-pembayaran`,
           {
             method: "PATCH",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ StatusPembayaran : StatusTemp }),
+            body: JSON.stringify({ StatusPembayaran: StatusTemp }),
           }
         );
 
-        // update order jadi PAID
-        // await fetch(`http://localhost:5000/api/orders/${savedOrder._id}/paid`, {
-        //   method: "PUT",
-        // });
-        await clear();
+        if (!response.ok) {
+          throw new Error("Gagal update status pembayaran");
+        }
+
+        console.log("✅ Status pembayaran berhasil diupdate");
+
+        await clear(); // idb-keyval
+
         navigate("/profile", {
-          // state: {
-          //   selectedProduct,
-          //   orderId: savedOrder._id,
-          // },
-            replace: true,
-            state: null,
+          replace: true,
+          state: null,
         });
-      },
+
+      } catch (error) {
+        console.error("❌ Error onSuccess:", error);
+        showAlert("Terjadi kesalahan setelah pembayaran");
+      }
+    },
 
       onPending: function () {
         showAlert("Menunggu pembayaran...");
@@ -403,7 +414,7 @@ function MainSection({
         const StatusTemp = 1;
         clear();
         const updateStatus = fetch(
-          `http://localhost:3000/api/orders/${savedOrder._id}/status-pembayaran`,
+          `http://localhost:5000/api/orders/${savedOrder._id}/status-pembayaran`,
           {
             method: "PATCH",
             headers: {
@@ -412,7 +423,9 @@ function MainSection({
             body: JSON.stringify({ StatusPembayaran : StatusTemp }),
           }
         );
-                navigate("/profile", {
+
+        updateStatus();
+        navigate("/profile", {
           // state: {
           //   selectedProduct,
           //   orderId: savedOrder._id,
@@ -434,7 +447,6 @@ function MainSection({
             replace: true,
             state: null,
         });
-        
       },
     });
 

@@ -102,7 +102,7 @@ function MainSection({ selectedProduct, modelScene, meta }) {
                 ) : (
                   /* Kondisi B: Menampilkan Gambar */
                   <img
-                    src={`}`}
+                    src={selectedProduct.image}
                     alt="Model Preview"
                     style={{
                       width: "100%",
@@ -232,16 +232,24 @@ export default function Confirmation() {
     window.history.state &&
     window.history.state.usr &&
     window.history.state.usr.selectedProduct;
-  console.log("Selected Product in Confirmation Page:", selectedProduct);
+  // console.log("Selected Product in Confirmation Page:", selectedProduct);
 
   const navigate = useNavigate();
-  useEffect(() => {
-    if (!selectedProduct) {
+
+  const handleEmpty = (meta, selectedProduct) => {
+    if (!meta && !selectedProduct) {
       showAlert("Data produk tidak ditemukan. Silahkan ulangi dari awal.");
 
       navigate("/profile", { replace: true });
     }
-  }, [selectedProduct, navigate]);
+  };
+  // useEffect(() => {
+  //   if (!selectedProduct) {
+  //     showAlert("Data produk tidak ditemukan. Silahkan ulangi dari awal.");
+
+  //     navigate("/profile", { replace: true });
+  //   }
+  // }, [selectedProduct, navigate]);
 
   const [modelScene, setModelScene] = useState(null);
   const [meta, setMeta] = useState(null);
@@ -252,22 +260,32 @@ export default function Confirmation() {
     showLoading("Menyiapkan data ...");
     const loadFromDB = async () => {
       // 1. Ambil Metadata
-      const savedMeta = await getDb("pending_order_meta");
-      setMeta(savedMeta);
+      let savedMetaDB;
+      if(!selectedProduct){
+        savedMetaDB = await getDb("pending_order_meta");
+        setMeta(savedMetaDB);
+      }
+      
+      handleEmpty(savedMetaDB, selectedProduct)
 
-      if (!savedMeta) {
+      if (!savedMetaDB && !selectedProduct) {
         // Jika tidak ada data, arahkan kembali ke customizer
         showAlert("Keranjang kosong, silakan buat desain terlebih dahulu.");
         navigate("/customizer");
         return;
       }
 
-      console.log("Nama Buket : ", savedMeta.modelName);
-      console.log("Question : ", savedMeta.question);
-      console.log("Answer : ", savedMeta.answer);
+      // console.log("Nama Buket : ", meta.modelName);
+      // console.log("Question : ", meta.question);
+      // console.log("Answer : ", meta.answer);
 
       // 2. Ambil Data Model
-      const data = await getDb("pending_order_model");
+      let savedModelDB;
+      if(!selectedProduct){
+        savedModelDB = await getDb("pending_order_model");
+        // setMeta(savedMetaDB);
+      }
+      const data = savedModelDB;
 
       if (data) {
         const loader = new GLTFLoader();
@@ -295,28 +313,30 @@ export default function Confirmation() {
   // const navigate = useNavigate();
   useEffect(() => {
     const loadAndDestroy = async () => {
-      const data = await getDb("pending_order_model");
-      const meta = await getDb("pending_order_meta");
+      if(!selectedProduct){      
+        const data = await getDb("pending_order_model");
+        const meta = await getDb("pending_order_meta");
 
-      if (!data && !selectedProduct) {
-        // Jika tidak ada data, arahkan kembali ke customizer
-        showAlert("Keranjang kosong, silakan buat desain terlebih dahulu.");
-        navigate("/customizer");
-        return;
+        if (!data && !selectedProduct) {
+          // Jika tidak ada data, arahkan kembali ke customizer
+          showAlert("Keranjang kosong, silakan buat desain terlebih dahulu.");
+          navigate("/customizer");
+          return;
+        }
+
+        // 1. Simpan ke State untuk ditampilkan
+        const loader = new GLTFLoader();
+        loader.parse(data, "", (gltf) => {
+          setModelScene(gltf.scene);
+        });
+        setMeta(meta);
+
+        // 2. LANGSUNG HAPUS dari IndexedDB
+        // Sekarang data hanya hidup di memori RAM (React State)
+        // await delDb('pending_order_model');
+        // await delDb('pending_order_meta');
+        console.log("🗑️ Data IndexedDB dihapus demi keamanan.");
       }
-
-      // 1. Simpan ke State untuk ditampilkan
-      const loader = new GLTFLoader();
-      loader.parse(data, "", (gltf) => {
-        setModelScene(gltf.scene);
-      });
-      setMeta(meta);
-
-      // 2. LANGSUNG HAPUS dari IndexedDB
-      // Sekarang data hanya hidup di memori RAM (React State)
-      // await delDb('pending_order_model');
-      // await delDb('pending_order_meta');
-      console.log("🗑️ Data IndexedDB dihapus demi keamanan.");
     };
 
     loadAndDestroy();

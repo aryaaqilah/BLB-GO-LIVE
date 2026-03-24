@@ -2,7 +2,7 @@ import express from "express";
 import Product from "../models/Product.js";
 
 const router = express.Router();
-const POPULATE_FIELDS = ['ThreeDModel', 'Items'];
+const POPULATE_FIELDS = ['ThreeDModel', 'ProductDetail', 'ShopId'];
 
 // 🛍️ Tambah Product Baru (POST /api/products)
 router.post("/", async (req, res) => {
@@ -79,7 +79,7 @@ router.get("/florist/:shopId", async (req, res) => {
 
 router.get("/shop/:shopId", async (req, res) => {
   try {
-    const products = await Product.find({ ShopId: req.params.shopId });
+    const products = await Product.find({ ShopId: req.params.shopId }).populate(POPULATE_FIELDS);
 
     res.json(products);
   } catch (err) {
