@@ -1,5 +1,16 @@
 import express from "express";
 import Order from "../models/Order.js";
+import User from "../models/User.js";
+import Address from "../models/Address.js"
+import Province from "../models/Province.js"
+import City from "../models/City.js"
+import District from "../models/District.js"
+import PostalCode from "../models/PostalCode.js"
+import Delivery from "../models/Delivery.js"
+import Product from "../models//Product.js"
+import ThreeDModel from "../models/3DModel.js"
+import Item from "../models/Item.js"
+import AdministrationFee from "../models/AdministrationFee.js";
 
 const router = express.Router();
 const POPULATE_FIELDS = ['AddressId', 'DeliveryId', 'ProductId', 'AdministrationFee', 'DiscountId'];
@@ -46,6 +57,50 @@ router.delete("/:id", async (req, res) => {
     if (!order) return res.status(404).json({ error: "Order not found" });
     res.status(204).send();
   } catch (err) { res.status(400).json({ error: err.message }); }
+});
+
+router.get("/florist/:id", async (req, res) => {
+  try {
+    const orders = await Order.find({ "ShopId": req.params.id }).populate([
+          { 
+            path: "UserId", 
+            model: User 
+          },
+          { 
+            path: "AddressId", 
+            model: Address,
+            populate: [
+              { path: "ProvinceId", model: Province },
+              { path: "CityId", model: City },
+              { path: "DistrictId", model: District },
+              { path: "PostalCodeId", model: PostalCode }
+            ]
+          },
+          {
+            path: "DeliveryId",
+            model: Delivery
+          },
+          {
+            path: "ProductId",
+            model: Product,
+            populate: [
+              { path: "ThreeDModel", model: ThreeDModel },
+              { path: "Items", model: Item }
+            ]
+          },
+          {
+            path: "AdministrationFee",
+            model: AdministrationFee
+          }
+        ]).sort({ CreatedAt: -1 });
+
+    if (!orders) return res.status(404).json({ error: "No orders found for this florist" });
+    
+    res.json(orders);
+  } catch (err) {
+    console.error("Florist Orders Error:", err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 export default router;

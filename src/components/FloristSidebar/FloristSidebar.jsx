@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthContext";
 import { useAlert } from "../../contexts/AlertContext";
-import { FaSignOutAlt, FaBars, FaTimes } from "react-icons/fa";
+import { FaSignOutAlt, FaBars, FaTimes, FaUser } from "react-icons/fa"; // Tambahkan FaUserCircle
 import Logo from "../../assets/Logo/Logo_Primary_Light.png";
 import "./FloristSidebar.css";
 
@@ -43,8 +43,9 @@ const FloristSidebar = () => {
             <img src={Logo} alt="Logo" />
           </div>
 
+          {/* Bagian Profil diubah menjadi hanya Icon User Putih */}
           <div className="FloristProfileBouquet">
-            <img src="https://i.pravatar.cc/150?u=alexa" alt="Avatar" className="FloristPetalAvatar" />
+            <FaUser className="FloristPetalIcon" />
             <div className="FloristSeedInfo">
               <h4 className="p2 weight-semibold">{user?.Name || "Alexa Rawles"}</h4>
               <p className="p3">{user?.email || "alexarawles@gmail.com"}</p>
@@ -64,7 +65,7 @@ const FloristSidebar = () => {
               className={({ isActive }) => isActive ? "PetalTab active" : "PetalTab"}
               onClick={closeGarden}
             >
-              Produk
+              Stok
             </NavLink>
             <NavLink 
               to="/manage-orders" 

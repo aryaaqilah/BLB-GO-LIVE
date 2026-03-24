@@ -102,6 +102,11 @@
   z-index: 999;
 }
 
+.FloristPetalIcon {
+  width: 2rem;
+  height: auto;
+}
+
 @media (max-width: 1024px) {
   .FloristGardenNav {
     width: 280px;
@@ -144,5 +149,14 @@
 
   .FloristGardenNav.bloom {
     transform: translateX(0);
+  }
+  
+  .FloristPetalIcon {
+    width: 1rem;
+    height: auto;
+  }
+  
+  .FloristProfileBouquet {
+    margin-bottom: 2rem;
   }
 }

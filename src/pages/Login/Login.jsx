@@ -72,7 +72,6 @@ export default function Login() {
       if (response.ok) {
         login(responseData);
         
-        // REDIRECTION LOGIC BASED ON ROLE/TABLE
         if (responseData.userType === "florist") {
           navigate("/dashboard");
         } else {

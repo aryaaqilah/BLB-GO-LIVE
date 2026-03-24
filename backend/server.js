@@ -10,6 +10,7 @@ import userRoutes from "./routes/UserRoutes.js";
 import orderRoutes from "./routes/OrderRoutes.js";
 import productRoutes from "./routes/ProductRoutes.js";
 import addressRoutes from "./routes/AddressRoutes.js";
+import ratingRoutes from "./routes/RatingRoutes.js";
 // Catatan: Saya asumsikan design3DRoutes adalah untuk model 3DModel/3DModelRoutes.js
 import design3DRoutes from "./routes/3dModelRoutes.js"; // Menggunakan nama yang Anda berikan (design3DRoutes)
 
@@ -53,7 +54,8 @@ app.use("/api/users", userRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/addresses", addressRoutes);
-app.use("/api/design3d", design3DRoutes); // Mapped to 3DModel routes
+app.use("/api/design3d", design3DRoutes);
+app.use('/api/ratings', ratingRoutes);
 
 // Routes Detail dan Geografis
 app.use("/api/items", itemRoutes);

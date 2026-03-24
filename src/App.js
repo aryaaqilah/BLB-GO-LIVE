@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useLocation, Navigate, Outlet } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate, Outlet } from "react-router-dom";
 import React from "react";
 import Navbar from "./components/Navbar/NavBar";
 import FloristSidebar from "./components/FloristSidebar/FloristSidebar";
@@ -25,14 +25,32 @@ import { AlertProvider } from './contexts/AlertContext';
 import { LoadingProvider } from './contexts/LoadingContext';
 import "./App.css"
 
-const NotFound = () => (
-  <div style={{ padding: "100px", textAlign: "center", minHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
-    <h1 className="h1 txt-color-primary">404</h1>
-    <h2 className="h2">Halaman Tidak Ditemukan</h2>
-    <p className="p1" style={{ margin: "20px 0" }}>Maaf, halaman yang Anda cari tidak ada atau Anda tidak memiliki akses.</p>
-    <a href="/" className="txt-color-primary weight-bold">Kembali ke Beranda</a>
-  </div>
-);
+const NotFound = () => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleBackAndLogout = (e) => {
+    e.preventDefault();
+    logout();
+    navigate("/");
+  };
+
+  return (
+    <div style={{ padding: "100px", textAlign: "center", minHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
+      <h1 className="h1 txt-color-primary">404</h1>
+      <h2 className="h2">Halaman Tidak Ditemukan</h2>
+      <p className="p1" style={{ margin: "20px 0" }}>Maaf, halaman yang Anda cari tidak ada atau Anda tidak memiliki akses.</p>
+      <a 
+        href="/" 
+        onClick={handleBackAndLogout} 
+        className="txt-color-primary weight-bold"
+        style={{ cursor: 'pointer', textDecoration: 'none' }}
+      >
+        Kembali ke Beranda
+      </a>
+    </div>
+  );
+};
 
 const CustomerLayout = ({ isFlorist }) => {
   const location = useLocation();
@@ -54,7 +72,7 @@ const CustomerLayout = ({ isFlorist }) => {
 };
 
 const FloristLayout = ({ isFlorist }) => {
-  if (isFlorist) return <NotFound />;
+  if (!isFlorist) return <NotFound />;
 
   return (
     <div className="AppFloristLayout">
@@ -68,7 +86,7 @@ const FloristLayout = ({ isFlorist }) => {
 
 function AppContent() {
   const { user } = useAuth();
-  const isFlorist = user?.userType === 'florist';
+  const isFlorist = user?.userType == 'florist';
 
   return (
     <>

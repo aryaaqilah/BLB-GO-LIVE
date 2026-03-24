@@ -56,7 +56,9 @@ h3,
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .p1 {
@@ -741,7 +743,7 @@ h3,
 }
 
 .TernaryBackButton {
-  background: #A95C4C;
+  background: #a95c4c;
   border: none;
   border-radius: 50%;
   color: white;
@@ -2948,102 +2950,6 @@ h3,
   transition: 0.3s ease;
 }
 
-/* FLORIST SIDEBAR */
-.FloristSidebarNav {
-  width: 320px;
-  background-color: var(--color-ternary);
-  padding: 2.5rem 1.5rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  position: fixed;
-  height: 100vh;
-  left: 0;
-  top: 0;
-  z-index: 1000;
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.FloristBloomHeader {
-  display: none;
-}
-
-.FloristLogoBouquet img {
-  width: 150px;
-  margin-bottom: 3.5rem;
-}
-
-.FloristProfileBloom {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 3rem;
-  color: white;
-}
-
-.FloristAvatarPetal {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--color-background-light);
-}
-
-.FloristInfoSeed p {
-  opacity: 0.7;
-}
-
-.FloristNavVine {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.FloristPetalTab {
-  background: rgba(255, 255, 255, 0.05);
-  color: white;
-  padding: 1.1rem 1.5rem;
-  border-radius: 15px;
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  text-decoration: none;
-  transition: all 0.3s ease;
-}
-
-.FloristActivePetal {
-  background-color: var(--color-background-light);
-  color: var(--color-ternary) !important;
-  font-weight: 700;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-.FloristLogoutPetal {
-  background-color: var(--color-primary);
-  color: white;
-  border: none;
-  padding: 1.1rem;
-  border-radius: 15px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  font-family: inherit;
-  font-size: 1rem;
-}
-
-.FloristMistOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  z-index: 999;
-}
-
 /* SHOP LANDING */
 .ShopLandingContainer {
   padding: 4rem 2rem;
@@ -3056,7 +2962,7 @@ h3,
   align-items: center;
   gap: 2.5rem;
   padding: 2rem 0 3.5rem 0;
-  border-bottom: 1px solid #F0E9E2;
+  border-bottom: 1px solid #f0e9e2;
   margin-bottom: 4rem;
 }
 
@@ -3065,7 +2971,7 @@ h3,
   height: 130px;
   border-radius: 15px;
   object-fit: contain;
-  background-color: #F9F7F5;
+  background-color: #f9f7f5;
   border: 1px solid #eee;
   padding: 15px;
 }
@@ -3104,7 +3010,7 @@ h3,
   .ShopLandingContainer {
     padding: 2rem 1.5rem;
   }
-  
+
   .ShopLandingHeader {
     flex-direction: column;
     align-items: flex-start;
@@ -3136,6 +3042,7 @@ h3,
   margin-bottom: 2rem;
 }
 
+/* STATS GRID */
 .FloristStatsGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -3165,21 +3072,50 @@ h3,
   font-size: 1.3rem;
 }
 
-.FloristSageBackground { background-color: #93A099; }
-.FloristRoseBackground { background-color: #B38D89; }
-.FloristTanBackground { background-color: #B0ACA1; }
+.FloristSageBackground {
+  background-color: #93a099;
+}
+.FloristRoseBackground {
+  background-color: #b38d89;
+}
+.FloristTanBackground {
+  background-color: #b0aca1;
+}
 
+/* TABS SYSTEM */
+.FloristTabContainer {
+  display: flex;
+  margin-bottom: -1px;
+}
+
+.FloristTabItem {
+  padding: 0.8rem 2.5rem;
+  border: none;
+  border-radius: 1svh;
+  cursor: pointer;
+  font-family: "Playfair Display", serif;
+  font-size: 1rem;
+  background-color: #a0a4a3;
+  color: white;
+  transition: 0.3s ease;
+}
+
+.FloristTabActive {
+  background-color: #3e4a49; /* Active tab matches ternary color */
+}
+
+/* TABLE SECTION */
 .FloristOrdersTableSection {
-  background-color: #ECE4DB;
-  border-radius: 20px;
-  padding: 2.5rem;
+  background-color: #ece4db;
+  border-radius: 1svh; /* Adjusted top-left for tabs */
+  padding: 1.5rem 2.5rem;
+  margin-bottom: 2rem;
 }
 
 .FloristOrdersHeader {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2.5rem;
+  justify-content: flex-start;
+  margin-bottom: 1.5rem;
 }
 
 .FloristTableResponsive {
@@ -3191,8 +3127,7 @@ h3,
 .FloristMainTable {
   width: 100%;
   border-collapse: collapse;
-  /* Adjust this value to ensure content has enough space to not squash */
-  min-width: 750px; 
+  min-width: 800px; /* Ensures enough room for content */
 }
 
 .FloristMainTable th {
@@ -3200,6 +3135,7 @@ h3,
   padding: 1rem;
   color: #444;
   border-bottom: 2px solid white;
+  white-space: nowrap;
 }
 
 .FloristMainTable td {
@@ -3219,7 +3155,7 @@ h3,
   height: 40px;
   border-radius: 50%;
   background: #ccc;
-  background-image: url('https://i.pravatar.cc/150?u=a');
+  background-image: url("https://i.pravatar.cc/150?u=a");
   background-size: cover;
   flex-shrink: 0;
 }
@@ -3229,20 +3165,69 @@ h3,
   border-radius: 50px;
   font-size: 0.75rem;
   font-weight: 700;
-  /* Prevents the text from wrapping or being cut off */
-  white-space: nowrap; 
+  white-space: nowrap;
   display: inline-block;
 }
 
-.FloristStatusDone { background-color: #D1FAE5; color: #10B981; }
-.FloristStatusShipping { background-color: #FEE2E2; color: #EF4444; }
+.FloristStatusDone {
+  background-color: #d1fae5;
+  color: #10b981;
+}
+.FloristStatusShipping {
+  background-color: #fee2e2;
+  color: #ef4444;
+}
+
+/* PAGINATION */
+.FloristPagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 1.5rem;
+}
+
+.FloristPagNum,
+.FloristPagArrow {
+  background: white;
+  border: 1px solid #ddd;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: 0.2s ease;
+}
+
+.FloristPagActive {
+  background-color: white !important;
+  border: 2px solid var(--color-ternary);
+  font-weight: bold;
+}
+
+.FloristPagDots {
+  color: #888;
+}
 
 /* RESPONSIVE LOGIC */
 @media (max-width: 1024px) {
-  .MainFloristContent { margin-left: 260px; }
-  .FloristSidebarNav { width: 260px; }
-  .FloristStatsGrid { gap: 1rem; }
-  .FloristStatCard { padding: 1.5rem; flex-direction: column; text-align: center; }
+  .MainFloristContent {
+    margin-left: 260px;
+  }
+  .FloristSidebarNav {
+    width: 260px;
+  }
+  .FloristStatsGrid {
+    gap: 1rem;
+  }
+  .FloristStatCard {
+    padding: 1.5rem;
+    flex-direction: column;
+    text-align: center;
+  }
 }
 
 @media (max-width: 768px) {
@@ -3261,7 +3246,9 @@ h3,
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   }
 
-  .FloristLogoBouquet { display: none; }
+  .FloristLogoBouquet {
+    display: none;
+  }
 
   .FloristSidebarNav {
     transform: translateX(-100%);
@@ -3270,7 +3257,9 @@ h3,
     left: 0;
   }
 
-  .FloristSidebarNav.FloristBloomOpen { transform: translateX(0); }
+  .FloristSidebarNav.FloristBloomOpen {
+    transform: translateX(0);
+  }
 
   .MainFloristContent {
     margin-left: 0;
@@ -3278,12 +3267,220 @@ h3,
     width: 100%;
   }
 
-  .FloristStatsGrid { grid-template-columns: 1fr; }
-  .FloristOrdersHeader { flex-direction: column; align-items: flex-start; gap: 1rem; }
-  
-  .FloristMainTable th, 
-  .FloristMainTable td { 
-    font-size: 0.85rem; 
-    padding: 0.75rem 0.5rem; 
+  .FloristTabItem {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+    flex: 1;
+    text-align: center;
+  }
+
+  .FloristStatsGrid {
+    grid-template-columns: 1fr;
+  }
+  .FloristOrdersTableSection {
+    padding: 1.25rem;
+  }
+  .FloristOrdersHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .FloristMainTable th,
+  .FloristMainTable td {
+    font-size: 0.85rem;
+    padding: 0.75rem 0.5rem;
+  }
+}
+
+/* ============================================================
+   RATING SECTION (PascalCase)
+   ============================================================ */
+
+.RatingInputSection {
+  background-color: #faf8f6; /* Beige sangat muda */
+  padding: 0.5rem;
+  border-radius: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px dashed var(--color-primary);
+  text-align: center;
+}
+
+.RatingInputSection h3 {
+  margin-bottom: 1rem;
+  color: var(--color-ternary);
+}
+
+.RatingDivider {
+  width: 100%;
+  border: 0;
+  border-top: 1px solid #eee;
+}
+
+.StarContainer {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.StarIcon {
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
+}
+
+.StarIcon:hover {
+  transform: scale(1.1);
+}
+
+.RatingTextarea {
+  width: 100%;
+  max-width: 50%;
+  min-height: 5rem;
+  padding: 1.2rem;
+  border: 1px solid #d4c4b5;
+  border-radius: 15px;
+  font-family: inherit;
+  font-size: 1rem;
+  outline: none;
+  resize: vertical;
+  background-color: white;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.RatingTextarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(165, 87, 73, 0.1);
+}
+
+/* Tombol Kirim Ulasan (Jika ingin custom diluar button-primary) */
+.RatingSubmitButton {
+  width: fit-content !important;
+  padding: 0.8rem 2.5rem !important;
+  border-radius: 50px !important;
+}
+
+/* ============================================================
+   REACTIVE RATING
+   ============================================================ */
+
+@media (max-width: 600px) {
+  .RatingInputSection {
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .StarIcon {
+    font-size: 2.2rem;
+  }
+
+  .RatingTextarea {
+    font-size: 0.9rem;
+    min-height: 100px;
+  }
+}
+
+.InventoryFooterContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2rem;
+}
+
+.InventoryActionButtons {
+  display: flex;
+  gap: 1rem;
+}
+
+.InventoryBtnDelete {
+  background-color: var(--color-ternary);
+  color: white;
+  border: none;
+  padding: 0.7rem 2.5rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.InventoryBtnAdd {
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 0.7rem 2.5rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* Checkbox Style */
+.FloristMainTable input[type="checkbox"] {
+  accent-color: var(--color-primary);
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .InventoryFooterContainer {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .InventoryActionButtons {
+    width: 100%;
+  }
+  .InventoryActionButtons button {
+    flex: 1;
+  }
+}
+
+/* WRAPPER SEARCH BAR */
+.FloristSearchWrapper {
+  background-color: white;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px; /* Membuat sudut membulat halus */
+  width: 320px; /* Ukuran tetap agar rapi */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02); /* Shadow sangat tipis */
+  border: 1px solid transparent;
+  transition: border-color 0.3s ease;
+}
+
+/* EFEK SAAT INPUT DIKLIK */
+.FloristSearchWrapper:focus-within {
+  border-color: var(--color-primary);
+}
+
+/* ICON DI DALAM SEARCH */
+.FloristSearchIcon {
+  color: #aaaaaa;
+  font-size: 1rem;
+}
+
+/* INPUT TEXT NYA */
+.FloristSearchInput {
+  border: none;
+  outline: none; /* Menghilangkan garis biru default */
+  width: 100%;
+  font-family: "Playfair Display", serif;
+  font-size: 0.95rem;
+  color: var(--color-ternary);
+  background-color: transparent;
+}
+
+/* Placeholder styling */
+.FloristSearchInput::placeholder {
+  color: #cccccc;
+}
+
+@media (max-width: 600px) {
+  .FloristSearchWrapper {
+    width: 100%; /* Full width di mobile */
   }
 }

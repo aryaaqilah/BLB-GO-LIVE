@@ -7,7 +7,7 @@ const productSchema = new mongoose.Schema({
   Image: { type: String, required: true },
   ThreeDModel : { type: mongoose.Schema.Types.ObjectId, ref: '3DModel', required: false },
   Memo: { type: String, required: false },
-  Items: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item', required: false }],
+  Items: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item', required: true }],
   Shop: { type: mongoose.Schema.Types.ObjectId, ref: 'Shop', required: true }
 });
 
