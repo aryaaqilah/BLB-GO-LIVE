@@ -23,7 +23,7 @@ router.post("/create-transaction", async (req, res) => {
       },
 
     callbacks: {
-        // finish: "http://localhost:3000/profile",
+        finish: "http://localhost:3000/profile",
         error: "http://localhost:3000/payment-failed",
         pending: "http://localhost:3000/payment-pending",
     },

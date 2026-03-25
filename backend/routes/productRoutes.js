@@ -72,6 +72,16 @@ router.post("/", upload.single("Image"), async (req, res) => {
   }
 });
 
+router.post("/payment", async (req, res) => {
+  try {
+    const product = new Product(req.body);
+    console.log(product);
+    await product.save();
+    res.status(201).json(product);
+  } catch (err) { res.status(400).json({ error: err.message })
+  };
+});
+
 // ✏️ PUT: Update Produk
 router.put("/:id", upload.single("Image"), async (req, res) => {
   try {

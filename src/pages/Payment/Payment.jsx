@@ -273,7 +273,7 @@ function MainSection({
 
         console.log("PRODUCT PAYLOAD : ", productPayload);
 
-        const productRes = await fetch("http://localhost:5000/api/products", {
+        const productRes = await fetch("http://localhost:5000/api/products/payment", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(productPayload),

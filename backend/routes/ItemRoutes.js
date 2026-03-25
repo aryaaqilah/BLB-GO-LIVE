@@ -26,7 +26,8 @@ router.get("/shop/:shopId", async (req, res) => {
     const items = await Item.aggregate([
       {
         $match: { 
-          ShopId: new mongoose.Types.ObjectId(shopId)
+          ShopId: new mongoose.Types.ObjectId(shopId),
+          ComponentId : {$ne : null}
           // Price: { $ne: 0 }
         }
       },
