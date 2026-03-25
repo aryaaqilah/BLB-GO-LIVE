@@ -11,8 +11,8 @@ import ThreeDModel from "../models/3DModel.js"
 import Order from "../models/Order.js"
 import Item from "../models/Item.js"
 import AdministrationFee from "../models/AdministrationFee.js";
-import Discount from "../models/Discount.js";
 import Shop from "../models/Shop.js"
+import ProductDetail from "../models/ProductDetail.js"
 
 const router = express.Router();
 
@@ -142,8 +142,7 @@ router.get("/orders/:id", async (req, res) => {
         populate: [
           { path: "ProvinceId", model: Province },
           { path: "CityId", model: City },
-          { path: "DistrictId", model: District },
-          { path: "PostalCodeId", model: PostalCode }
+          { path: "DistrictId", model: District }
         ]
       },
       {
@@ -155,16 +154,21 @@ router.get("/orders/:id", async (req, res) => {
         model: Product,
         populate: [
           { path: "ThreeDModel", model: ThreeDModel },
-          { path: "Items", model: Item }
+          { 
+            path: "ProductDetail", 
+            model: ProductDetail,
+            populate: [
+              {
+                path: "ItemId",
+                model: Item,
+              }
+            ]
+         }
         ]
       },
       {
         path: "AdministrationFee",
         model: AdministrationFee
-      },
-      {
-        path: "DiscountId",
-        model: Discount
       }
     ]).sort({ CreatedAt: -1 });
     const userResponse = user.toObject();

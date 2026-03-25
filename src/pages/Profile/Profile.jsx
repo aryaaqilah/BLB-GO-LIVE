@@ -50,18 +50,22 @@ const Profile = () => {
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("id-ID", {
       style: "currency",
       currency: "IDR",
-      minimumFractionDigits: 2,
-    }).format(amount).replace("Rp.", "Rp. ");
+      minimumFractionDigits: 0,
+    }).format(amount);
   };
 
   const mapOrderToPresentation = (order) => {
     if (!order || !order.ProductId || !order.AddressId || !order.DeliveryId) return null;
 
     const statusProfileLabels = {
-      0: "Pesanan Dibuat", 1: "Pembayaran Berhasil", 2: "Pesanan Disiapkan", 3: "Pesanan Dikirim", 4: "Pesanan Tiba",
+      0: "Pesanan Dibuat", 
+      1: "Pembayaran Berhasil", 
+      2: "Pesanan Disiapkan", 
+      3: "Pesanan Dikirim", 
+      4: "Pesanan Tiba",
     };
 
     const addressParts = [
@@ -69,31 +73,43 @@ const Profile = () => {
       order.AddressId?.DistrictId?.district_name,
       order.AddressId?.CityId?.city_name,
       order.AddressId?.ProvinceId?.province_name,
-      order.AddressId?.PostalCodeId,
     ].filter(Boolean);
 
-    const threeDId = order.ProductId?.ThreeDModel?._id || order.ProductId?.ThreeDModel || "";
+    // Proses Detail Produk (Rincian Item)
+    const itemsDetails = order.ProductId?.ProductDetail?.map(detail => {
+      const itemName = detail.ItemId?.Name || "Item";
+      const qty = detail.Quantity || 0;
+      return `${itemName} (x${qty})`;
+    }) || [];
+
+    console.log(itemsDetails)
 
     return {
       orderId: order._id || "N/A",
       statusInt: typeof order.Status === "number" ? order.Status : 0,
-      status: statusProfileLabels[order.Status] || "Pesanan Dibuat",
-      recipientName: order.AddressId?.recipientName || "Guest",
+      status: statusProfileLabels[order.Status] || "Diproses",
+      
+      recipientName: order.AddressId?.RecipientName || "Guest",
       recipientPhone: order.AddressId?.RecipientNumber || "-",
       fullAddress: addressParts.length > 0 ? addressParts.join(", ") : "Alamat tidak tersedia",
+      
       shippingCode: order.DeliveryId?.ShippingCode || "-",
       deliveryService: order.DeliveryId?.Service || "Standard",
       estimatedArrival: formatDate(order.DeliveryId?.EstimatedArrival),
-      productName: order.ProductId?.Name || "Unknown Product",
+      
+      productName: order.ProductId?.Name || "Customized Bouquet",
       productImageUrl: order.ProductId?.Image || "",
       quantity: order.ProductId?.Quantity || 1,
-      customizationDetails: order.ProductId?.Description ? order.ProductId.Description.split("\n") : [],
-      subtotalProduct: formatCurrency((order.ProductId?.Price || 0) * (order.ProductId?.Quantity || 1)),
-      shippingFee: formatCurrency(5.0),
-      serviceFee: formatCurrency(2.0),
-      discount: formatCurrency(-2.0),
+      customizationDetails: itemsDetails,
+      
+      // Biaya-biaya
+      subtotalProduct: formatCurrency(order.ProductPrice),
+      shippingFee: formatCurrency(order.DeliveryId?.Price || 0),
+      serviceFee: formatCurrency(order.AdministrationFee?.Fee || 0),
       totalOrder: formatCurrency(order.Total || 0),
-      threeDPath: threeDId,
+      
+      threeDPath: order.ProductId?.ThreeDModel?.Path || "",
+      customerRequestNote: order.Notes || "Tidak ada catatan"
     };
   };
 
@@ -102,6 +118,7 @@ const Profile = () => {
     setProfileState(prev => ({ ...prev, loading: true, error: false }));
     
     try {
+      // Backend harus melakukan deep populate: ProductId -> ProductDetail -> ItemId
       const response = await fetch(`http://localhost:5000/api/users/orders/${user._id}`);
       if (!response.ok) throw new Error();
       const data = await response.json();

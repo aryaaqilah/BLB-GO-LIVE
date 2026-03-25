@@ -3030,10 +3030,15 @@ h3,
 
 /* FLORIST DASHBOARD */
 .FloristDashboardContainer {
-  padding: 2.5rem;
-  max-width: 1400px;
-  margin: 0 auto;
-}
+    padding: 1rem;
+  }
+  .FloristOrdersTableSection {
+    padding: 1.5rem 1rem;
+  }
+  .InventoryFooterContainer {
+    flex-direction: column;
+    align-items: center;
+  }
 
 .FloristDashboardTitle {
   color: var(--color-primary);
@@ -3121,26 +3126,28 @@ h3,
 .FloristTableResponsive {
   width: 100%;
   overflow-x: auto;
+  background-color: transparent;
   -webkit-overflow-scrolling: touch;
+  margin-top: 1rem;
 }
 
 .FloristMainTable {
   width: 100%;
   border-collapse: collapse;
-  min-width: 800px; /* Ensures enough room for content */
+  min-width: 900px; /* Ukuran minimal agar konten tidak bertumpuk */
+  table-layout: auto;
 }
 
 .FloristMainTable th {
   text-align: left;
-  padding: 1rem;
-  color: #444;
+  padding: 1.2rem 1rem;
   border-bottom: 2px solid white;
   white-space: nowrap;
 }
 
 .FloristMainTable td {
-  padding: 1.25rem 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+  padding: 1.2rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
   vertical-align: middle;
 }
 
@@ -3390,6 +3397,8 @@ h3,
   justify-content: space-between;
   align-items: center;
   margin-top: 2rem;
+  flex-wrap: wrap;
+  gap: 1.5rem;
 }
 
 .InventoryActionButtons {
@@ -3483,4 +3492,361 @@ h3,
   .FloristSearchWrapper {
     width: 100%; /* Full width di mobile */
   }
+}
+
+.FloristManageItemContainer {
+  padding: 3rem 10%;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+.FloristManageItemTitle {
+  font-family: "Playfair Display", serif;
+  color: var(--color-primary);
+  margin-bottom: 2.5rem;
+  font-size: 1.8rem;
+}
+
+.FloristManageItemFormSection {
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.FloristManageItemInputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.FloristManageItemInputGroup label {
+  font-family: "Playfair Display", serif;
+  font-size: 1rem;
+  color: var(--color-ternary);
+}
+
+.FloristManageItemInputGroup input {
+  background-color: #ECE4DB;
+  border: 1px solid #D4C4B5;
+  border-radius: 12px;
+  padding: 0.8rem 1.2rem;
+  font-family: inherit;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.FloristManageItemInputGroup input:focus {
+  border-color: var(--color-primary);
+}
+
+.FloristManageItemAssetPicker {
+  background-color: #ECE4DB;
+  border: 1px dashed #A65E4E;
+  border-radius: 15px;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.FloristIconUpload {
+  font-size: 1.5rem;
+  color: #7d796e;
+}
+
+.FloristSelectedAssetInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-ternary);
+  font-weight: bold;
+}
+
+.FloristIconSuccess {
+  color: #2ecc71;
+}
+
+.FloristComponentSelectionList {
+  background-color: #f9f9f9;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+}
+
+.FloristComponentGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+  margin-top: 1rem;
+}
+
+.FloristComponentCard {
+  background: white;
+  border: 1px solid #eee;
+  padding: 1rem;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: 0.2s;
+}
+
+.FloristComponentCard:hover {
+  border-color: var(--color-primary);
+  transform: scale(1.03);
+}
+
+.FloristNullCard {
+  color: #888;
+  border-style: dashed;
+  justify-content: center;
+}
+
+.FloristManageItemRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.FloristManageItemAction {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.FloristManageItemSubmitBtn {
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 0.8rem 4rem;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.FloristAssetDropdown {
+  background-color: #ECE4DB;
+  border: 1px solid #D4C4B5;
+  border-radius: 12px;
+  padding: 0.8rem 1.2rem;
+  font-family: inherit;
+  font-size: 1rem;
+  outline: none;
+  cursor: pointer;
+  appearance: none; /* Hilangkan arrow default */
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23a55749' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1.2em;
+}
+
+.FloristSelectedAssetPreview {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background-color: #FAF8F6;
+  border: 1px solid #E8DFD3;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+.PreviewImageFrame {
+  width: 80px;
+  height: 80px;
+  background-color: white;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #eee;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.PreviewImageFrame img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.PreviewInfo {
+  flex: 1;
+}
+
+.RemoveAssetBtn {
+  background: none;
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.RemoveAssetBtn:hover {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+@media (max-width: 600px) {
+  .FloristManageItemRow {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  .FloristManageItemContainer {
+    padding: 2rem 5%;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.FloristManageBouquetContainer {
+  padding: 3rem 5%;
+  max-width: 1000px;
+  margin: auto;
+}
+
+.FloristManageBouquetTitle {
+  font-family: "Playfair Display", serif;
+  color: var(--color-primary);
+  margin-bottom: 2rem;
+}
+
+.FloristManageBouquetForm {
+  background: white;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.FloristInputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.FloristInputGroup label {
+  font-weight: 600;
+  color: var(--color-ternary);
+}
+
+.FloristInputGroup input, 
+.FloristInputGroup textarea, 
+.FloristItemDropdown {
+  background-color: #ECE4DB;
+  border: 1px solid #D4C4B5;
+  border-radius: 12px;
+  padding: 0.8rem 1rem;
+  font-family: inherit;
+  outline: none;
+}
+
+.FloristImageUploader {
+  background-color: #ECE4DB;
+  border: 2px dashed #A65E4E;
+  border-radius: 15px;
+  height: 180px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.PreviewImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.UploadIcon {
+  font-size: 2rem;
+  color: var(--color-primary);
+}
+
+/* ITEM LIST STYLING */
+.SelectedItemsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.ItemRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #F3EEE9;
+  padding: 0.8rem 1.2rem;
+  border-radius: 10px;
+}
+
+.ItemActions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.ItemActions input {
+  width: 60px;
+  padding: 0.3rem !important;
+  text-align: center;
+}
+
+.DeleteIcon {
+  color: #e74c3c;
+  cursor: pointer;
+}
+
+.FloristManageBouquetRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.FloristActionCenter {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.FloristSubmitBtn {
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 1rem 4rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.AutoPriceBox {
+  background-color: #ECE4DB;
+  border: 1px solid var(--color-primary);
+  border-radius: 12px;
+  padding: 0.8rem 1rem;
+  font-family: inherit;
+  font-weight: bold;
+  color: var(--color-primary);
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .FloristManageBouquetRow { grid-template-columns: 1fr; }
+  .FloristManageBouquetContainer { padding: 1rem 5%; }
 }

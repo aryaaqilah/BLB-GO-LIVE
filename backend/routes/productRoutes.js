@@ -1,44 +1,129 @@
 import express from "express";
+import multer from "multer";
+import path from "path";
 import Product from "../models/Product.js";
+import ProductDetail from "../models/ProductDetail.js";
 
 const router = express.Router();
 const POPULATE_FIELDS = ['ThreeDModel', 'ProductDetail', 'ShopId'];
 
-// 🛍️ Tambah Product Baru (POST /api/products)
-router.post("/", async (req, res) => {
+const storage = multer.diskStorage({
+  destination: "uploads/",
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  }
+});
+const upload = multer({ storage });
+
+// FUNGSI HELPER (Pastikan nama konsisten)
+const processDetails = async (detailsString) => {
+  if (!detailsString) return [];
+  const details = JSON.parse(detailsString); 
+  const detailIds = [];
+  for (const d of details) {
+    const newD = new ProductDetail({ 
+      ItemId: d.ItemId, 
+      Quantity: d.Quantity 
+    });
+    const savedD = await newD.save();
+    detailIds.push(savedD._id);
+  }
+  return detailIds;
+};
+
+// 🗑️ Bulk Delete
+router.delete("/bulk-delete", async (req, res) => {
   try {
-    const product = new Product(req.body);
-    console.log(product);
-    await product.save();
-    res.status(201).json(product);
-  } catch (err) { res.status(400).json({ error: err.message }); }
+    const { ids } = req.body;
+    const products = await Product.find({ _id: { $in: ids } });
+    for (const p of products) {
+      if (p.ProductDetail) await ProductDetail.deleteMany({ _id: { $in: p.ProductDetail } });
+    }
+    await Product.deleteMany({ _id: { $in: ids } });
+    res.json({ message: "Produk berhasil dihapus" });
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 🛒 Ambil Semua Product (GET /api/products)
-router.get("/", async (req, res) => {
+// 🛍️ POST: Tambah Produk
+router.post("/", upload.single("Image"), async (req, res) => {
   try {
-    const products = await Product.find().populate(POPULATE_FIELDS);
+    // Gunakan req.body secara langsung, multer sudah memprosesnya
+    if (!req.body.ProductDetail) {
+      return res.status(400).json({ error: "ProductDetail is required" });
+    }
+
+    const detailIds = await processDetails(req.body.ProductDetail);
+    
+    const newProduct = new Product({
+      Name: req.body.Name,
+      Price: Number(req.body.Price),
+      Quantity: Number(req.body.Quantity),
+      Memo: req.body.Memo,
+      ShopId: req.body.ShopId,
+      IsCustomized: 0,
+      ProductDetail: detailIds,
+      Image: req.file ? `/uploads/${req.file.filename}` : ""
+    });
+
+    await newProduct.save();
+    res.status(201).json(newProduct);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// ✏️ PUT: Update Produk
+router.put("/:id", upload.single("Image"), async (req, res) => {
+  try {
+    const oldProduct = await Product.findById(req.params.id);
+    if (!oldProduct) return res.status(404).json({ error: "Product not found" });
+
+    let detailIds = oldProduct.ProductDetail;
+
+    if (req.body.ProductDetail) {
+      // Hapus yang lama
+      if (oldProduct.ProductDetail.length > 0) {
+        await ProductDetail.deleteMany({ _id: { $in: oldProduct.ProductDetail } });
+      }
+      // Buat yang baru
+      detailIds = await processDetails(req.body.ProductDetail);
+    }
+
+    const updateData = {
+      Name: req.body.Name,
+      Price: Number(req.body.Price),
+      Quantity: Number(req.body.Quantity),
+      Memo: req.body.Memo,
+      ProductDetail: detailIds
+    };
+
+    if (req.file) {
+      updateData.Image = `/uploads/${req.file.filename}`;
+    }
+
+    const product = await Product.findByIdAndUpdate(req.params.id, updateData, { new: true });
+    res.json(product);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// GET: Florist & ID (Tetap sama)
+router.get("/florist/:shopId", async (req, res) => {
+  try {
+    const products = await Product.find({ ShopId: req.params.shopId })
+      .populate({ path: "ProductDetail", populate: { path: "ItemId" } })
+      .sort({ Name: 1 });
     res.json(products);
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 🛒 Ambil Product Non Customized (GET /api/products)
-// router.get("/not-customized", async (req, res) => {
-// try {
-//     // Mencari product yang memiliki array Items dengan panjang 0
-//     const products = await Product.find({ Items: { $size: 0 } }).populate(POPULATE_FIELDS);
-    
-//     res.json(products);
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// });
-
-// 🔎 Ambil Product Berdasarkan ID (GET /api/products/:id)
 router.get("/:id", async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id).populate(POPULATE_FIELDS);
-    if (!product) return res.status(404).json({ error: "Product not found" });
+    const product = await Product.findById(req.params.id).populate({
+      path: "ProductDetail",
+      populate: { path: "ItemId" }
+    });
     res.json(product);
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
@@ -61,21 +146,21 @@ router.delete("/:id", async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
-router.get("/florist/:shopId", async (req, res) => {
-  try {
-    const products = await Product.find({ ShopId: req.params.shopId })
-      .populate("ThreeDModel") // Mengambil info file 3D
-      .populate({
-        path: "Items",
-        populate: { path: "ComponentId" }
-      })
-      .sort({ Name: 1 });
+// router.get("/florist/:shopId", async (req, res) => {
+//   try {
+//     const products = await Product.find({ ShopId: req.params.shopId })
+//       .populate("ThreeDModel") // Mengambil info file 3D
+//       .populate({
+//         path: "Items",
+//         populate: { path: "ComponentId" }
+//       })
+//       .sort({ Name: 1 });
 
-    res.json(products);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+//     res.json(products);
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// });
 
 router.get("/shop/:shopId", async (req, res) => {
   try {

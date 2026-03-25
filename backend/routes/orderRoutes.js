@@ -112,42 +112,52 @@ router.patch("/:id/status-pembayaran", async (req, res) => {
     res.status(400).json({ error: err.message });
       }
 });
+
 router.get("/florist/:id", async (req, res) => {
   try {
-    const orders = await Order.find({ "ShopId": req.params.id }).populate([
+    const orders = await Order.find({ "ShopId": req.params.id })
+      .populate({ 
+        path: "UserId", 
+        model: "User",
+        select: "Name Email" 
+      })
+      .populate({ 
+        path: "AddressId", 
+        model: "Address",
+        populate: [
+          { path: "ProvinceId", model: "Province" },
+          { path: "CityId", model: "City" },
+          { path: "DistrictId", model: "District" }
+        ]
+      })
+      .populate({
+        path: "DeliveryId",
+        model: "Delivery"
+      })
+      .populate({
+        path: "ProductId",
+        model: "Product",
+        populate: [
+          { path: "ThreeDModel", model: "3DModel" },
           { 
-            path: "UserId", 
-            model: User 
-          },
-          { 
-            path: "AddressId", 
-            model: Address,
-            populate: [
-              { path: "ProvinceId", model: Province },
-              { path: "CityId", model: City },
-              { path: "DistrictId", model: District },
-              { path: "PostalCodeId", model: PostalCode }
-            ]
-          },
-          {
-            path: "DeliveryId",
-            model: Delivery
-          },
-          {
-            path: "ProductId",
-            model: Product,
-            populate: [
-              { path: "ThreeDModel", model: ThreeDModel },
-              { path: "Items", model: Item }
-            ]
-          },
-          {
-            path: "AdministrationFee",
-            model: AdministrationFee
+            path: "ProductDetail", 
+            model: "ProductDetail",
+            populate: {
+              path: "ItemId",
+              model: "Item"
+            }
           }
-        ]).sort({ CreatedAt: -1 });
+        ]
+      })
+      .populate({
+        path: "AdministrationFee",
+        model: "AdministrationFee"
+      })
+      .sort({ CreatedAt: -1 });
 
-    if (!orders) return res.status(404).json({ error: "No orders found for this florist" });
+    if (!orders || orders.length === 0) {
+      return res.status(200).json([]); 
+    }
     
     res.json(orders);
   } catch (err) {
