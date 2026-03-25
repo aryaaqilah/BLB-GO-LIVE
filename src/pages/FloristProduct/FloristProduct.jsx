@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
 import { FaChevronLeft, FaChevronRight, FaSearch, FaRegTrashAlt, FaRegEdit } from "react-icons/fa";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthContext";
 import { useAlert } from "../../contexts/AlertContext";
 import { useLoading } from "../../contexts/LoadingContext";
@@ -13,20 +13,23 @@ const SectionError = ({ onRetry }) => (
 );
 
 const SectionLoading = () => (
-  <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}><div className="spinner"></div></div>
+  <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}>
+    <div className="spinner"></div>
+  </div>
 );
 
-const Inventory = () => {
+const FloristProduct = () => {
   const { user } = useContext(AuthContext);
   const { showAlert } = useAlert();
   const { showLoading, hideLoading } = useLoading();
-  const navigate = useNavigate(); // Inisialisasi navigate
+  const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState("Buket");
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const itemsPerPage = 8;
 
+  const [selectedIds, setSelectedIds] = useState([]);
   const [productState, setProductState] = useState({ data: [], loading: true, error: false });
   const [itemState, setItemState] = useState({ data: [], loading: true, error: false });
 
@@ -36,8 +39,10 @@ const Inventory = () => {
     try {
       const res = await fetch(`http://localhost:5000/api/products/florist/${user._id}`);
       const data = await res.json();
-      if (res.ok) setProductState({ data, loading: false, error: false });
-      else throw new Error();
+      if (res.ok) {
+        const uniqueData = Array.from(new Map(data.map(item => [item._id, item])).values());
+        setProductState({ data: uniqueData, loading: false, error: false });
+      } else throw new Error();
     } catch {
       setProductState({ data: [], loading: false, error: true });
     }
@@ -49,8 +54,10 @@ const Inventory = () => {
     try {
       const res = await fetch(`http://localhost:5000/api/items/florist/${user._id}`);
       const data = await res.json();
-      if (res.ok) setItemState({ data, loading: false, error: false });
-      else throw new Error();
+      if (res.ok) {
+        const uniqueData = Array.from(new Map(data.map(item => [item._id, item])).values());
+        setItemState({ data: uniqueData, loading: false, error: false });
+      } else throw new Error();
     } catch {
       setItemState({ data: [], loading: false, error: true });
     }
@@ -61,38 +68,90 @@ const Inventory = () => {
     fetchItems();
   }, [fetchProducts, fetchItems]);
 
-  const currentData = activeTab === "Buket" ? productState.data : itemState.data;
-  const isCurrentLoading = activeTab === "Buket" ? productState.loading : itemState.loading;
-  const isCurrentError = activeTab === "Buket" ? productState.error : itemState.error;
-
-  const filteredData = currentData.filter((item) => {
-    return item.Name?.toLowerCase().includes(searchQuery.toLowerCase());
-  });
-
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-  const displayedItems = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(amount);
-  };
-
   const handleTabChange = (tab) => {
     setActiveTab(tab);
     setCurrentPage(1);
     setSearchQuery("");
+    setSelectedIds([]);
   };
 
-  // Fungsi Hapus (Placeholder)
-  const handleDelete = (id) => {
+  const currentData = activeTab === "Buket" ? productState.data : itemState.data;
+  const filteredData = currentData.filter((item) => item.Name?.toLowerCase().includes(searchQuery.toLowerCase()));
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const displayedItems = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelectedIds(displayedItems.map(item => item._id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const handleIndividualSelect = (id) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+  };
+
+  const executeDelete = async (ids) => {
+    showLoading("Menghapus data...");
+    try {
+      const folder = activeTab === "Buket" ? "products" : "items";
+      const response = await fetch(`http://localhost:5000/api/${folder}/bulk-delete`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids }),
+      });
+
+      if (response.ok) {
+        showAlert("Data berhasil dihapus!");
+        setSelectedIds([]);
+        activeTab === "Buket" ? fetchProducts() : fetchItems();
+      } else throw new Error();
+    } catch {
+      showAlert("Gagal menghapus data.");
+    } finally {
+      hideLoading();
+    }
+  };
+
+  const handleSingleDelete = (id, name) => {
     showAlert({
-      msg: `Apakah Anda yakin ingin menghapus ${activeTab} ini?`,
+      msg: `Hapus "${name}" dari daftar stok?`,
       confirmText: "Hapus",
       cancelText: "Batal",
-      onConfirm: () => {
-        console.log("Menghapus ID:", id);
-        // Logic hit API DELETE di sini
-      }
+      onConfirm: () => executeDelete([id]),
     });
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedIds.length === 0) return;
+    showAlert({
+      msg: `Hapus ${selectedIds.length} item terpilih?`,
+      confirmText: "Hapus Semua",
+      cancelText: "Batal",
+      onConfirm: () => executeDelete(selectedIds),
+    });
+  };
+
+  // --- LOGIKA NAVIGASI DINAMIS ---
+  const handleNavigateAdd = () => {
+    if (activeTab === "Buket") {
+      navigate("/inventory/bouquet/add");
+    } else {
+      navigate("/inventory/item/add");
+    }
+  };
+
+  const handleNavigateEdit = (id) => {
+    if (activeTab === "Buket") {
+      navigate(`/inventory/bouquet/edit/${id}`);
+    } else {
+      navigate(`/inventory/item/edit/${id}`);
+    }
+  };
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(amount);
   };
 
   return (
@@ -108,73 +167,55 @@ const Inventory = () => {
         <div className="FloristOrdersHeader" style={{ justifyContent: 'flex-end' }}>
           <div className="FloristSearchWrapper">
             <FaSearch className="FloristSearchIcon" />
-            <input 
-              type="text" 
-              placeholder={`Cari ${activeTab.toLowerCase()}...`} 
-              className="FloristSearchInput" 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+            <input type="text" placeholder={`Cari ${activeTab}...`} className="FloristSearchInput" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
           </div>
         </div>
 
-        {isCurrentLoading ? <SectionLoading /> : isCurrentError ? <SectionError onRetry={activeTab === "Buket" ? fetchProducts : fetchItems} /> : (
+        {((activeTab === "Buket" && productState.loading) || (activeTab === "Item" && itemState.loading)) ? <SectionLoading /> : 
+         ((activeTab === "Buket" && productState.error) || (activeTab === "Item" && itemState.error)) ? <SectionError onRetry={activeTab === "Buket" ? fetchProducts : fetchItems} /> : (
           <>
             <div className="FloristTableResponsive">
               <table className="FloristMainTable">
                 <thead>
-                  {activeTab === "Buket" ? (
-                    <tr>
-                      <th style={{ width: "50px" }}><input type="checkbox" /></th>
-                      <th className="p2 weight-semibold">Nama Buket</th>
-                      <th className="p2 weight-semibold">Rincian Komponen</th>
-                      <th className="p2 weight-semibold">Harga Jual</th>
-                      <th className="p2 weight-semibold">Stok Buket</th>
-                      <th className="p2 weight-semibold" style={{ textAlign: 'center' }}>Aksi</th>
-                    </tr>
-                  ) : (
-                    <tr>
-                      <th style={{ width: "50px" }}><input type="checkbox" /></th>
-                      <th className="p2 weight-semibold">Nama Item</th>
-                      <th className="p2 weight-semibold">Asset Dasar</th>
-                      <th className="p2 weight-semibold">Harga Satuan</th>
-                      <th className="p2 weight-semibold">Stok Item</th>
-                      <th className="p2 weight-semibold" style={{ textAlign: 'center' }}>Aksi</th>
-                    </tr>
-                  )}
+                  <tr>
+                    <th style={{ width: "60px", textAlign: 'center' }}>
+                      <input type="checkbox" onChange={handleSelectAll} checked={displayedItems.length > 0 && selectedIds.length === displayedItems.length} />
+                    </th>
+                    <th className="p2 weight-semibold">Nama {activeTab}</th>
+                    <th className="p2 weight-semibold">{activeTab === "Buket" ? "Rincian Komponen" : "Asset Dasar"}</th>
+                    <th className="p2 weight-semibold">Harga</th>
+                    <th className="p2 weight-semibold">Stok</th>
+                    <th className="p2 weight-semibold" style={{ textAlign: 'center' }}>Aksi</th>
+                  </tr>
                 </thead>
                 <tbody>
                   {displayedItems.length > 0 ? displayedItems.map((item) => (
                     <tr key={item._id}>
-                      <td><input type="checkbox" /></td>
-                      <td className="p2 weight-semibold">{item.Name}</td>
+                      <td style={{ textAlign: 'center' }}>
+                        <input type="checkbox" checked={selectedIds.includes(item._id)} onChange={() => handleIndividualSelect(item._id)} />
+                      </td>
+                      <td className="p2 weight-bold">{item.Name}</td>
                       <td className="p2">
-                        {activeTab === "Buket" ? (
-                          <div style={{ fontSize: '0.85rem', color: 'var(--color-background-dark)' }}>
-                            {item.ProductDetail?.map(d => `${d.ItemId?.Name} (x${d.Quantity})`).join(", ") || "-"}
-                          </div>
-                        ) : (
-                          <div style={{ fontSize: '0.85rem', color: '#888' }}>
-                            {item.ComponentId?.Name || "Komponen Fisik"}
-                          </div>
-                        )}
+                        {activeTab === "Buket" 
+                          ? item.ProductDetail?.map(d => `${d.ItemId?.Name || 'Item'} (x${d.Quantity})`).join(", ") 
+                          : item.ComponentId?.Name || "-"}
                       </td>
                       <td className="p2">{formatCurrency(item.Price)}</td>
                       <td className="p2 weight-bold">{activeTab === "Buket" ? item.Quantity : item.Stok}</td>
                       <td>
                         <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', cursor: 'pointer' }}>
-                          <FaRegTrashAlt className="InventoryActionIcon" onClick={() => handleDelete(item._id)} />
+                          <FaRegTrashAlt className="InventoryActionIcon" onClick={() => handleSingleDelete(item._id, item.Name)} />
                           
-                          {/* TOMBOL EDIT TERHUBUNG */}
+                          {/* EDIT SESUAI TAB */}
                           <FaRegEdit 
                             className="InventoryActionIcon" 
-                            onClick={() => navigate(`/inventory/edit/${item._id}`)} 
+                            onClick={() => handleNavigateEdit(item._id)} 
                           />
                         </div>
                       </td>
                     </tr>
                   )) : (
-                    <tr><td colSpan="6" style={{ textAlign: "center", padding: "3rem" }}>Data tidak ditemukan.</td></tr>
+                    <tr><td colSpan="6" style={{ textAlign: "center", padding: "4rem" }}>Data tidak ditemukan.</td></tr>
                   )}
                 </tbody>
               </table>
@@ -190,15 +231,12 @@ const Inventory = () => {
               </div>
 
               <div className="InventoryActionButtons">
-                <button className="InventoryBtnDelete">Hapus</button>
-                
-                {/* TOMBOL TAMBAH TERHUBUNG */}
-                <button 
-                  className="InventoryBtnAdd" 
-                  onClick={() => navigate("/inventory/add")}
-                >
-                  Tambah
+                <button className="InventoryBtnDelete" onClick={handleBulkDelete} disabled={selectedIds.length === 0} style={{ opacity: selectedIds.length === 0 ? 0.5 : 1 }}>
+                  Hapus {selectedIds.length > 0 && `(${selectedIds.length})`}
                 </button>
+                
+                {/* TAMBAH SESUAI TAB */}
+                <button className="InventoryBtnAdd" onClick={handleNavigateAdd}>Tambah</button>
               </div>
             </div>
           </>
@@ -208,4 +246,4 @@ const Inventory = () => {
   );
 };
 
-export default Inventory;
+export default FloristProduct;

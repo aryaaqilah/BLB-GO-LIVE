@@ -19,6 +19,7 @@ import Profile from "./pages/Profile/Profile";
 import OrderDetail from "./pages/Order Detail/OrderDetail";
 import FloristDashboard from "./pages/FloristDashboard/FloristDashboard";
 import FloristProduct from "./pages/FloristProduct/FloristProduct";
+import FloristManageBouquet from "./pages/FloristManageBouquet/FloristManageBouquet"; 
 import FloristManageItem from "./pages/FloristManageItem/FloristManageItem";
 import IdleTimer from "./components/IdleTimer";
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -118,8 +119,10 @@ function AppContent() {
           <Route path="/dashboard" element={<FloristDashboard />} />
           <Route path="/inventory" element={<FloristProduct/>} />
           <Route path="/manage-orders" element={<div>Manage Orders Page</div>} />
-          <Route path="/inventory/add" element={<FloristManageItem />} />
-          <Route path="/inventory/edit/:id" element={<FloristManageItem />} />
+          <Route path="/inventory/bouquet/add" element={<FloristManageBouquet />} />
+          <Route path="/inventory/bouquet/edit/:id" element={<FloristManageBouquet />} />
+          <Route path="/inventory/item/add" element={<FloristManageItem />} />
+          <Route path="/inventory/item/edit/:id" element={<FloristManageItem />} />
         </Route>
 
         {/* --- GLOBAL 404 (No Nav/Footer) --- */}
