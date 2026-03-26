@@ -122,7 +122,8 @@ const ShopLanding = () => {
           items : Array.isArray(item.ProductDetail)
     ? item.ProductDetail.map((i) => ({
         ItemId: i._id,
-        Quantity: i.Quantity
+        Quantity: i.Quantity,
+        ItemStokId : i.ItemId
       }))
     : []
         }));
