@@ -158,6 +158,7 @@ function MainSection({ selectedProduct, modelScene, meta }) {
                       id="pesan"
                       className="Confirmation-input-field-customizer Confirmation-input"
                       value={pesan}
+                      maxLength={100}
                       onChange={(e) => setPesan(e.target.value)}
                     />
                   </div>
@@ -179,7 +180,7 @@ function MainSection({ selectedProduct, modelScene, meta }) {
                     />
                   </div>
                 </div>
-                <div className="Confirmation-Voucher">
+                {/* <div className="Confirmation-Voucher">
                   <div className="Confirmation-input-group">
                     <label
                       htmlFor="voucher"
@@ -195,7 +196,7 @@ function MainSection({ selectedProduct, modelScene, meta }) {
                       onChange={(e) => setVoucher(e.target.value)}
                     />
                   </div>
-                </div>
+                </div> */}
                 {/* <div className="Confirmation-NotesBox">
                   Notes :
                   <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Voluptatem, magni?</p>

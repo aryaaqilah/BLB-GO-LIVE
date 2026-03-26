@@ -19,8 +19,10 @@ import Profile from "./pages/Profile/Profile";
 import OrderDetail from "./pages/Order Detail/OrderDetail";
 import FloristDashboard from "./pages/FloristDashboard/FloristDashboard";
 import FloristProduct from "./pages/FloristProduct/FloristProduct";
+import FloristOrder from "./pages/FloristOrder/FloristOrder";
 import FloristManageBouquet from "./pages/FloristManageBouquet/FloristManageBouquet"; 
 import FloristManageItem from "./pages/FloristManageItem/FloristManageItem";
+import FloristManageOrder from "./pages/FloristManageOrder/FloristManageOrder";
 import IdleTimer from "./components/IdleTimer";
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AlertProvider } from './contexts/AlertContext';
@@ -56,7 +58,7 @@ const NotFound = () => {
 
 const CustomerLayout = ({ isFlorist }) => {
   const location = useLocation();
-  const hideNavbarFooter = ["/profile", "/order-detail", "/store", "/login", "/register","/customizer", "/ar/:id", "/address", "/confirmation", "/payment"].some(path => 
+  const hideNavbarFooter = ["/profile", "/order-detail", "/login", "/register","/customizer", "/ar/:id", "/address", "/confirmation", "/payment"].some(path => 
     location.pathname.startsWith(path)
   );
   
@@ -118,11 +120,12 @@ function AppContent() {
         <Route element={<FloristLayout isFlorist={isFlorist} />}>
           <Route path="/dashboard" element={<FloristDashboard />} />
           <Route path="/inventory" element={<FloristProduct/>} />
-          <Route path="/manage-orders" element={<div>Manage Orders Page</div>} />
+          <Route path="/manage-orders" element={<FloristOrder />} />
           <Route path="/inventory/bouquet/add" element={<FloristManageBouquet />} />
           <Route path="/inventory/bouquet/edit/:id" element={<FloristManageBouquet />} />
           <Route path="/inventory/item/add" element={<FloristManageItem />} />
           <Route path="/inventory/item/edit/:id" element={<FloristManageItem />} />
+          <Route path="/florist/orders/edit/:id" element={<FloristManageOrder />} />
         </Route>
 
         {/* --- GLOBAL 404 (No Nav/Footer) --- */}

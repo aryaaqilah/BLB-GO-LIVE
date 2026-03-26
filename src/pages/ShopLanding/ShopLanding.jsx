@@ -24,6 +24,8 @@ const ShopLanding = () => {
   const [storeInfo, setStoreInfo] = useState(null);
   const [addressInfo, setAddressInfo] = useState([]);
   const [products, setProducts] = useState([]);
+  const [ratingState, setRatingState] = useState({ data: [], loading: true, error: false });
+  const [totalRating, setTotalRating] = useState(0);
 
   // const getGroupedSummary = () => {
   //   // Buat rincian berdasarkan data master di state 'components'
@@ -130,11 +132,26 @@ const ShopLanding = () => {
         console.error("❌ Error fetching data:", error);
       }
     };
+    const fetchRatings = async () => {
+      setRatingState(prev => ({ ...prev, loading: true, error: false }));
+      try {
+        const res = await fetch(`http://localhost:5000/api/ratings/florist/${storeId}`);
+        const data = await res.json();
+        if (res.ok) {
+          const uniqueRatings = Array.from(new Map(data.map(item => [item._id, item])).values());
+          setRatingState({ data: uniqueRatings, loading: false, error: false });
+          setTotalRating(uniqueRatings.length > 0 ? (uniqueRatings.length) : 0);
+        } else throw new Error();
+      } catch {
+        setRatingState({ data: [], loading: false, error: true });
+      }
+    }
 
   useEffect(() => {
     showLoading("Menghubungi penjual...");
     
     fetchData();
+    fetchRatings();
 
     const timer = setTimeout(() => {
       // Logic Fix: If storeId is not found, use dummyStores[0] for testing purposes
@@ -167,8 +184,8 @@ const ShopLanding = () => {
           <p className="p2">No. Telepon: {storeInfo.PhoneNumber}</p>
           <div className="ShopLandingRatingRow" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px' }}>
             <FaStar color="#FFD700" /> 
-            <span className="p2 weight-semibold">4.9</span>
-            <span className="p3 txt-color-bg-dark">(500 review)</span>
+            <span className="p2 weight-semibold">{ratingState.data.length > 0 ? (ratingState.data.reduce((a, b) => a + b.Rating, 0) / ratingState.data.length).toFixed(1) : "0"}</span>
+            <span className="p3 txt-color-bg-dark">({totalRating} ulasan)</span>
           </div>
         </div>
       </header>

@@ -11,7 +11,8 @@ const CardSet = ({ cards }) => {
   const { showAlert } = useAlert();
   const navigate = useNavigate();
 
-  const handleCardClick = (index) => {
+  const handleCardClick = (index, card) => {
+    console.log("Card clicked:", card);
     setActiveIndex(index);
   };
 
@@ -36,7 +37,7 @@ const CardSet = ({ cards }) => {
         <Card
           key={card.id || index}
           isActive={index === activeIndex}
-          onClick={() => handleCardClick(index)}
+          onClick={() => handleCardClick(index, card)}
           cardModel={card}
           onSelect={() => handleCardSelect(card)}
         />

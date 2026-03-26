@@ -11,9 +11,10 @@ import Product from "../models//Product.js"
 import ThreeDModel from "../models/3DModel.js"
 import Item from "../models/Item.js"
 import AdministrationFee from "../models/AdministrationFee.js";
+import mongoose from 'mongoose';
 
 const router = express.Router();
-const POPULATE_FIELDS = ['AddressId', 'DeliveryId', 'ProductId', 'AdministrationFee', 'ShopId'];
+const POPULATE_FIELDS = ['AddressId', 'DeliveryId', 'ProductId', 'AdministrationFee', 'ShopId', 'UserId'];
 
 // 📦 Buat Order Baru (POST /api/orders)
 router.post("/", async (req, res) => {
@@ -35,7 +36,15 @@ router.get("/", async (req, res) => {
 // 🔎 Ambil Order Berdasarkan ID (GET /api/orders/:id)
 router.get("/:id", async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id).populate(POPULATE_FIELDS);
+    const order = await Order.findById(req.params.id).populate(POPULATE_FIELDS).populate({
+              path: "AddressId", 
+              model: Address,
+              populate: [
+                { path: "ProvinceId", model: Province },
+                { path: "CityId", model: City },
+                { path: "DistrictId", model: District }
+              ]
+    });
     if (!order) return res.status(404).json({ error: "Order not found" });
     res.json(order);
   } catch (err) { res.status(400).json({ error: err.message }); }
@@ -163,6 +172,66 @@ router.get("/florist/:id", async (req, res) => {
   } catch (err) {
     console.error("Florist Orders Error:", err);
     res.status(500).json({ error: err.message });
+  }
+});
+
+// router.get("/florist/:shopId", async (req, res) => {
+//   try {
+//     const { shopId } = req.params;
+
+//     const orders = await Order.aggregate([
+//       {
+//         $match: {
+//           ShopId: new mongoose.Types.ObjectId(shopId),
+//           ProductId: { $ne: null } // 🔥 hanya template (punya product)
+//         }
+//       },
+//       {
+//         $sort: { CreatedAt: -1 }
+//       }
+//     ]);
+
+//     // 🔥 pakai POPULATE_FIELDS kamu
+//     const populatedOrders = await Order.populate(orders, POPULATE_FIELDS);
+
+//     res.json(populatedOrders);
+
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// });
+
+router.patch("/update-status/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { Status, ShippingCode, TrackingLink, Service } = req.body;
+
+    const order = await Order.findById(id);
+
+    if (!order) {
+      return res.status(404).json({ error: "Order tidak ditemukan" });
+    }
+
+    // ✅ update status order
+    if (Status !== undefined) {
+      order.Status = Status;
+    }
+
+    await order.save();
+
+    // ✅ update delivery
+    if (order.DeliveryId) {
+      await Delivery.findByIdAndUpdate(order.DeliveryId, {
+        ShippingCode,
+        TrackingLink,
+        Service
+      });
+    }
+
+    res.json({ message: "Berhasil update order & delivery" });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 

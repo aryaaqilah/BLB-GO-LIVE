@@ -75,6 +75,8 @@ const Profile = () => {
       order.AddressId?.ProvinceId?.province_name,
     ].filter(Boolean);
 
+    console.log("Mapping order:", order); // Debug log untuk melihat struktur data order
+
     // Proses Detail Produk (Rincian Item)
     const itemsDetails = order.ProductId?.ProductDetail?.map(detail => {
       const itemName = detail.ItemId?.Name || "Item";
@@ -108,7 +110,7 @@ const Profile = () => {
       serviceFee: formatCurrency(order.AdministrationFee?.Fee || 0),
       totalOrder: formatCurrency(order.Total || 0),
       
-      threeDPath: order.ProductId?.ThreeDModel?.Path || "",
+      threeDPath: order.ProductId?.ThreeDModel?._id || "",
       customerRequestNote: order.Notes || "Tidak ada catatan"
     };
   };

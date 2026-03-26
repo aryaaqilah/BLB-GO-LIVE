@@ -208,6 +208,11 @@ function MainSection({
       const postItems = async (itemsData) => {
         // itemsData adalah array utama dari gambar tersebut
         for (const itemArray of itemsData) {
+          const item = itemArray[0];
+          if (!item || item.Quantity <= 0) {
+            console.log("⏭️ Skip item karena quantity 0:", item);
+            continue;
+          }
           // Karena tiap item adalah array berisi 1 objek, kita ambil indeks ke-0
           const payload = {
             ItemId: itemArray[0].ItemId,
@@ -615,7 +620,7 @@ function MainSection({
                   }}
                 >
                   <img
-                    src={selectedProduct?.thumbnail}
+                    src={selectedProduct?.thumbnail || selectedProduct?.image}
                     alt="Product"
                     style={{ width: "70%", height: "70%" }}
                   />

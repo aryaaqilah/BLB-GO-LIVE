@@ -118,6 +118,8 @@ router.put("/:id", upload.single("Image"), async (req, res) => {
   }
 });
 
+
+
 // GET: Florist & ID (Tetap sama)
 router.get("/florist/:shopId", async (req, res) => {
   try {
@@ -126,6 +128,16 @@ router.get("/florist/:shopId", async (req, res) => {
       .sort({ Name: 1 });
     res.json(products);
   } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.get("/get-shop", async (req, res) => {
+  try {
+    const products = await Product.find({IsCustomized: 0}).populate(POPULATE_FIELDS);
+
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 router.get("/:id", async (req, res) => {
@@ -174,12 +186,14 @@ router.delete("/:id", async (req, res) => {
 
 router.get("/shop/:shopId", async (req, res) => {
   try {
-    const products = await Product.find({ ShopId: req.params.shopId }).populate(POPULATE_FIELDS);
+    const products = await Product.find({ ShopId: req.params.shopId, IsCustomized: 0 }).populate(POPULATE_FIELDS);
 
     res.json(products);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
+
 
 export default router;

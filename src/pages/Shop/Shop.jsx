@@ -82,9 +82,11 @@ export default function Shop() {
   const fetchProducts = async () => {
     setProductState(prev => ({ ...prev, loading: true, error: false }));
     try {
-      const response = await fetch("http://localhost:5000/api/products/");
+      const response = await fetch("http://localhost:5000/api/products/get-shop");
+      console.log("Fetched products:", response);
       if (!response.ok) throw new Error();
       const data = await response.json();
+      console.log("Fetched products:", data);
       setProductState({ data: data.reverse().slice(0, 4), loading: false, error: false });
     } catch (error) {
       setProductState({ data: [], loading: false, error: true });
