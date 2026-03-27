@@ -82,8 +82,7 @@ export default function Shop() {
   const fetchProducts = async () => {
     setProductState(prev => ({ ...prev, loading: true, error: false }));
     try {
-      const response = await fetch("http://localhost:5000/api/products/get-shop");
-      console.log("Fetched products:", response);
+      const response = await fetch("http://localhost:5000/api/products/best-sellers");
       if (!response.ok) throw new Error();
       const data = await response.json();
       console.log("Fetched products:", data);

@@ -14,8 +14,7 @@ const OrderCard = ({ order }) => {
   const { showAlert } = useAlert();
 
   const handleDetailClick = () => {
-    // Passing the mapped order object to the detail page
-    navigate("/order-detail", { state: { orderData: order } });
+    navigate(`/order-detail/${order.orderId}`);
   };
 
   const handleCopyLink = () => {

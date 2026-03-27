@@ -33,21 +33,30 @@ router.get("/", async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 🔎 Ambil Order Berdasarkan ID (GET /api/orders/:id)
+// 🔎 Ambil Detail Order Berdasarkan ID (GET /api/orders/:id)
 router.get("/:id", async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id).populate(POPULATE_FIELDS).populate({
-              path: "AddressId", 
-              model: Address,
-              populate: [
-                { path: "ProvinceId", model: Province },
-                { path: "CityId", model: City },
-                { path: "DistrictId", model: District }
-              ]
-    });
-    if (!order) return res.status(404).json({ error: "Order not found" });
+    const order = await Order.findById(req.params.id)
+      .populate({ path: "UserId", select: "Name Email" })
+      .populate({ 
+        path: "AddressId", 
+        populate: ["ProvinceId", "CityId", "DistrictId"] 
+      })
+      .populate("DeliveryId")
+      .populate({
+        path: "ProductId",
+        populate: {
+          path: "ProductDetail",
+          populate: { path: "ItemId", model: "Item" }
+        }
+      })
+      .populate("AdministrationFee");
+
+    if (!order) return res.status(404).json({ error: "Pesanan tidak ditemukan" });
     res.json(order);
-  } catch (err) { res.status(400).json({ error: err.message }); }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // 📝 Update Order (PUT /api/orders/:id)
