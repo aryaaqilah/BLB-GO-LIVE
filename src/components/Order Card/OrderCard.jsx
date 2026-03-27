@@ -4,8 +4,12 @@ import "./OrderCard.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShare } from "@fortawesome/free-solid-svg-icons";
 import { useAlert } from "../../contexts/AlertContext";
+import { clear } from "idb-keyval";
+import { useEffect, useState, useRef, useContext } from "react";
+import { useLoading } from "../../contexts/LoadingContext";
 
 const OrderCard = ({ order }) => {
+  const { showLoading, hideLoading } = useLoading();
   const navigate = useNavigate();
   const { showAlert } = useAlert();
 
@@ -27,6 +31,116 @@ const OrderCard = ({ order }) => {
       });
   };
 
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://app.sandbox.midtrans.com/snap/snap.js";
+    script.setAttribute("data-client-key", "Mid-client-7vNauj8bb3yiXmEQ");
+    script.async = true;
+
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  const handlePayment = (order) => {
+    showLoading("Memproses pembayaran...");
+    
+    window.snap.pay(order.token, {
+          onSuccess: async function () {
+          try {
+            console.log("✅ Pembayaran berhasil:", order);
+            showAlert("Pembayaran berhasil!");
+    
+            const StatusTemp = 0;
+    
+            const response = await fetch(
+              `http://localhost:5000/api/orders/${order.orderId}/status-pembayaran`,
+              {
+                method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ StatusPembayaran: StatusTemp }),
+              }
+            );
+    
+            if (!response.ok) {
+              throw new Error("Gagal update status pembayaran");
+            }
+    
+            console.log("✅ Status pembayaran berhasil diupdate");
+    
+            await clear(); // idb-keyval
+    
+            navigate("/profile", {
+              replace: true,
+              state: null,
+            });
+    
+          } catch (error) {
+            console.error("❌ Error onSuccess:", error);
+            showAlert("Terjadi kesalahan setelah pembayaran");
+          }
+        },
+    
+          onPending: function () {
+            showAlert("Menunggu pembayaran...");
+            const StatusTemp = 2;
+            clear();
+            navigate("/profile", {
+              // state: {
+              //   selectedProduct,
+              //   orderId: savedOrder._id,
+              // },
+                replace: true,
+                state: null,
+            });
+          },
+    
+          onError: function () {
+            showAlert("Pembayaran gagal!");
+            const StatusTemp = 1;
+            clear();
+            const updateStatus = fetch(
+              `http://localhost:5000/api/orders/${order.orderId}/status-pembayaran`,
+              {
+                method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ StatusPembayaran : StatusTemp }),
+              }
+            );
+    
+            updateStatus();
+            navigate("/profile", {
+              // state: {
+              //   selectedProduct,
+              //   orderId: savedOrder._id,
+              // },
+                replace: true,
+                state: null,
+            });
+          },
+    
+          onClose: function () {
+            showAlert("Kamu menutup pembayaran.");
+            clear();
+            const StatusTemp = 2;
+                    navigate("/profile", {
+              // state: {
+              //   selectedProduct,
+              //   orderId: savedOrder._id,
+              // },
+                replace: true,
+                state: null,
+            });
+          },
+        });
+  }
+
   return (
     <div className="OrderCard txt-color-ternary">
       {/* Order Header Info */}
@@ -34,7 +148,18 @@ const OrderCard = ({ order }) => {
         <div className="LeftItem">
           <div>
             <p className="p1">STATUS PESANAN</p>
-            <span className="p2">{order.status}</span>
+            <span className="p2">   
+              {order.statusPembayaran === 2 ? (
+              <button
+                className="p2 btn btn-primary"
+                onClick={() => handlePayment(order)}
+              >
+                Bayar
+              </button>
+            ) : (
+              <span className="p2">{order.status}</span>
+            )}
+            </span>
           </div>
           <div>
             <p className="p1">TOTAL</p>

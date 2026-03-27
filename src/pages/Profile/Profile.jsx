@@ -111,6 +111,8 @@ const Profile = () => {
       totalOrder: formatCurrency(order.Total || 0),
       
       threeDPath: order.ProductId?.ThreeDModel?._id || "",
+      token : order.Token || "",
+      statusPembayaran: order.StatusPembayaran || "Belum Dibayar",
       customerRequestNote: order.Notes || "Tidak ada catatan"
     };
   };
