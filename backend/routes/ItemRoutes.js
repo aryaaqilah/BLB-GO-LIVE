@@ -103,4 +103,39 @@ router.delete("/:id", async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
+// routes/items.js
+router.post("/update-stock", async (req, res) => {
+  try {
+    const { items, type } = req.body;
+    // type: "decrease" | "increase"
+
+    for (const item of items) {
+      const updateValue = type === "decrease" ? -item.Quantity : item.Quantity;
+
+      const updated = await Item.findOneAndUpdate(
+        {
+          _id: item.ItemStokId,
+          ...(type === "decrease" && { Stok: { $gte: item.Quantity } }) // ❗ validasi atomic
+        },
+        {
+          $inc: { Stok: updateValue },
+        },
+        { new: true }
+      );
+
+      // ❗ kalau gagal saat decrease → stok tidak cukup
+      if (!updated && type === "decrease") {
+        return res.status(400).json({
+          message: `Stok tidak cukup untuk item ${item.ItemStokId}`,
+        });
+      }
+    }
+
+    res.json({ message: `Stok berhasil ${type === "decrease" ? "dikurangi" : "dikembalikan"}` });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

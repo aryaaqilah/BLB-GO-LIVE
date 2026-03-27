@@ -414,7 +414,7 @@ function MainSection({
         });
       },
 
-      onError: function () {
+      onError: async function () {
         showAlert("Pembayaran gagal!");
         const StatusTemp = 1;
         clear();
@@ -429,6 +429,19 @@ function MainSection({
           }
         );
 
+        const updateStock = async (items, type) => {
+          const res = await fetch("http://localhost:5000/api/items/update-stock", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ items, type }),
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) throw new Error(data.message);
+        };
+
+        await updateStock(selectedProduct.items, "increase");
         updateStatus();
         navigate("/profile", {
           // state: {

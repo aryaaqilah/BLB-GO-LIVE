@@ -52,11 +52,35 @@ const ProductCard = ({ product }) => {
         return;
       }
 
+      console.log("Semua stok mencukupi, lanjut ke checkout.", items);
+
+      const updateStock = async (items, type) => {
+        const res = await fetch("http://localhost:5000/api/items/update-stock", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ items, type }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.message);
+      };
+
       // ✅ Lanjut kalau semua stok aman
       if (user) {
-        navigate("/confirmation", {
-          state: { selectedProduct: card },
-        });
+        try {
+          await updateStock(items, "decrease");
+
+          // ✅ baru lanjut kalau sukses
+          navigate("/confirmation", {
+            state: { selectedProduct: card },
+          });
+
+        } catch (error) {
+          console.error(error);
+          showAlert("Terjadi kesalahan saat proses checkout.");
+        }
+
       } else {
         navigate("/login");
         showAlert("Silakan login terlebih dahulu untuk melakukan pembelian.");

@@ -99,7 +99,7 @@ const OrderCard = ({ order }) => {
             });
           },
     
-          onError: function () {
+          onError: async function () {
             showAlert("Pembayaran gagal!");
             const StatusTemp = 1;
             clear();
@@ -113,7 +113,20 @@ const OrderCard = ({ order }) => {
                 body: JSON.stringify({ StatusPembayaran : StatusTemp }),
               }
             );
+
+            const updateStock = async (items, type) => {
+              const res = await fetch("http://localhost:5000/api/items/update-stock", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ items, type }),
+              });
+
+              const data = await res.json();
+
+              if (!res.ok) throw new Error(data.message);
+            };
     
+            await updateStock(order.productDetails, "increase");
             updateStatus();
             navigate("/profile", {
               // state: {

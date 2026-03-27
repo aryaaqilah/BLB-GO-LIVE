@@ -86,6 +86,14 @@ const Profile = () => {
 
     console.log(itemsDetails)
 
+    const productDetails = order.ProductId?.ProductDetail;
+
+    const items = productDetails.map((i) => ({
+      ItemId: i._id,                  // dari ProductDetail
+      Quantity: i.Quantity,
+      ItemStokId: i.ItemId._id        // dari nested ItemId object
+    }));
+
     return {
       orderId: order._id || "N/A",
       statusInt: typeof order.Status === "number" ? order.Status : 0,
@@ -113,7 +121,8 @@ const Profile = () => {
       threeDPath: order.ProductId?.ThreeDModel?._id || "",
       token : order.Token || "",
       statusPembayaran: order.StatusPembayaran || "Belum Dibayar",
-      customerRequestNote: order.Notes || "Tidak ada catatan"
+      customerRequestNote: order.Notes || "Tidak ada catatan",
+      productDetails: items, // untuk update stok nanti
     };
   };
 
