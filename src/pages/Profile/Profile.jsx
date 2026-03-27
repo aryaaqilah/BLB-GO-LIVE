@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import OrderCard from "../../components/Order Card/OrderCard";
 import { FaUser, FaEdit, FaSignOutAlt } from "react-icons/fa";
@@ -8,19 +8,13 @@ import { useLoading } from "../../contexts/LoadingContext";
 
 const SectionError = ({ onRetry }) => (
   <div style={{ textAlign: 'center', padding: '3rem' }}>
-    <p className="p1 txt-color-ternary" style={{ marginBottom: '1.5rem' }}>
-      Oops... terjadi kesalahan silakan coba lagi
-    </p>
-    <button className="rounded-button-primary" onClick={onRetry}>
-      Coba Lagi
-    </button>
+    <p className="p1 txt-color-ternary" style={{ marginBottom: '1.5rem' }}>Oops... terjadi kesalahan silakan coba lagi</p>
+    <button className="RoundedButtonPrimary" onClick={onRetry}>Coba Lagi</button>
   </div>
 );
 
 const SectionLoading = () => (
-  <div style={{ display: 'flex', justifyContent: 'center', padding: '5rem' }}>
-    <div className="spinner"></div>
-  </div>
+  <div style={{ display: 'flex', justifyContent: 'center', padding: '5rem' }}><div className="spinner"></div></div>
 );
 
 const Profile = () => {
@@ -29,133 +23,84 @@ const Profile = () => {
   const { showLoading: showGlobalLoading, hideLoading: hideGlobalLoading } = useLoading();
   const navigate = useNavigate();
 
-  const [profileState, setProfileState] = useState({
-    data: null,
-    loading: true,
-    error: false
-  });
+  const [orders, setOrders] = useState([]);
+  const [profileData, setProfileData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
 
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
-
-  const formatDate = (dateString) => {
-    if (!dateString) return "-";
-    const options = { month: "short", day: "numeric", year: "numeric" };
-    return new Date(dateString).toLocaleDateString("en-US", options);
-  };
+  const [formData, setFormData] = useState({ name: "", email: "", password: "", confirmPassword: "" });
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
+      style: "currency", currency: "IDR", minimumFractionDigits: 0,
     }).format(amount);
   };
 
   const mapOrderToPresentation = (order) => {
     if (!order || !order.ProductId || !order.AddressId || !order.DeliveryId) return null;
-
-    const statusProfileLabels = {
-      0: "Pesanan Dibuat", 
-      1: "Pembayaran Berhasil", 
-      2: "Pesanan Disiapkan", 
-      3: "Pesanan Dikirim", 
-      4: "Pesanan Tiba",
-    };
-
-    const addressParts = [
-      order.AddressId?.Detail,
-      order.AddressId?.DistrictId?.district_name,
-      order.AddressId?.CityId?.city_name,
-      order.AddressId?.ProvinceId?.province_name,
-    ].filter(Boolean);
-
-    // Proses Detail Produk (Rincian Item)
-    const itemsDetails = order.ProductId?.ProductDetail?.map(detail => {
-      const itemName = detail.ItemId?.Name || "Item";
-      const qty = detail.Quantity || 0;
-      return `${itemName} (x${qty})`;
-    }) || [];
-
-    console.log(itemsDetails)
+    const statusLabels = { 0: "Pesanan Dibuat", 1: "Pembayaran Berhasil", 2: "Pesanan Disiapkan", 3: "Pesanan Dikirim", 4: "Pesanan Tiba" };
+    const addressParts = [order.AddressId?.Detail, order.AddressId?.DistrictId?.district_name, order.AddressId?.CityId?.city_name, order.AddressId?.ProvinceId?.province_name].filter(Boolean);
 
     return {
-      orderId: order._id || "N/A",
-      statusInt: typeof order.Status === "number" ? order.Status : 0,
-      status: statusProfileLabels[order.Status] || "Diproses",
-      
+      orderId: order._id,
+      statusInt: order.Status,
+      status: statusLabels[order.Status] || "Diproses",
       recipientName: order.AddressId?.RecipientName || "Guest",
       recipientPhone: order.AddressId?.RecipientNumber || "-",
-      fullAddress: addressParts.length > 0 ? addressParts.join(", ") : "Alamat tidak tersedia",
-      
+      fullAddress: addressParts.join(", "),
       shippingCode: order.DeliveryId?.ShippingCode || "-",
       deliveryService: order.DeliveryId?.Service || "Standard",
-      estimatedArrival: formatDate(order.DeliveryId?.EstimatedArrival),
-      
-      productName: order.ProductId?.Name || "Customized Bouquet",
+      estimatedArrival: new Date(order.DeliveryId?.EstimatedArrival).toLocaleDateString(),
+      productName: order.ProductId?.Name || "Product",
       productImageUrl: order.ProductId?.Image || "",
       quantity: order.ProductId?.Quantity || 1,
-      customizationDetails: itemsDetails,
-      
-      // Biaya-biaya
+      customizationDetails: order.ProductId?.ProductDetail?.map(d => `${d.ItemId?.Name} (x${d.Quantity})`) || [],
       subtotalProduct: formatCurrency(order.ProductPrice),
       shippingFee: formatCurrency(order.DeliveryId?.Price || 0),
       serviceFee: formatCurrency(order.AdministrationFee?.Fee || 0),
       totalOrder: formatCurrency(order.Total || 0),
-      
       threeDPath: order.ProductId?.ThreeDModel?.Path || "",
-      customerRequestNote: order.Notes || "Tidak ada catatan"
     };
   };
 
-  const fetchProfileData = async () => {
-    if (!user?._id) return;
-    setProfileState(prev => ({ ...prev, loading: true, error: false }));
-    
-    try {
-      // Backend harus melakukan deep populate: ProductId -> ProductDetail -> ItemId
-      const response = await fetch(`http://localhost:5000/api/users/orders/${user._id}`);
-      if (!response.ok) throw new Error();
-      const data = await response.json();
-      
-      setProfileState({ data, loading: false, error: false });
-      setFormData({
-        name: data.Name || "",
-        email: data.Email || "",
-        password: "",
-        confirmPassword: "",
-      });
-    } catch (err) {
-      setProfileState({ data: null, loading: false, error: true });
-    }
-  };
-
   useEffect(() => {
-    fetchProfileData();
-  }, [user?._id]);
+    let isMounted = true;
+    const userId = user?._id; // Ambil string ID saja
 
-  const handleInputChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
-  
-  const handleCancel = () => {
-    setIsEditing(false);
-    setFormData({
-      name: profileState.data?.Name || "",
-      email: profileState.data?.Email || "",
-      password: "",
-      confirmPassword: "",
-    });
-  };
+    const fetchData = async () => {
+      if (!userId) return;
+      if (isMounted) {
+        setIsLoading(true);
+        setIsError(false);
+      }
 
-  const isPasswordValid = formData.password !== "" && formData.password === formData.confirmPassword && /^[a-zA-Z0-9]+$/.test(formData.password);
-  const canSave = isEditing && isPasswordValid && formData.name.trim() !== "" && formData.email.trim() !== "";
+      try {
+        const response = await fetch(`http://localhost:5000/api/users/orders/${userId}`);
+        const data = await response.json();
+
+        if (response.ok && isMounted) {
+          setOrders(data.Orders || []);
+          setProfileData(data);
+          setFormData({ name: data.Name || "", email: data.Email || "", password: "", confirmPassword: "" });
+          setIsLoading(false);
+        } else if (isMounted) {
+          throw new Error();
+        }
+      } catch (err) {
+        if (isMounted) {
+          setIsError(true);
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchData();
+
+    return () => { isMounted = false; };
+  }, [user?._id]); // HANYA BERGANTUNG PADA STRING ID
 
   const handleSave = async () => {
-    if (!canSave) return;
     showGlobalLoading("Memperbarui Profil...");
     try {
       const response = await fetch(`http://localhost:5000/api/users/${user._id}`, {
@@ -167,9 +112,8 @@ const Profile = () => {
         const updatedUser = await response.json();
         updateAuthContext(updatedUser);
         setIsEditing(false);
-        setFormData(prev => ({ ...prev, password: "", confirmPassword: "" }));
-        showAlert("Profil berhasil diperbarui!");
-        fetchProfileData();
+        showAlert("Profil diperbarui!");
+        window.location.reload(); // Paksa reload jika memang masih glitch untuk sinkronisasi state
       }
     } catch (error) {
       showAlert("Gagal menyimpan.");
@@ -178,88 +122,71 @@ const Profile = () => {
     }
   };
 
-  const handleLogout = () => {
-    showAlert({
-      msg: "Apakah anda yakin ingin keluar?",
-      confirmText: "Ya, Keluar",
-      cancelText: "Batal",
-      onConfirm: () => {
-        logout();
-        navigate("/");
-      }
-    });
-  };
+  if (isLoading) return <SectionLoading />;
+  if (isError) return <SectionError onRetry={() => window.location.reload()} />;
 
   return (
     <div className="ProfilePageContainer">
       <button className="TernaryBackButton" onClick={() => navigate(-1)}>←</button>
-
-      {profileState.loading ? (
-        <SectionLoading />
-      ) : profileState.error ? (
-        <SectionError onRetry={fetchProfileData} />
-      ) : (
-        <div className="ProfileSection">
-          <div className="ProfileHeader">
-            <div className="ProfileInfo">
-              <FaUser className="ProfileIcon" />
-              <div>
-                <h1 className="txt-color-ternary">{formData.name || "User"}</h1>
-                <p className="p1 txt-color-ternary">{formData.email}</p>
-              </div>
-            </div>
-            <div className="ProfileActions">
-              <FaEdit onClick={() => setIsEditing(true)} style={{ color: isEditing ? "var(--color-primary)" : "inherit", cursor: "pointer" }} />
-              <FaSignOutAlt onClick={handleLogout} style={{ cursor: "pointer" }} />
+      <div className="ProfileSection">
+        <div className="ProfileHeader">
+          <div className="ProfileInfo">
+            <FaUser className="ProfileIcon" />
+            <div>
+              <h1 className="txt-color-ternary">{formData.name}</h1>
+              <p className="p1 txt-color-ternary">{formData.email}</p>
             </div>
           </div>
-
-          <div className="ProfileUserDetail">
-            <div className="ProfileDetailRow">
-              <div className="ProfileLabel txt-color-ternary">
-                <label>Nama</label>
-                <input name="name" value={formData.name} onChange={handleInputChange} readOnly={!isEditing} className={!isEditing ? "read-only-input" : ""} />
-              </div>
-              <div className="ProfileLabel txt-color-ternary">
-                <label>Email</label>
-                <input name="email" value={formData.email} onChange={handleInputChange} readOnly={!isEditing} className={!isEditing ? "read-only-input" : ""} />
-              </div>
-            </div>
-            <div className="ProfileDetailRow">
-              <div className="ProfileLabel txt-color-ternary">
-                <label>Password Baru</label>
-                <input name="password" type="password" placeholder={isEditing ? "Alfanumerik" : "********"} value={formData.password} onChange={handleInputChange} readOnly={!isEditing} className={!isEditing ? "read-only-input" : ""} />
-              </div>
-              <div className="ProfileLabel txt-color-ternary">
-                <label>Konfirmasi Password</label>
-                <input name="confirmPassword" type="password" placeholder={isEditing ? "Ulangi Password" : "********"} value={formData.confirmPassword} onChange={handleInputChange} readOnly={!isEditing} className={!isEditing ? "read-only-input" : ""} />
-              </div>
-            </div>
-            {isEditing && !isPasswordValid && formData.password !== "" && <p className="ErrorMessage">Password harus alfanumerik dan cocok.</p>}
-          </div>
-
-          {isEditing && (
-            <div className="ProfileEditButtonsContainer">
-              <button className="button-ternary" onClick={handleCancel}>Batal</button>
-              <button className="button-primary" onClick={handleSave} disabled={!canSave}>Simpan Perubahan</button>
-            </div>
-          )}
-
-          <div className="MyOrderSection">
-            <h2 className="txt-color-ternary">Pesanan Saya</h2>
-            {profileState.data?.Orders?.length > 0 ? (
-              profileState.data.Orders
-                .map(order => mapOrderToPresentation(order))
-                .filter(presentedOrder => presentedOrder !== null)
-                .map(presentedOrder => (
-                  <OrderCard key={presentedOrder.orderId} order={presentedOrder} />
-                ))
-            ) : (
-              <p className="txt-color-ternary">Belum ada pesanan.</p>
-            )}
+          <div className="ProfileActions">
+            <FaEdit onClick={() => setIsEditing(true)} style={{ color: isEditing ? "var(--color-primary)" : "inherit", cursor: "pointer" }} />
+            <FaSignOutAlt onClick={() => { logout(); navigate("/"); }} style={{ cursor: "pointer" }} />
           </div>
         </div>
-      )}
+
+        <div className="ProfileUserDetail">
+          <div className="ProfileDetailRow">
+            <div className="ProfileLabel">
+              <label>Nama</label>
+              <input name="name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} readOnly={!isEditing} className={!isEditing ? "read-only-input" : ""} />
+            </div>
+            <div className="ProfileLabel">
+              <label>Email</label>
+              <input name="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} readOnly={!isEditing} className={!isEditing ? "read-only-input" : ""} />
+            </div>
+          </div>
+          {isEditing && (
+            <div className="ProfileDetailRow">
+              <div className="ProfileLabel">
+                <label>Password Baru</label>
+                <input name="password" type="password" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} />
+              </div>
+              <div className="ProfileLabel">
+                <label>Konfirmasi Password</label>
+                <input name="confirmPassword" type="password" value={formData.confirmPassword} onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })} />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {isEditing && (
+          <div className="ProfileEditButtonsContainer">
+            <button className="button-ternary" onClick={() => setIsEditing(false)}>Batal</button>
+            <button className="button-primary" onClick={handleSave}>Simpan</button>
+          </div>
+        )}
+
+        <div className="MyOrderSection">
+          <h2 className="txt-color-ternary">Pesanan Saya</h2>
+          {orders.length > 0 ? (
+            orders.map(order => {
+              const presented = mapOrderToPresentation(order);
+              return presented ? <OrderCard key={order._id} order={presented} /> : null;
+            })
+          ) : (
+            <p className="txt-color-ternary">Belum ada pesanan.</p>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

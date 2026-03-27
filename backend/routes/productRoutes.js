@@ -1,6 +1,7 @@
 import express from "express";
 import multer from "multer";
 import path from "path";
+import Order from "../models/Order.js"
 import Product from "../models/Product.js";
 import ProductDetail from "../models/ProductDetail.js";
 
@@ -29,6 +30,63 @@ const processDetails = async (detailsString) => {
   }
   return detailIds;
 };
+
+router.get("/best-sellers", async (req, res) => {
+  try {
+    let results = await Order.aggregate([
+      { $match: { Status: { $gte: 1 } } }, 
+      {
+        $lookup: {
+          from: "products", 
+          localField: "ProductId",
+          foreignField: "_id",
+          as: "ProductInfo"
+        }
+      },
+      { $unwind: "$ProductInfo" },
+      { $match: { "ProductInfo.IsCustomized": 0 } },
+      {
+        $group: {
+          _id: "$ProductId",
+          TotalSales: { $sum: 1 },
+          Name: { $first: "$ProductInfo.Name" },
+          Price: { $first: "$ProductInfo.Price" },
+          Image: { $first: "$ProductInfo.Image" },
+          Memo: { $first: "$ProductInfo.Memo" }
+        }
+      },
+      { $sort: { TotalSales: -1 } },
+      { $limit: 5 }
+    ]);
+
+    if (results.length < 5) {
+      const existingIds = results.map(item => item._id);
+      const limitNeeded = 5 - results.length;
+
+      const recentProducts = await Product.find({
+        IsCustomized: 0,
+        _id: { $nin: existingIds }
+      })
+      .sort({ CreatedAt: -1 })
+      .limit(limitNeeded);
+
+      const formattedRecent = recentProducts.map(p => ({
+        _id: p._id,
+        Name: p.Name,
+        Price: p.Price,
+        Image: p.Image,
+        Memo: p.Memo,
+        TotalSales: 0 
+      }));
+
+      results = [...results, ...formattedRecent];
+    }
+
+    res.json(results);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // 🗑️ Bulk Delete
 router.delete("/bulk-delete", async (req, res) => {

@@ -111,7 +111,7 @@ function AppContent() {
           <Route path="/confirmation" element={<Confirmation />} />
           <Route path="/payment" element={<Payment />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/order-detail" element={<OrderDetail />} />
+          <Route path="/order-detail/:orderId" element={<OrderDetail />} />
         </Route>
 
         {/* --- FLORIST AREA --- */}
