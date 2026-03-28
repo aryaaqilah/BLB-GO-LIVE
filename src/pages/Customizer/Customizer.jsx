@@ -632,8 +632,10 @@ const ColorChoose = ({ parcelColor, setParcelColor, ribbonColor, setRibbonColor 
   );
 };
 
-function MainSection() {
-  const shopId = "69a581ef883533f34a8dc3b0";
+function MainSection(storeId) {
+  // const shopId = "69a581ef883533f34a8dc3b0";
+  const shopId = storeId.storeId;
+  console.log("shop id di main section", shopId);
   const { showAlert } = useAlert();
   const [objects, setObjects] = useState([]);
     const [selectedId, setSelectedId] = useState(null);
@@ -1413,9 +1415,13 @@ const formattedSummary = summaryData.map(item => [item.ItemId, item.qty]);
 }
 
 export default function Customizer() {
+  const storeId = window.history.state.usr.storeId;
+  console.log("STORE ID (Customizer.jsx): ", storeId);
   return (
     <div>
-      <MainSection />
+      <MainSection 
+        storeId={storeId}
+      />
     </div>
   );
 }

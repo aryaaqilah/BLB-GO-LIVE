@@ -72,7 +72,7 @@ function CustomizeYourOwnSection() {
             Rangkai memori indahmu dan biarkan ia mekar dalam genggaman.
           </p>
           <button className="button-primary-fill h3">
-            <a href="/customizer" className="h3 txt-color-white txt-decoration-none">
+            <a href="/shop" className="h3 txt-color-white txt-decoration-none">
               Kreasikan Buket
             </a>
           </button>

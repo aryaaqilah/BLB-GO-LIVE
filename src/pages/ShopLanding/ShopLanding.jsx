@@ -171,6 +171,10 @@ const ShopLanding = () => {
   // Prevent returning null; show a skeleton or return a fragment instead
   if (!storeInfo) return <div style={{ height: '100vh' }}></div>;
 
+  const handleCustom = () => {
+    navigate('/customizer', { state: { storeId : storeId } });
+  }
+
   return (
     <div className="ShopLandingContainer" style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
       <button className="TernaryBackButton" onClick={() => navigate(-1)} style={{ marginBottom: '2rem' }}>
@@ -179,14 +183,17 @@ const ShopLanding = () => {
       
       <header className="ShopLandingHeader" style={{ display: 'flex', alignItems: 'center', gap: '2rem', borderBottom: '1px solid #eee', paddingBottom: '2rem', marginBottom: '3rem' }}>
         <img src={storeInfo.Logo} alt={storeInfo.Name} className="ShopLandingLogo" style={{ width: '120px', height: '120px', borderRadius: '50%' }} />
-        <div className="ShopLandingDetails">
+        <div className="ShopLandingDetails" style={{ width : '100%' }}>
           <h1 className="h1 txt-color-primary">{storeInfo.Name}</h1>
           <p className="p2">Alamat: {addressInfo.city}, {addressInfo.province} </p>
           <p className="p2">No. Telepon: {storeInfo.PhoneNumber}</p>
-          <div className="ShopLandingRatingRow" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px' }}>
-            <FaStar color="#FFD700" /> 
+          <div className="ShopLandingRatingRow" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px', justifyContent: 'space-between'  }}>
+            <div style={{ display: 'flex', alignItems: 'center',gap: '8px' }}><FaStar color="#FFD700" /> 
             <span className="p2 weight-semibold">{ratingState.data.length > 0 ? (ratingState.data.reduce((a, b) => a + b.Rating, 0) / ratingState.data.length).toFixed(1) : "0"}</span>
-            <span className="p3 txt-color-bg-dark">({totalRating} ulasan)</span>
+            <span className="p3 txt-color-bg-dark">({totalRating} ulasan)</span></div>
+            <div>
+              <button className="button-primary-fill" onClick={handleCustom} >Kreasikan Buket Mu</button>
+            </div>
           </div>
         </div>
       </header>
