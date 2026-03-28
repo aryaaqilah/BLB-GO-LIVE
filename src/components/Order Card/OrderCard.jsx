@@ -50,7 +50,7 @@ const OrderCard = ({ order }) => {
           onSuccess: async function () {
           try {
             console.log("✅ Pembayaran berhasil:", order);
-            showAlert("Pembayaran berhasil!");
+            // showAlert("Pembayaran berhasil!");
     
             const StatusTemp = 0;
     
@@ -85,7 +85,7 @@ const OrderCard = ({ order }) => {
         },
     
           onPending: function () {
-            showAlert("Menunggu pembayaran...");
+            // showAlert("Menunggu pembayaran...");
             const StatusTemp = 2;
             clear();
             navigate("/profile", {
@@ -99,7 +99,7 @@ const OrderCard = ({ order }) => {
           },
     
           onError: async function () {
-            showAlert("Pembayaran gagal!");
+            // showAlert("Pembayaran gagal!");
             const StatusTemp = 1;
             clear();
             const updateStatus = fetch(
@@ -138,7 +138,7 @@ const OrderCard = ({ order }) => {
           },
     
           onClose: function () {
-            showAlert("Kamu menutup pembayaran.");
+            // showAlert("Kamu menutup pembayaran.");
             clear();
             const StatusTemp = 2;
                     navigate("/profile", {
@@ -162,12 +162,9 @@ const OrderCard = ({ order }) => {
             <p className="p1">STATUS PESANAN</p>
             <span className="p2">   
               {order.statusPembayaran === 2 ? (
-              <button
-                className="p2 btn btn-primary"
-                onClick={() => handlePayment(order)}
-              >
-                Bayar
-              </button>
+            <span>
+              Belum Dibayar
+            </span>
             ) : (
               <span className="p2">{order.status}</span>
             )}
@@ -185,7 +182,24 @@ const OrderCard = ({ order }) => {
         </div>
         <div className="RightItem">
           {/* Mapping to the "DALAM PENGIRIMAN" or status header in the top right */}
-          <p className="p1">DALAM PENGIRIMAN</p>
+          <p className="p1">
+            {order.statusPembayaran === 2 ? (
+            <span
+              onClick={() => handlePayment(order)}
+              style={{
+                color: "#A95C4C",
+                textDecoration: "underline",
+                cursor: "pointer",
+                fontWeight: "bold",
+              }}
+            >
+              BAYAR DISINI
+            </span>
+            
+            ) : (
+              <span className="p2">{order.status}</span>
+            )}
+          </p>
           <span className="p2 tiny">ORDER #{order.orderId}</span>
         </div>
       </div>
@@ -235,7 +249,7 @@ const OrderCard = ({ order }) => {
       <div className="OrderFooter">
         <div>
           {/* Using the estimatedArrival field from the model */}
-          <span className="p3">Estimasi Pengirimany : </span>
+          <span className="p3">Estimasi Pengiriman : </span>
           <span className="p3">{order.estimatedArrival}</span>
         </div>
         <a href="#admin" className="p2">

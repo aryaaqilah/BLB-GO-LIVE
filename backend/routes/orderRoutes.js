@@ -94,6 +94,7 @@ router.delete("/:id", async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
+
 // 🔐 Update Token Order (PATCH /api/orders/:id/token)
 router.patch("/:id/token", async (req, res) => {
   try {
@@ -146,6 +147,71 @@ router.patch("/:id/status-pembayaran", async (req, res) => {
   } catch (err) {
     res.status(400).json({ error: err.message });
       }
+});
+
+router.patch("/:id/cancel", async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+
+    if (!order) return res.status(404).send("Order not found");
+
+    const { reason } = req.body;
+
+    if (!reason || !reason.trim()) {
+      return res.status(400).json({ message: "Reason is required" });
+    }
+
+    // 🔥 CASE 1: BELUM BAYAR
+    if (order.StatusPembayaran !== 0) {
+      await Order.updateOne(
+        { _id: order._id },
+        {
+          StatusPembayaran: 3, // CANCELLED
+          Status: 5, // ✅ SIMPAN
+        }
+      );
+
+      await restoreStock(order._id);
+
+      return res.json({ message: "Order cancelled (no payment)" });
+    }
+
+    console.log("Order sudah bayar, proses refund ke Midtrans...");
+    await restoreStock(order._id);
+    // 🔥 CASE 2: SUDAH BAYAR → REFUND
+    const response = await fetch(
+      `https://api.sandbox.midtrans.com/v2/${order._id}/refund`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization":
+            "Basic " +
+            Buffer.from(process.env.MIDTRANS_SERVER_KEY + ":").toString("base64"),
+        },
+        body: JSON.stringify({
+          refund_key: "refund-" + Date.now(),
+          amount: order.Total,
+          reason: reason, // ✅ KIRIM KE MIDTRANS
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    await Order.updateOne(
+      { _id: order._id },
+      {
+        StatusPembayaran: 4, // REFUND_PROCESS
+        Status: 5, // ✅ SIMPAN JUGA
+      }
+    );
+
+    res.json({ message: "Refund initiated", data });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 router.get("/florist/:id", async (req, res) => {
@@ -227,6 +293,36 @@ router.get("/florist/:id", async (req, res) => {
 //   }
 // });
 
+const restoreStock = async (orderId) => {
+  const order = await Order.findById(orderId)
+  .populate({ path: "UserId", select: "Name Email" })
+      .populate({ 
+        path: "AddressId", 
+        populate: ["ProvinceId", "CityId", "DistrictId"] 
+      })
+      .populate("DeliveryId")
+      .populate({
+        path: "ProductId",
+        populate: {
+          path: "ProductDetail",
+          populate: { path: "ItemId", model: "Item" }
+        }
+      })
+      .populate("AdministrationFee");
+
+  const items = order.ProductId.ProductDetail;
+  console.log("🔄 Restoring stock for order:", order);
+
+  for (const item of items) {
+    await Item.updateOne(
+      { _id: item.ItemId._id },
+      { $inc: { stok: item.Quantity } } // atau sesuai quantity
+    );
+  }
+
+  console.log("✅ Stok dikembalikan");
+};
+
 router.patch("/update-status/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -260,5 +356,7 @@ router.patch("/update-status/:id", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+
 
 export default router;

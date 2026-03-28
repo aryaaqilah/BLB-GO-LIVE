@@ -72,6 +72,7 @@ const Profile = () => {
       2: "Pesanan Disiapkan",
       3: "Pesanan Dikirim",
       4: "Pesanan Tiba",
+      5 : "Pesanan Dibatalkan",
     };
 
     const addressParts = [

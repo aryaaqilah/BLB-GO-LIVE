@@ -1163,16 +1163,34 @@ h3,
 .AddressFormGroup select,
 .AddressFormGroup textarea {
   width: 100%;
-  padding: 1rem;
-  border-radius: 1svh;
+  /* padding: 1rem; */
+  /* padding-left: 1rem; */
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  padding-right: 1rem;
+  padding-left: 1rem;
+  border-radius: 1vh;
   border: none;
   background-color: rgba(212, 190, 167, 0.5);
+  /* margin-right: 1rem; */
 }
 
 .AddressFormGroup input:focus,
 .AddressFormGroup select:focus,
 .AddressFormGroup textarea:focus {
   outline: 0;
+}
+
+.AddressSelect {
+  padding: 10px 40px 10px 10px; /* kanan lebih besar */
+  appearance: none; /* hilangkan default arrow */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center; /* geser dari kanan */
+  background-size: 16px;
 }
 
 .AddressFormGroup textarea {

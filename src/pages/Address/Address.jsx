@@ -137,6 +137,7 @@ function AddressSection({ selectedProduct, modelData, provinceData, cityData, di
                   value={addressData.CityId}
                   onChange={handleChange}
                   disabled={!addressData.ProvinceId} // Disable jika provinsi belum dipilih
+                  className="AddressSelect"
                 >
                   <option value="">Pilih Kota</option>
                   {cityData
@@ -156,6 +157,7 @@ function AddressSection({ selectedProduct, modelData, provinceData, cityData, di
                   value={addressData.DistrictId}
                   onChange={handleChange}
                   disabled={!addressData.CityId} // Disable jika provinsi belum dipilih
+                  className="AddressSelect"
                 >
                   <option value="">Pilih Kota</option>
                   {districtData

@@ -24,7 +24,7 @@ const FloristOrders = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState("Template");
+  const [activeTab, setActiveTab] = useState("Buket Template");
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const itemsPerPage = 8;
@@ -61,8 +61,8 @@ const filteredData = orderState.data
   .filter((item) => {
     if (!item.ProductId || !item.ProductId.Name) return false;
 
-    if (activeTab === "Template") return item.ProductId.IsCustomized === 0;
-    if (activeTab === "Custom") return item.ProductId.IsCustomized === 1;
+    if (activeTab === "Buket Template") return item.ProductId.IsCustomized === 0;
+    if (activeTab === "Buket Custom") return item.ProductId.IsCustomized === 1;
 
     return true;
   });
@@ -91,17 +91,20 @@ const filteredData = orderState.data
 
     const getStatusLabel = (status) => {
     switch (status) {
-        case 0: return "Menunggu";
-        case 1: return "Diproses";
-        case 2: return "Selesai";
-        case 3 : return "Dalam Pengiriman";
-        case 4 : return "Pesanan Selesai";
+        case 0: return "Pesanan Dibuat";
+        case 1: return "Pembayaran Berhasil";
+        case 2: return "Pesanan Disiapkan";
+        case 3 : return "Pesanan Dikirim";
+        case 4 : return "Pesanan Tiba";
+        case 5 : return "Pesanan Dibatalkan";
         default: return "Unknown";
     }
     };
 
     const getStatusStyle = (status) => {
     switch (status) {
+        case 5:
+        return { bg: "#FEE2E2", color: "#B42318" };
         case 4:
         return { bg: "#D1FADF", color: "#027A48" };
         case 3:
@@ -121,7 +124,7 @@ const filteredData = orderState.data
 
       {/* 🔥 TAB TEMPLATE / CUSTOM */}
       <div className="FloristTabContainer">
-        {["Template", "Custom"].map((tab) => (
+        {["Buket Template", "Buket Custom"].map((tab) => (
           <button
             key={tab}
             className={`FloristTabItem ${activeTab === tab ? "FloristTabActive" : ""}`}

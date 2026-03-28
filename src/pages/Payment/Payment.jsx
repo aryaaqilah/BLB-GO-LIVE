@@ -69,6 +69,8 @@ function MainSection({
   const { showLoading, hideLoading } = useLoading();
 
   const [showPayment, setShowPayment] = useState(false);
+
+  console.log("Current user:", user);
   
   const handleCardSelect = async () => {
     showLoading("Memproses pembayaran...");
@@ -337,8 +339,8 @@ function MainSection({
           orderId: savedOrder._id,
           amount: totalOrder,
           customer: {
-            name: user.name,
-            email: user.email,
+            name: user.Name,
+            email: user.Email,
           },
         }),
       });

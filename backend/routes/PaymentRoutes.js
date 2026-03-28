@@ -1,5 +1,7 @@
 import express from "express";
 import midtransClient from "midtrans-client";
+import Order from "../models/Order.js";
+import Item from "../models/Item.js";
 const router = express.Router();
 
 const snap = new midtransClient.Snap({
@@ -39,5 +41,97 @@ router.post("/create-transaction", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+const restoreStock = async (orderId) => {
+  const order = await Order.findById(orderId)
+  .populate({ path: "UserId", select: "Name Email" })
+      .populate({ 
+        path: "AddressId", 
+        populate: ["ProvinceId", "CityId", "DistrictId"] 
+      })
+      .populate("DeliveryId")
+      .populate({
+        path: "ProductId",
+        populate: {
+          path: "ProductDetail",
+          populate: { path: "ItemId", model: "Item" }
+        }
+      })
+      .populate("AdministrationFee");
+
+  const items = order.ProductId.ProductDetail;
+
+  for (const item of items) {
+    await Item.updateOne(
+      { _id: item.ItemId._id },
+      { $inc: { stok: item.Quantity } } // atau sesuai quantity
+    );
+  }
+
+  console.log("✅ Stok dikembalikan");
+};
+
+router.post("/api/payment/notification", async (req, res) => {
+  try {
+    const data = req.body;
+
+    const orderId = data.order_id;
+    const status = data.transaction_status;
+
+    console.log("📩 Midtrans webhook:", status);
+
+    if (status === "settlement") {
+      await fetch(
+        `http://localhost:5000/api/orders/${orderId}/status-pembayaran`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ StatusPembayaran: 1 }),
+        }
+      );
+    } 
+    
+    else if (status === "expire") {
+      await fetch(
+        `http://localhost:5000/api/orders/${orderId}/status-pembayaran`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ StatusPembayaran: 2 }),
+        }
+      );
+
+      // 🔥 BALIKKAN STOK
+      await restoreStock(orderId);
+    } 
+    
+    else if (status === "cancel") {
+      await fetch(
+        `http://localhost:5000/api/orders/${orderId}/status-pembayaran`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ StatusPembayaran: 2 }),
+        }
+      );
+
+      // 🔥 BALIKKAN STOK
+      await restoreStock(orderId);
+    }
+
+    res.sendStatus(200);
+
+  } catch (error) {
+    console.error("Webhook error:", error);
+    res.sendStatus(500);
+  }
+});
+
 
 export default router;
