@@ -74,6 +74,13 @@ const FloristSidebar = () => {
             >
               Pesanan
             </NavLink>
+            <NavLink 
+              to="/customization" 
+              className={({ isActive }) => isActive ? "PetalTab active" : "PetalTab"}
+              onClick={closeGarden}
+            >
+              Kustomisasi
+            </NavLink>
           </div>
         </div>
 

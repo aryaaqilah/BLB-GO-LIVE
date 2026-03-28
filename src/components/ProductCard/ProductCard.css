@@ -24,8 +24,8 @@
 
 .product-image-pop {
   position: absolute;
-  width: 110%;
-  bottom: 2rem;
+  width: 80%;
+  bottom: 4rem;
   left: 50%;
   transform: translateX(-50%);
   filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));

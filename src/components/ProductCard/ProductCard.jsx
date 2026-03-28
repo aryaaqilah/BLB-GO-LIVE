@@ -13,14 +13,12 @@ const ProductCard = ({ product }) => {
   const handleCardSelect = async (card) => {
     const items = card.items || [];
 
-    // ❗ Validasi awal
     if (items.length === 0) {
       showAlert("Produk tidak memiliki item.");
       return;
     }
 
     try {
-      // 🔥 Ambil semua stok sekaligus
       const responses = await Promise.all(
         items.map(item =>
           fetch(`http://localhost:5000/api/items/${item.ItemStokId}`)
@@ -29,18 +27,15 @@ const ProductCard = ({ product }) => {
 
       const dataResults = await Promise.all(responses.map(res => res.json()));
 
-      // ❗ Cek kalau ada request gagal
       if (responses.some(res => !res.ok)) {
         throw new Error("Gagal fetch salah satu item");
       }
 
-      // ✅ Validasi stok (cek semua item)
       const hasInsufficientStock = items.some((item) => {
         const stockData = dataResults.find(
           data => data._id === item.ItemStokId
         );
 
-        // ❗ kalau tidak ketemu atau stok tidak ada
         if (!stockData || !stockData.Stok) return true;
 
         return item.Quantity > stockData.Stok;
@@ -66,12 +61,10 @@ const ProductCard = ({ product }) => {
         if (!res.ok) throw new Error(data.message);
       };
 
-      // ✅ Lanjut kalau semua stok aman
       if (user) {
         try {
           await updateStock(items, "decrease");
 
-          // ✅ baru lanjut kalau sukses
           navigate("/confirmation", {
             state: { selectedProduct: card },
           });
@@ -94,7 +87,6 @@ const ProductCard = ({ product }) => {
   return (
     <div className="product-card">
       <div className="image-container">
-        {/* The bouquet image that overlaps the top */}
         <img 
           src={
             product.image?.startsWith("data:image")

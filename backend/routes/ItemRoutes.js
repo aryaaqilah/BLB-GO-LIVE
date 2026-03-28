@@ -1,5 +1,6 @@
 import express from "express";
 import Item from "../models/Item.js";
+import Shop from "../models/Shop.js"
 import mongoose from 'mongoose';
 
 const router = express.Router();
@@ -133,6 +134,56 @@ router.post("/update-stock", async (req, res) => {
 
     res.json({ message: `Stok berhasil ${type === "decrease" ? "dikurangi" : "dikembalikan"}` });
 
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 🔄 Sinkronisasi Kustomisasi (PUT /api/items/customization/:shopId)
+router.put("/customization/:shopId", async (req, res) => {
+  try {
+    const { accept, wrappers, ribbons } = req.body;
+    const { shopId } = req.params;
+
+    // 1. Update status kustomisasi di tabel Toko
+    await Shop.findByIdAndUpdate(shopId, { AcceptCustomization: accept });
+
+    // 2. Hapus item tipe Wrapper & Ribbon lama milik toko ini
+    await Item.deleteMany({ ShopId: shopId, Type: { $in: ['Wrapper', 'Ribbon'] } });
+
+    if (accept) {
+      const newItems = [];
+      
+      // Map Wrapper
+      wrappers.forEach(w => {
+        newItems.push({
+          Name: `Wrapper ${w.label}`,
+          Price: Number(w.price),
+          Stok: Number(w.stok),
+          ShopId: shopId,
+          Type: 'Wrapper',
+          HexCode: w.hex
+        });
+      });
+
+      // Map Ribbon
+      ribbons.forEach(r => {
+        newItems.push({
+          Name: `Pita ${r.label}`,
+          Price: Number(r.price),
+          Stok: Number(r.stok),
+          ShopId: shopId,
+          Type: 'Ribbon',
+          HexCode: r.hex
+        });
+      });
+
+      if (newItems.length > 0) {
+        await Item.insertMany(newItems);
+      }
+    }
+
+    res.json({ message: "Kustomisasi berhasil diperbarui" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

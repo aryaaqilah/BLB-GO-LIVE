@@ -17,17 +17,28 @@ const SectionError = ({ onRetry }) => (
   </div>
 );
 
+// MODIFIKASI: Loading di tengah dengan teks
 const SectionLoading = () => (
-  <div style={{ display: "flex", justifyContent: "center", padding: "5rem" }}>
+  <div style={{ 
+    display: "flex", 
+    flexDirection: "column",
+    justifyContent: "center", 
+    alignItems: "center",
+    minHeight: "60vh", // Mengambil tinggi area konten agar terlihat di tengah
+    width: "100%",
+    gap: "1.5rem"
+  }}>
     <div className="spinner"></div>
+    <p className="txt-color-ternary p1" style={{ animate: "pulse 1.5s infinite" }}>
+      Memuat profile Anda...
+    </p>
   </div>
 );
 
 const Profile = () => {
   const { user, logout, login: updateAuthContext } = useAuth();
   const { showAlert } = useAlert();
-  const { showLoading: showGlobalLoading, hideLoading: hideGlobalLoading } =
-    useLoading();
+  const { showLoading: showGlobalLoading, hideLoading: hideGlobalLoading } = useLoading();
   const navigate = useNavigate();
 
   const [orders, setOrders] = useState([]);
@@ -70,23 +81,12 @@ const Profile = () => {
       order.AddressId?.ProvinceId?.province_name,
     ].filter(Boolean);
 
-    console.log("Mapping order:", order);
-
-    const itemsDetails =
-      order.ProductId?.ProductDetail?.map((detail) => {
-        const itemName = detail.ItemId?.Name || "Item";
-        const qty = detail.Quantity || 0;
-        return `${itemName} (x${qty})`;
-      }) || [];
-
-    console.log(itemsDetails);
-
-    const productDetails = order.ProductId?.ProductDetail;
+    const productDetails = order.ProductId?.ProductDetail || [];
 
     const items = productDetails.map((i) => ({
-      ItemId: i._id, // dari ProductDetail
+      ItemId: i._id,
       Quantity: i.Quantity,
-      ItemStokId: i.ItemId._id, // dari nested ItemId object
+      ItemStokId: i.ItemId?._id,
     }));
 
     return {
@@ -105,19 +105,18 @@ const Profile = () => {
       productImageUrl: order.ProductId?.Image || "",
       quantity: order.ProductId?.Quantity || 1,
       customizationDetails:
-        order.ProductId?.ProductDetail?.map(
-          (d) => `${d.ItemId?.Name} (x${d.Quantity})`,
+        productDetails.map(
+          (d) => `${d.ItemId?.Name || "Item"} (x${d.Quantity})`,
         ) || [],
       subtotalProduct: formatCurrency(order.ProductPrice),
       shippingFee: formatCurrency(order.DeliveryId?.Price || 0),
       serviceFee: formatCurrency(order.AdministrationFee?.Fee || 0),
       totalOrder: formatCurrency(order.Total || 0),
-
       threeDPath: order.ProductId?.ThreeDModel?._id || "",
       token: order.Token || "",
-      statusPembayaran: order.StatusPembayaran || "Belum Dibayar",
+      statusPembayaran: order.StatusPembayaran || 0,
       customerRequestNote: order.Notes || "Tidak ada catatan",
-      productDetails: items, // untuk update stok nanti
+      productDetails: items,
     };
   };
 
@@ -127,21 +126,20 @@ const Profile = () => {
     setIsLoading(true);
 
     try {
-      // Backend harus melakukan deep populate: ProductId -> ProductDetail -> ItemId
       const response = await fetch(
         `http://localhost:5000/api/users/orders/${user._id}`,
       );
       if (!response.ok) throw new Error();
       const data = await response.json();
 
-      console.log(data)
-      setOrders()
       setProfileData({ data: data, loading: false, error: false });
+      
       if (data.Orders && Array.isArray(data.Orders)) {
         setOrders(data.Orders);
       } else if (Array.isArray(data)) {
         setOrders(data);
       }
+
       setFormData({
         name: data.Name || "",
         email: data.Email || "",
@@ -149,8 +147,8 @@ const Profile = () => {
         confirmPassword: "",
       });
     } catch (err) {
+      console.error("Fetch error:", err);
       setIsError(true);
-      setProfileData({ data: null, loading: false, error: true });
     } finally {
       setIsLoading(false);
     }
@@ -166,8 +164,8 @@ const Profile = () => {
   const handleCancel = () => {
     setIsEditing(false);
     setFormData({
-      name: profileData.data?.Name || "",
-      email: profileData.data?.Email || "",
+      name: profileData?.data?.Name || user?.Name || "",
+      email: profileData?.data?.Email || user?.Email || "",
       password: "",
       confirmPassword: "",
     });
@@ -177,6 +175,7 @@ const Profile = () => {
     formData.password !== "" &&
     formData.password === formData.confirmPassword &&
     /^[a-zA-Z0-9]+$/.test(formData.password);
+    
   const canSave =
     isEditing &&
     isPasswordValid &&
@@ -184,6 +183,7 @@ const Profile = () => {
     formData.email.trim() !== "";
 
   const handleSave = async () => {
+    if (!canSave) return;
     showGlobalLoading("Memperbarui Profil...");
     try {
       const response = await fetch(
@@ -202,8 +202,9 @@ const Profile = () => {
         const updatedUser = await response.json();
         updateAuthContext(updatedUser);
         setIsEditing(false);
-        showAlert("Profil diperbarui!");
-        window.location.reload(); // Paksa reload jika memang masih glitch untuk sinkronisasi state
+        showAlert("Profil berhasil diperbarui!");
+        // Refresh data lokal tanpa reload halaman penuh
+        fetchProfileData();
       }
     } catch (error) {
       showAlert("Gagal menyimpan.");
@@ -212,127 +213,129 @@ const Profile = () => {
     }
   };
 
-  if (isLoading) return <SectionLoading />;
-  if (isError) return <SectionError onRetry={() => window.location.reload()} />;
+  const handleLogout = () => {
+    showAlert({
+      msg: "Apakah anda yakin ingin keluar?",
+      confirmText: "Ya, Keluar",
+      cancelText: "Batal",
+      onConfirm: () => {
+        logout();
+        navigate("/");
+      }
+    });
+  };
 
   return (
     <div className="ProfilePageContainer">
       <button className="TernaryBackButton" onClick={() => navigate(-1)}>
         ←
       </button>
-      <div className="ProfileSection">
-        <div className="ProfileHeader">
-          <div className="ProfileInfo">
-            <FaUser className="ProfileIcon" />
-            <div>
-              <h1 className="txt-color-ternary">{formData.name}</h1>
-              <p className="p1 txt-color-ternary">{formData.email}</p>
-            </div>
-          </div>
-          <div className="ProfileActions">
-            <FaEdit
-              onClick={() => setIsEditing(true)}
-              style={{
-                color: isEditing ? "var(--color-primary)" : "inherit",
-                cursor: "pointer",
-              }}
-            />
-            <FaSignOutAlt
-              onClick={() => {
-                logout();
-                navigate("/");
-              }}
-              style={{ cursor: "pointer" }}
-            />
-          </div>
-        </div>
 
-        <div className="ProfileUserDetail">
-          <div className="ProfileDetailRow">
-            <div className="ProfileLabel">
-              <label>Nama</label>
-              <input
-                name="name"
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                readOnly={!isEditing}
-                className={!isEditing ? "read-only-input" : ""}
-              />
+      {isLoading ? (
+        <SectionLoading />
+      ) : isError ? (
+        <SectionError onRetry={fetchProfileData} />
+      ) : (
+        <div className="ProfileSection">
+          <div className="ProfileHeader">
+            <div className="ProfileInfo">
+              <FaUser className="ProfileIcon" />
+              <div>
+                <h1 className="txt-color-ternary">{formData.name}</h1>
+                <p className="p1 txt-color-ternary">{formData.email}</p>
+              </div>
             </div>
-            <div className="ProfileLabel">
-              <label>Email</label>
-              <input
-                name="email"
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
-                readOnly={!isEditing}
-                className={!isEditing ? "read-only-input" : ""}
+            <div className="ProfileActions">
+              <FaEdit
+                onClick={() => setIsEditing(true)}
+                style={{
+                  color: isEditing ? "var(--color-primary)" : "inherit",
+                  cursor: "pointer",
+                }}
+              />
+              <FaSignOutAlt
+                onClick={handleLogout}
+                style={{ cursor: "pointer" }}
               />
             </div>
           </div>
-          {isEditing && (
+
+          <div className="ProfileUserDetail">
             <div className="ProfileDetailRow">
               <div className="ProfileLabel">
-                <label>Password Baru</label>
+                <label>Nama</label>
                 <input
-                  name="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
-                  }
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  readOnly={!isEditing}
+                  className={!isEditing ? "read-only-input" : ""}
                 />
               </div>
               <div className="ProfileLabel">
-                <label>Konfirmasi Password</label>
+                <label>Email</label>
                 <input
-                  name="confirmPassword"
-                  type="password"
-                  value={formData.confirmPassword}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      confirmPassword: e.target.value,
-                    })
-                  }
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  readOnly={!isEditing}
+                  className={!isEditing ? "read-only-input" : ""}
                 />
               </div>
             </div>
-          )}
-        </div>
-
-        {isEditing && (
-          <div className="ProfileEditButtonsContainer">
-            <button
-              className="button-ternary"
-              onClick={() => setIsEditing(false)}
-            >
-              Batal
-            </button>
-            <button className="button-primary" onClick={handleSave}>
-              Simpan
-            </button>
+            {isEditing && (
+              <div className="ProfileDetailRow">
+                <div className="ProfileLabel">
+                  <label>Password Baru</label>
+                  <input
+                    name="password"
+                    type="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="ProfileLabel">
+                  <label>Konfirmasi Password</label>
+                  <input
+                    name="confirmPassword"
+                    type="password"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+            )}
           </div>
-        )}
 
-        <div className="MyOrderSection">
-          <h2 className="txt-color-ternary">Pesanan Saya</h2>
-          {orders.length > 0 ? (
-            orders.map((order) => {
-              const presented = mapOrderToPresentation(order);
-              return presented ? (
-                <OrderCard key={order._id} order={presented} />
-              ) : null;
-            })
-          ) : (
-            <p className="txt-color-ternary">Belum ada pesanan.</p>
+          {isEditing && (
+            <div className="ProfileEditButtonsContainer">
+              <button
+                className="button-ternary"
+                onClick={handleCancel}
+              >
+                Batal
+              </button>
+              <button className="button-primary" onClick={handleSave} disabled={!canSave}>
+                Simpan
+              </button>
+            </div>
           )}
+
+          <div className="MyOrderSection">
+            <h2 className="txt-color-ternary">Pesanan Saya</h2>
+            {orders.length > 0 ? (
+              orders.map((order) => {
+                const presented = mapOrderToPresentation(order);
+                return presented ? (
+                  <OrderCard key={order._id} order={presented} />
+                ) : null;
+              })
+            ) : (
+              <p className="txt-color-ternary">Belum ada pesanan.</p>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

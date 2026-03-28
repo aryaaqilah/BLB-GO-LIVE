@@ -23,6 +23,7 @@ import FloristOrder from "./pages/FloristOrder/FloristOrder";
 import FloristManageBouquet from "./pages/FloristManageBouquet/FloristManageBouquet"; 
 import FloristManageItem from "./pages/FloristManageItem/FloristManageItem";
 import FloristManageOrder from "./pages/FloristManageOrder/FloristManageOrder";
+import FloristCustomization from "./pages/FloristCustomization/FloristCustomization";
 import IdleTimer from "./components/IdleTimer";
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AlertProvider } from './contexts/AlertContext';
@@ -126,6 +127,7 @@ function AppContent() {
           <Route path="/inventory/item/add" element={<FloristManageItem />} />
           <Route path="/inventory/item/edit/:id" element={<FloristManageItem />} />
           <Route path="/florist/orders/edit/:id" element={<FloristManageOrder />} />
+          <Route path="/customization" element={<FloristCustomization />} />
         </Route>
 
         {/* --- GLOBAL 404 (No Nav/Footer) --- */}

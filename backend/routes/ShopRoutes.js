@@ -53,4 +53,52 @@ router.delete("/:id", async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
+router.put("/:id/customization", async (req, res) => {
+  try {
+    const { accept, wrappers, ribbons } = req.body;
+    const shopId = req.params.id;
+
+    await Shop.findByIdAndUpdate(shopId, { AcceptCustomization: accept });
+
+    await Item.deleteMany({ ShopId: shopId, Type: { $in: ['Wrapper', 'Ribbon'] } });
+
+    if (!accept) return res.json({ message: "Kustomisasi dinonaktifkan." });
+
+    const newItems = [];
+
+    wrappers.forEach(w => {
+      newItems.push({
+        Name: `Wrapper ${w.label}`,
+        Price: Number(w.price) || 0,
+        Stok: Number(w.stok) || 0,
+        ShopId: shopId,
+        Type: 'Wrapper',
+        HexCode: w.hex,
+        ComponentId: w.componentId
+      });
+    });
+
+    ribbons.forEach(r => {
+      newItems.push({
+        Name: `Pita ${r.label}`,
+        Price: Number(r.price) || 0,
+        Stok: Number(r.stok) || 0,
+        ShopId: shopId,
+        Type: 'Ribbon',
+        HexCode: r.hex,
+        ComponentId: r.componentId
+      });
+    });
+
+    if (newItems.length > 0) await Item.insertMany(newItems);
+
+    res.json({ 
+      message: "Kustomisasi berhasil disimpan!", 
+      itemsCreated: newItems.map(i => i.Name) 
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

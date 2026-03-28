@@ -1515,7 +1515,6 @@ h3,
 }
 
 @media screen and (min-width: 600px) and (max-width: 1024px) {
-  /* HOME PAGE */
 
   .Customizer-MainSection {
     height: auto;
@@ -3030,15 +3029,15 @@ h3,
 
 /* FLORIST DASHBOARD */
 .FloristDashboardContainer {
-    padding: 1rem;
-  }
-  .FloristOrdersTableSection {
-    padding: 1.5rem 1rem;
-  }
-  .InventoryFooterContainer {
-    flex-direction: column;
-    align-items: center;
-  }
+  padding: 1rem;
+}
+.FloristOrdersTableSection {
+  padding: 1.5rem 1rem;
+}
+.InventoryFooterContainer {
+  flex-direction: column;
+  align-items: center;
+}
 
 .FloristDashboardTitle {
   color: var(--color-primary);
@@ -3483,7 +3482,6 @@ h3,
   background-color: transparent;
 }
 
-/* Placeholder styling */
 .FloristSearchInput::placeholder {
   color: #cccccc;
 }
@@ -3494,6 +3492,7 @@ h3,
   }
 }
 
+/* FLORIST MANAGE ITEM */
 .FloristManageItemContainer {
   padding: 3rem 10%;
   max-width: 1200px;
@@ -3528,8 +3527,8 @@ h3,
 }
 
 .FloristManageItemInputGroup input {
-  background-color: #ECE4DB;
-  border: 1px solid #D4C4B5;
+  background-color: #ece4db;
+  border: 1px solid #d4c4b5;
   border-radius: 12px;
   padding: 0.8rem 1.2rem;
   font-family: inherit;
@@ -3543,8 +3542,8 @@ h3,
 }
 
 .FloristManageItemAssetPicker {
-  background-color: #ECE4DB;
-  border: 1px dashed #A65E4E;
+  background-color: #ece4db;
+  border: 1px dashed #a65e4e;
   border-radius: 15px;
   height: 100px;
   display: flex;
@@ -3635,15 +3634,15 @@ h3,
 }
 
 .FloristAssetDropdown {
-  background-color: #ECE4DB;
-  border: 1px solid #D4C4B5;
+  background-color: #ece4db;
+  border: 1px solid #d4c4b5;
   border-radius: 12px;
   padding: 0.8rem 1.2rem;
   font-family: inherit;
   font-size: 1rem;
   outline: none;
   cursor: pointer;
-  appearance: none; /* Hilangkan arrow default */
+  appearance: none;
   background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23a55749' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 1rem center;
@@ -3653,8 +3652,8 @@ h3,
 .FloristSelectedAssetPreview {
   margin-top: 1.5rem;
   padding: 1.5rem;
-  background-color: #FAF8F6;
-  border: 1px solid #E8DFD3;
+  background-color: #faf8f6;
+  border: 1px solid #e8dfd3;
   border-radius: 15px;
   display: flex;
   align-items: center;
@@ -3699,6 +3698,36 @@ h3,
   color: white;
 }
 
+.FloristRestrictedNotice {
+  background-color: #fcf8e3;
+  border: 1px solid #faebcc;
+  color: #8a6d3b;
+  padding: 1rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.FloristRestrictedNotice svg {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.InputDisabled {
+  background-color: #f0f0f0 !important;
+  color: #999 !important;
+  cursor: not-allowed !important;
+  border-color: #ddd !important;
+}
+
+.FloristAssetDropdown:disabled {
+  background-color: #f0f0f0;
+  opacity: 0.7;
+}
+
 @media (max-width: 600px) {
   .FloristManageItemRow {
     grid-template-columns: 1fr;
@@ -3710,8 +3739,14 @@ h3,
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .FloristManageBouquetContainer {
@@ -3744,11 +3779,11 @@ h3,
   color: var(--color-ternary);
 }
 
-.FloristInputGroup input, 
-.FloristInputGroup textarea, 
+.FloristInputGroup input,
+.FloristInputGroup textarea,
 .FloristItemDropdown {
-  background-color: #ECE4DB;
-  border: 1px solid #D4C4B5;
+  background-color: #ece4db;
+  border: 1px solid #d4c4b5;
   border-radius: 12px;
   padding: 0.8rem 1rem;
   font-family: inherit;
@@ -3756,8 +3791,8 @@ h3,
 }
 
 .FloristImageUploader {
-  background-color: #ECE4DB;
-  border: 2px dashed #A65E4E;
+  background-color: #ece4db;
+  border: 2px dashed #a65e4e;
   border-radius: 15px;
   height: 180px;
   display: flex;
@@ -3790,7 +3825,7 @@ h3,
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #F3EEE9;
+  background-color: #f3eee9;
   padding: 0.8rem 1.2rem;
   border-radius: 10px;
 }
@@ -3836,7 +3871,7 @@ h3,
 }
 
 .AutoPriceBox {
-  background-color: #ECE4DB;
+  background-color: #ece4db;
   border: 1px solid var(--color-primary);
   border-radius: 12px;
   padding: 0.8rem 1rem;
@@ -3847,6 +3882,172 @@ h3,
 }
 
 @media (max-width: 600px) {
-  .FloristManageBouquetRow { grid-template-columns: 1fr; }
-  .FloristManageBouquetContainer { padding: 1rem 5%; }
+  .FloristManageBouquetRow {
+    grid-template-columns: 1fr;
+  }
+  .FloristManageBouquetContainer {
+    padding: 1rem 5%;
+  }
+}
+
+/* FLORIST CUSTOMIZATION */
+.CustomizationMainContainer {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.CustomizationMasterCard {
+  background-color: #ece4db;
+  padding: 2.5rem;
+  border-radius: 20px;
+}
+
+.CustomizationStatusRow {
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+}
+.CustomizationFixedLabel {
+  display: inline-block;
+  width: 150px;
+  color: var(--color-background-dark);
+  font-weight: bold;
+  font-size: 14px;
+}
+.CustomizationStatusValue {
+  flex: 1;
+}
+.CustomizationStatusSelect {
+  width: 100%;
+  padding: 0.8rem;
+  border-radius: 12px;
+  border: 1px solid #d4c4b5;
+  font-family: inherit;
+}
+
+.CustomizationGroupBlock {
+  margin-top: 2rem;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+}
+
+.CustomizationEntryRow {
+  display: flex;
+  gap: 20px;
+  padding: 1.2rem 0;
+  border-bottom: 1px solid #f5f5f5;
+  align-items: flex-end;
+}
+
+.CustomizationEntryHeader {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.CustomizationHexDisplay {
+  min-width: 70px;
+  color: #888;
+  font-family: monospace;
+}
+
+.CustomizationEntryContent {
+  display: flex;
+  flex: 1;
+  gap: 12px;
+  align-items: flex-end;
+}
+.CustomizationInputBox {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.FlexGrow3 {
+  flex: 3;
+}
+
+.CustomizationTinyLabel {
+  font-size: 10px;
+  text-transform: uppercase;
+  color: #999;
+  font-weight: bold;
+}
+.CustomizationColorPicker {
+  border: none;
+  width: 45px;
+  height: 45px;
+  cursor: pointer;
+  background: none;
+}
+.CustomizationTextField,
+.CustomizationNumberField {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.CustomizationNumberField {
+  width: 100px;
+}
+.CustomizationTrashIcon {
+  color: #e74c3c;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+.CustomizationAddBtn {
+  background: none;
+  border: 1px dashed var(--color-primary);
+  color: var(--color-primary);
+  padding: 0.8rem;
+  border-radius: 10px;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 15px;
+  font-weight: bold;
+}
+
+.CustomizationFooter {
+  display: flex;
+  justify-content: center;
+  margin-top: 3rem;
+}
+.CustomizationSubmitBtn {
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 1.1rem 6rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+@media (max-width: 1024px) {
+  .CustomizationEntryRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .CustomizationEntryContent {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 600px) {
+  .CustomizationFixedLabel {
+    width: 100%;
+    margin-bottom: 5px;
+  }
+  .CustomizationStatusRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .CustomizationEntryContent {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .CustomizationNumberField {
+    width: 100%;
+  }
 }

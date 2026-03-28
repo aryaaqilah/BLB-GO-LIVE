@@ -59,13 +59,30 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// 📝 Update Order (PUT /api/orders/:id)
-router.put("/:id", async (req, res) => {
+// 🔄 Update Status Pesanan ke Selesai (PUT /api/orders/status/:id)
+router.put("/status/:id", async (req, res) => {
   try {
-    const order = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true }).populate(POPULATE_FIELDS);
-    if (!order) return res.status(404).json({ error: "Order not found" });
+    const { id } = req.params;
+    const { Status } = req.body;
+
+    // Penjagaan: Hanya update jika status saat ini adalah 3 (Dikirim)
+    // dan target status adalah 4 (Tiba/Selesai)
+    const order = await Order.findOneAndUpdate(
+      { _id: id, Status: 3 }, 
+      { Status: Status }, 
+      { new: true }
+    );
+
+    if (!order) {
+      return res.status(400).json({ 
+        error: "Gagal memperbarui. Pesanan mungkin sudah selesai atau belum dalam pengiriman." 
+      });
+    }
+
     res.json(order);
-  } catch (err) { res.status(400).json({ error: err.message }); }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // 💣 Hapus Order (DELETE /api/orders/:id)

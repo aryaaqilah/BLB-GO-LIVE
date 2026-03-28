@@ -1,64 +1,64 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { FaArrowLeft, FaUpload, FaCheckCircle, FaCube } from "react-icons/fa";
+import { FaArrowLeft, FaUpload, FaCheckCircle, FaExclamationTriangle } from "react-icons/fa";
 import { AuthContext } from "../../contexts/AuthContext";
 import { useAlert } from "../../contexts/AlertContext";
 import { useLoading } from "../../contexts/LoadingContext";
 
-// Komponen Loading Lokal
 const SectionLoading = () => (
-  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '300px' }}>
+  <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "300px" }}>
     <div className="spinner"></div>
   </div>
 );
 
 const FloristManageItem = () => {
-  const { id } = useParams(); 
+  const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const { showAlert } = useAlert();
   const { showLoading: showGlobalLoading, hideLoading: hideGlobalLoading } = useLoading();
 
-  // State Lokal
   const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [availableComponents, setAvailableComponents] = useState([]);
   const [formData, setFormData] = useState({
     Name: "",
     Price: "",
     Stok: "",
-    ComponentId: null, 
+    ComponentId: null,
+    Type: "Other" // Menambah field type
   });
 
-  const [availableComponents, setAvailableComponents] = useState([]);
-  const [showComponentPicker, setShowComponentPicker] = useState(false);
+  // Tentukan apakah item ini dibatasi (Wrapper/Ribbon)
+  const isRestricted = formData.Type === "Wrapper" || formData.Type === "Ribbon";
 
   const fetchData = useCallback(async () => {
     setIsInitialLoading(true);
     try {
-      // 1. Ambil daftar komponen (Asset 3D)
       const compRes = await fetch("http://localhost:5000/api/components");
       const compData = await compRes.json();
       setAvailableComponents(compData);
 
-      // 2. Jika Mode Edit, ambil data item tersebut
       if (id) {
         const itemRes = await fetch(`http://localhost:5000/api/items/${id}`);
         const itemData = await itemRes.json();
+        
         if (itemRes.ok) {
           setFormData({
             Name: itemData.Name,
             Price: itemData.Price,
             Stok: itemData.Stok,
-            ComponentId: itemData.ComponentId, 
+            ComponentId: itemData.ComponentId,
+            Type: itemData.Type || "Other"
           });
         }
       }
     } catch (err) {
       console.error(err);
+      showAlert("Gagal memuat data dari server.");
     } finally {
-      // Matikan loading lokal
       setIsInitialLoading(false);
     }
-  }, [id]);
+  }, [id, showAlert]);
 
   useEffect(() => {
     fetchData();
@@ -69,22 +69,14 @@ const FloristManageItem = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const selectComponent = (comp) => {
-    setFormData((prev) => ({ ...prev, ComponentId: comp }));
-    setShowComponentPicker(false);
-  };
-
   const handleSave = async () => {
     if (!formData.Name || !formData.Price || !formData.Stok) {
-      return showAlert("Mohon lengkapi detail item Anda.");
+      return showAlert("Mohon lengkapi Nama, Harga, dan Stok item.");
     }
 
-    // Gunakan global loading hanya saat klik tombol "Simpan"
-    showGlobalLoading("Menyimpan data...");
+    showGlobalLoading("Menyimpan perubahan...");
     const method = id ? "PUT" : "POST";
-    const url = id 
-      ? `http://localhost:5000/api/items/${id}` 
-      : `http://localhost:5000/api/items`;
+    const url = id ? `http://localhost:5000/api/items/${id}` : `http://localhost:5000/api/items`;
 
     const payload = {
       ...formData,
@@ -103,10 +95,11 @@ const FloristManageItem = () => {
         showAlert(id ? "Item berhasil diperbarui!" : "Item baru berhasil ditambahkan!");
         navigate("/inventory");
       } else {
-        throw new Error();
+        const errorData = await response.json();
+        throw new Error(errorData.error);
       }
     } catch (err) {
-      showAlert("Terjadi kesalahan saat menyimpan.");
+      showAlert("Gagal menyimpan: " + err.message);
     } finally {
       hideGlobalLoading();
     }
@@ -126,74 +119,98 @@ const FloristManageItem = () => {
         <SectionLoading />
       ) : (
         <div className="FloristManageItemFormSection">
+          
+          {/* PERINGATAN JIKA ITEM RESTRICTED */}
+          {isRestricted && (
+            <div className="FloristRestrictedNotice">
+              <FaExclamationTriangle />
+              <span>Item kustomisasi (Wrapper/Pita) hanya dapat diubah <b>Stoknya</b> saja di sini. Untuk mengubah Nama/Warna, silakan melalui menu <b>Kustomisasi</b>.</span>
+            </div>
+          )}
+
           <div className="FloristManageItemInputGroup">
             <label>Nama Item</label>
-            <input 
-              type="text" 
-              name="Name" 
-              value={formData.Name} 
-              onChange={handleInputChange} 
-              placeholder="Masukkan nama bunga atau aksesoris..."
+            <input
+              type="text"
+              name="Name"
+              value={formData.Name}
+              onChange={handleInputChange}
+              readOnly={isRestricted}
+              placeholder="Nama bunga atau aksesoris..."
+              className={isRestricted ? "InputDisabled" : ""}
             />
           </div>
 
-          {/* ASSET 3D DROPDOWN SELECTION */}
           <div className="FloristManageItemInputGroup">
-            <label>Asset 3D Item (Opsional)</label>
-            <select 
-              className="FloristAssetDropdown"
+            <label>Asset 3D Item (Pilih Komponen)</label>
+            <select
+              className={`FloristAssetDropdown ${isRestricted ? "InputDisabled" : ""}`}
               value={formData.ComponentId?._id || ""}
+              disabled={isRestricted}
               onChange={(e) => {
-                const selected = availableComponents.find(c => c._id === e.target.value);
-                setFormData(prev => ({ ...prev, ComponentId: selected || null }));
+                const selected = availableComponents.find((c) => c._id === e.target.value);
+                setFormData((prev) => ({ ...prev, ComponentId: selected || null }));
               }}
             >
               <option value="">-- Pilih Asset 3D --</option>
               {availableComponents.map((comp) => (
-                <option key={comp._id} value={comp._id}>
-                  {comp.Name}
-                </option>
+                <option key={comp._id} value={comp._id}>{comp.Name}</option>
               ))}
             </select>
 
-            {/* PREVIEW ASSET YANG DIPILIH */}
             {formData.ComponentId && (
               <div className="FloristSelectedAssetPreview">
                 <div className="PreviewImageFrame">
-                   <img 
-                    src={`http://localhost:5000${formData.ComponentId.Image}`} 
-                    alt="Preview" 
-                    onError={(e) => e.target.src = 'https://via.placeholder.com/100?text=No+Image'}
-                   />
+                  <img
+                    src={`http://localhost:5000${formData.ComponentId.Image}`}
+                    alt="Preview"
+                    onError={(e) => (e.target.src = "https://via.placeholder.com/100?text=No+Image")}
+                  />
                 </div>
                 <div className="PreviewInfo">
                   <p className="weight-bold">{formData.ComponentId.Name}</p>
-                  <p className="p3">Asset ini akan muncul di Customizer 3D</p>
+                  <p className="p3">Asset ini muncul di Customizer 3D</p>
                 </div>
-                <button 
-                  className="RemoveAssetBtn"
-                  onClick={() => setFormData(prev => ({ ...prev, ComponentId: null }))}
-                >
-                  Batal Pilih
-                </button>
+                {!isRestricted && (
+                  <button
+                    className="RemoveAssetBtn"
+                    onClick={() => setFormData((prev) => ({ ...prev, ComponentId: null }))}
+                  >
+                    Batal Pilih
+                  </button>
+                )}
               </div>
             )}
           </div>
 
           <div className="FloristManageItemRow">
             <div className="FloristManageItemInputGroup">
-              <label>Harga</label>
-              <input type="number" name="Price" value={formData.Price} onChange={handleInputChange} placeholder="Rp" />
+              <label>Harga Satuan</label>
+              <input 
+                type="number" 
+                name="Price" 
+                value={formData.Price} 
+                onChange={handleInputChange} 
+                readOnly={isRestricted}
+                placeholder="Rp" 
+                className={isRestricted ? "InputDisabled" : ""}
+              />
             </div>
             <div className="FloristManageItemInputGroup">
-              <label>Stok</label>
-              <input type="number" name="Stok" value={formData.Stok} onChange={handleInputChange} placeholder="0" />
+              <label>Stok (Dapat Diubah)</label>
+              <input 
+                type="number" 
+                name="Stok" 
+                value={formData.Stok} 
+                onChange={handleInputChange} 
+                placeholder="0" 
+              />
             </div>
           </div>
 
           <div className="FloristManageItemAction">
             <button className="FloristManageItemSubmitBtn" onClick={handleSave}>
-              Simpan
+              Simpan Perubahan
             </button>
           </div>
         </div>
