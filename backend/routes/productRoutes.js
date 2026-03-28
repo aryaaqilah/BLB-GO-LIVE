@@ -244,7 +244,10 @@ router.delete("/:id", async (req, res) => {
 
 router.get("/shop/:shopId", async (req, res) => {
   try {
-    const products = await Product.find({ ShopId: req.params.shopId, IsCustomized: 0 }).populate(POPULATE_FIELDS);
+    const products = await Product.find({ ShopId: req.params.shopId, IsCustomized: 0 }).populate(POPULATE_FIELDS).populate({
+      path: "ProductDetail",
+      populate: "ItemId" // ambil field yang kamu butuhin
+    });
 
     res.json(products);
   } catch (err) {

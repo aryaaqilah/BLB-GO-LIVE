@@ -104,31 +104,7 @@ const ShopLanding = () => {
 
         console.log("infooo ", addressInfo);
 
-        const responseProduct = await fetch(
-            `http://localhost:5000/api/products/shop/${storeId}`
-          );
-        const dataProduct = await responseProduct.json();
-
-        console.log("ini abis hit shop");
-        console.log(dataProduct);
-        const objects = dataProduct.map((item) => ({
-          key : item._id,
-          title : item.Name,
-          price : item.Price,
-          description : item.Memo,
-          image : item.Image,
-          truefalse : false,
-          ShopId : dataShop._id,
-          items : Array.isArray(item.ProductDetail)
-    ? item.ProductDetail.map((i) => ({
-        ItemId: i._id,
-        Quantity: i.Quantity,
-        ItemStokId : i.ItemId
-      }))
-    : []
-        }));
-        setProducts(objects);
-        console.log(products);
+        
       } catch (error) {
         console.error("❌ Error fetching data:", error);
       }
@@ -148,10 +124,41 @@ const ShopLanding = () => {
       }
     }
 
+    const fetchProducts = async () => {
+      const responseProduct = await fetch(
+            `http://localhost:5000/api/products/shop/${storeId}`
+          );
+        const dataProduct = await responseProduct.json();
+
+        console.log("ini abis hit shop");
+        console.log(dataProduct);
+        console.log("ini data storeInfo", storeInfo);
+        const objects = dataProduct.map((item) => ({
+          key : item._id,
+          title : item.Name,
+          price : item.Price,
+          description : item.Memo,
+          image : item.Image,
+          truefalse : false,
+          ShopId : storeId,
+          items : Array.isArray(item.ProductDetail)
+              ? item.ProductDetail.map((i) => ({
+                  ItemId: i._id,
+                  Quantity: i.Quantity,
+                  ItemStokId : i.ItemId._id,
+                  ItemName : i.ItemId ? i.ItemId.Name : "Unknown Item"
+                }))
+              : []
+        }));
+        setProducts(objects);
+        console.log(products);
+    }
+
   useEffect(() => {
     showLoading("Menghubungi penjual...");
     
     fetchData();
+    fetchProducts();
     fetchRatings();
 
     const timer = setTimeout(() => {
@@ -173,6 +180,52 @@ const ShopLanding = () => {
 
   const handleCustom = () => {
     navigate('/customizer', { state: { storeId : storeId } });
+  }
+
+  const SectionError = ({ onRetry }) => (
+    <div style={{ textAlign: 'center', padding: '2rem' }}>
+      <p className="p1 txt-color-ternary" style={{ marginBottom: '1rem' }}>
+        Oops... terjadi kesalahan, silakan coba lagi.
+      </p>
+      <button className="rounded-button-primary" onClick={onRetry}>
+        Coba Lagi
+      </button>
+    </div>
+  );
+
+  const SectionLoading = () => (
+    <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
+      <div className="spinner"></div>
+    </div>
+  );
+
+  function ProductSection({ state, onRetry }) {
+    // const navigate = useNavigate();
+
+    return (
+      <section className="ShopMostPopularSection">
+        <div className="ShopMostPopularDescription">
+          <h1 className="txt-color-primary">Ukir Kisah Cintamu</h1>
+          <h3 className="txt-color-ternary">Yang terbaik untuk yang terkasih</h3>
+        </div>
+
+        {state.loading ? (
+          <SectionLoading />
+        ) : state.error ? (
+          <SectionError onRetry={onRetry} />
+        ) : (
+          <div className="product-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '8rem 2rem' }}>
+            {products.map((product) => (
+              <ProductCard 
+                key={product.id} 
+                product={product} 
+                onSelect={(p) => navigate('/confirmation', { state: { selectedProduct: p }})} 
+              />
+            ))}
+          </div>
+        )}
+      </section>
+    );
   }
 
   return (
@@ -204,15 +257,8 @@ const ShopLanding = () => {
           <p className="p2">Yang terbaik untuk yang terkasih</p>
         </div>
         
-        <div className="product-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '8rem 2rem' }}>
-          {products.map((product) => (
-            <ProductCard 
-              key={product.id} 
-              product={product} 
-              onSelect={(p) => navigate('/confirmation', { state: { selectedProduct: p }})} 
-            />
-          ))}
-        </div>
+        <ProductSection state={products} onRetry={fetchProducts} />
+
       </section>
     </div>
   );

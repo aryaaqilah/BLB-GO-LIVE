@@ -67,6 +67,8 @@ function MainSection({
   const { showAlert } = useAlert();
 
   const { showLoading, hideLoading } = useLoading();
+
+  const [showPayment, setShowPayment] = useState(false);
   
   const handleCardSelect = async () => {
     showLoading("Memproses pembayaran...");
@@ -363,110 +365,150 @@ function MainSection({
       const tokenJson = await updateToken.json();
       console.log("✅ Token updated:", tokenJson);
 
-      window.snap.pay(midtransData.token, {
-      onSuccess: async function () {
-      try {
-        showAlert("Pembayaran berhasil!");
-
-        const StatusTemp = 0;
-
-        const response = await fetch(
-          `http://localhost:5000/api/orders/${savedOrder._id}/status-pembayaran`,
-          {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ StatusPembayaran: StatusTemp }),
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Gagal update status pembayaran");
-        }
-
-        console.log("✅ Status pembayaran berhasil diupdate");
-
-        await clear(); // idb-keyval
-
-        navigate("/profile", {
-          replace: true,
-          state: null,
-        });
-
-      } catch (error) {
-        console.error("❌ Error onSuccess:", error);
-        showAlert("Terjadi kesalahan setelah pembayaran");
+      if (!window.snap) {
+        showAlert("Payment gateway belum siap");
+        return;
       }
-    },
+      setShowPayment(true);
+      hideLoading();
 
-      onPending: function () {
-        showAlert("Menunggu pembayaran...");
-        const StatusTemp = 2;
-        clear();
-        navigate("/profile", {
-          // state: {
-          //   selectedProduct,
-          //   orderId: savedOrder._id,
-          // },
-            replace: true,
-            state: null,
+      setTimeout(() => {
+        window.snap.embed(midtransData.token, {
+          embedId: "snap-container",
+
+          onSuccess: async function () {
+            try {
+              showAlert("Pembayaran berhasil!");
+
+              const StatusTemp = 0;
+
+              const response = await fetch(
+                `http://localhost:5000/api/orders/${savedOrder._id}/status-pembayaran`,
+                {
+                  method: "PATCH",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({ StatusPembayaran: StatusTemp }),
+                }
+              );
+
+              if (!response.ok) {
+                throw new Error("Gagal update status pembayaran");
+              }
+
+              console.log("✅ Status pembayaran berhasil diupdate");
+
+              await clear();
+
+              navigate("/profile", {
+                replace: true,
+                state: null,
+              });
+
+            } catch (error) {
+              console.error("❌ Error onSuccess:", error);
+              showAlert("Terjadi kesalahan setelah pembayaran");
+            }
+          },
+
+          onPending: function () {
+            showAlert("Menunggu pembayaran...");
+
+            const StatusTemp = 2;
+
+            fetch(
+              `http://localhost:5000/api/orders/${savedOrder._id}/status-pembayaran`,
+              {
+                method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ StatusPembayaran: StatusTemp }),
+              }
+            );
+
+            clear();
+
+            navigate("/profile", {
+              replace: true,
+              state: null,
+            });
+          },
+
+          onError: async function () {
+            showAlert("Pembayaran gagal!");
+
+            const StatusTemp = 1;
+
+            try {
+              await fetch(
+                `http://localhost:5000/api/orders/${savedOrder._id}/status-pembayaran`,
+                {
+                  method: "PATCH",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({ StatusPembayaran: StatusTemp }),
+                }
+              );
+
+              const updateStock = async (items, type) => {
+                const res = await fetch(
+                  "http://localhost:5000/api/items/update-stock",
+                  {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ items, type }),
+                  }
+                );
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.message);
+              };
+
+              await updateStock(selectedProduct.items, "increase");
+
+              clear();
+
+              navigate("/profile", {
+                replace: true,
+                state: null,
+              });
+
+            } catch (error) {
+              console.error("❌ Error onError:", error);
+              showAlert("Gagal rollback stok");
+            }
+          },
+
+          onClose: function () {
+            showAlert("Kamu menutup pembayaran.");
+
+            const StatusTemp = 2;
+
+            fetch(
+              `http://localhost:5000/api/orders/${savedOrder._id}/status-pembayaran`,
+              {
+                method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ StatusPembayaran: StatusTemp }),
+              }
+            );
+
+            clear();
+
+            navigate("/profile", {
+              replace: true,
+              state: null,
+            });
+          },
         });
-      },
 
-      onError: async function () {
-        showAlert("Pembayaran gagal!");
-        const StatusTemp = 1;
-        clear();
-        const updateStatus = fetch(
-          `http://localhost:5000/api/orders/${savedOrder._id}/status-pembayaran`,
-          {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ StatusPembayaran : StatusTemp }),
-          }
-        );
-
-        const updateStock = async (items, type) => {
-          const res = await fetch("http://localhost:5000/api/items/update-stock", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ items, type }),
-          });
-
-          const data = await res.json();
-
-          if (!res.ok) throw new Error(data.message);
-        };
-
-        await updateStock(selectedProduct.items, "increase");
-        updateStatus();
-        navigate("/profile", {
-          // state: {
-          //   selectedProduct,
-          //   orderId: savedOrder._id,
-          // },
-            replace: true,
-            state: null,
-        });
-      },
-
-      onClose: function () {
-        showAlert("Kamu menutup pembayaran.");
-        clear();
-        const StatusTemp = 2;
-                navigate("/profile", {
-          // state: {
-          //   selectedProduct,
-          //   orderId: savedOrder._id,
-          // },
-            replace: true,
-            state: null,
-        });
-      },
-    });
+      },100);
+      
 
 
     // ================= MIDTRANS END =================
@@ -692,12 +734,12 @@ function MainSection({
                   </div>
                 </div>
 
-                <div className="PaymentSummaryItem">
+                {/* <div className="PaymentSummaryItem">
                   <div className="PaymentSummaryLeft">Total Diskon</div>
                   <div className="PaymentSummaryRight" style={{ color: "red" }}>
                     - {formatRupiah(calculatedDiscount)}
                   </div>
-                </div>
+                </div> */}
 
                 <div className="PaymentSummaryItem">
                   <div className="PaymentSummaryLeft">Total Pesanan</div>
@@ -711,7 +753,7 @@ function MainSection({
 
                 <div className="PaymentSummaryItem">
                   <div className="PaymentSummaryLeft">Metode Pembayaran</div>
-                  <div className="PaymentSummaryRight">QRIS</div>
+                  <div className="PaymentSummaryRight">(Pilih Melalui Payment Gateway)</div>
                 </div>
               </div>
             </div>
@@ -722,22 +764,29 @@ function MainSection({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                // boxSizing: "border-box",
               }}
             >
-              <img
-                src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg"
-                alt="QR Code"
-                style={{ width: "70%", height: "70%" }}
-              />
+              {!showPayment ? (<button className="Payment-btnConfirm" onClick={handleCardSelect}>
+              Process Order
+            </button>) : (<div
+                id="snap-container"
+                style={{ width: "100%",
+                  height: "550px", // boleh kamu adjust
+                  overflowY: "auto",
+                  borderRadius: "10px" }}
+              ></div>)
+            }
+              
             </div>
           </div>
           <div
             className="Payment-btnContainer"
             style={{ display: "flex", alignSelf: "flex-end" }}
           >
-            <button className="Payment-btnConfirm" onClick={handleCardSelect}>
+            {/* <button className="Payment-btnConfirm" onClick={handleCardSelect}>
               Process Order
-            </button>
+            </button> */}
           </div>
         </div>
         <div className="box"></div>

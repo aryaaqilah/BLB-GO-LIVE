@@ -1122,7 +1122,8 @@ h3,
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 2rem 0;
+  /* padding: 2rem 0; */
+  padding-top: 3rem;
 }
 
 .AddressSectionContainer {

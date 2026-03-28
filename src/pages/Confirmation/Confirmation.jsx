@@ -121,7 +121,19 @@ function MainSection({ selectedProduct, modelScene, meta }) {
                 </div>
                 <div className="Confirmation-DetailBox">
                   <p>
-                    {selectedProduct?.description ||
+                    {
+                    selectedProduct?.items.map(
+                        (item, index) =>
+                          /* Hanya tampilkan jika qty lebih besar dari 0 */
+                          item.Quantity > 0 && (
+                            <div key={index} className="Confirmation-summary-item">
+                              {/* <p style={{ fontSize: '15px', fontWeight: '500' }}> */}
+                              {item.ItemName} x{item.Quantity}
+                              {/* </p> */}
+                            </div>
+                          )
+                      )
+                    ||
                       meta?.summary.map(
                         (item, index) =>
                           /* Hanya tampilkan jika qty lebih besar dari 0 */
