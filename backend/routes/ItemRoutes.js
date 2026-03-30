@@ -28,22 +28,26 @@ router.get("/shop/:shopId", async (req, res) => {
       {
         $match: { 
           ShopId: new mongoose.Types.ObjectId(shopId),
-          ComponentId : {$ne : null}
-          // Price: { $ne: 0 }
+          Type: { $in: ["Other", "Wrapper", "Ribbon"] }
         }
       },
       {
         $group: {
-          _id: "$ComponentId", // grouping berdasarkan ComponentId
-          item: { $first: "$$ROOT" } // ambil 1 item saja
+          _id: {
+            $cond: [
+              { $eq: ["$Type", "Other"] }, 
+              "$ComponentId", 
+              "$_id"
+            ]
+          },
+          item: { $first: "$$ROOT" }
         }
       },
       {
-        $replaceRoot: { newRoot: "$item" } // balik ke format normal
+        $replaceRoot: { newRoot: "$item" }
       }
     ]);
 
-    // populate manual setelah aggregate
     const populatedItems = await Item.populate(items, [
       { path: "ComponentId" },
       { path: "ShopId" }

@@ -1,23 +1,18 @@
-import CardSet from "../../components/Card/CardSet";
-import { useEffect, useState } from "react";
-import { CardModel } from "../../models/CardModel";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ProductCard from "../../components/ProductCard/ProductCard";
+import CardSet from "../../components/Card/CardSet";
 import StoreCard from "../../components/StoreCard/StoreCard";
+import { CardModel } from "../../models/CardModel";
 
 const SectionError = ({ onRetry }) => (
-  <div style={{ textAlign: 'center', padding: '2rem' }}>
-    <p className="p1 txt-color-ternary" style={{ marginBottom: '1rem' }}>
-      Oops... terjadi kesalahan, silakan coba lagi.
-    </p>
-    <button className="rounded-button-primary" onClick={onRetry}>
-      Coba Lagi
-    </button>
+  <div style={{ textAlign: "center", padding: "2rem" }}>
+    <p className="p1 txt-color-ternary" style={{ marginBottom: "1rem" }}>Oops... terjadi kesalahan, silakan coba lagi.</p>
+    <button className="rounded-button-primary" onClick={onRetry}>Coba Lagi</button>
   </div>
 );
 
 const SectionLoading = () => (
-  <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
+  <div style={{ display: "flex", justifyContent: "center", padding: "4rem" }}>
     <div className="spinner"></div>
   </div>
 );
@@ -32,13 +27,14 @@ function MostPopularSection({ state, onRetry }) {
         <h3 className="txt-color-ternary">Yang terbaik untuk yang terkasih</h3>
       </div>
 
-      {state.loading ? (
-        <SectionLoading />
-      ) : state.error ? (
-        <SectionError onRetry={onRetry} />
-      ) : (
+      {state.loading ? <SectionLoading /> : state.error ? <SectionError onRetry={onRetry} /> : (
         <CardSet 
-          cards={state.data.map(p => new CardModel(p._id, p.Name, p.Price, p.Memo, p.Image, false))} 
+          cards={state.data.map(p => {
+            const productType = p.Tipe || "Tidak Diketahui";
+            const fullTitle = `${p.Name} (${productType})`;
+            
+            return new CardModel(p._id, fullTitle, p.Price, p.Memo, p.Image, false);
+          })} 
           navigate={navigate} 
         />
       )}
@@ -56,11 +52,7 @@ function StoreSection({ state, onRetry }) {
         <h3 className="txt-color-ternary">Menyediakan yang terbaik untuk Anda</h3>
       </div>
 
-      {state.loading ? (
-        <SectionLoading />
-      ) : state.error ? (
-        <SectionError onRetry={onRetry} />
-      ) : (
+      {state.loading ? <SectionLoading /> : state.error ? <SectionError onRetry={onRetry} /> : (
         <div className="product-grid">
           {state.data?.map((shop) => (
             <StoreCard 
@@ -85,7 +77,6 @@ export default function Shop() {
       const response = await fetch("http://localhost:5000/api/products/best-sellers");
       if (!response.ok) throw new Error();
       const data = await response.json();
-      console.log("Fetched products:", data);
       setProductState({ data: data.reverse().slice(0, 4), loading: false, error: false });
     } catch (error) {
       setProductState({ data: [], loading: false, error: true });

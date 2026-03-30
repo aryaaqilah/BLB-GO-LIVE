@@ -5,89 +5,98 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 
-// === 1. Import Routes Utama (Sesuai Contoh Anda) ===
+// === Import Routes ===
 import userRoutes from "./routes/UserRoutes.js";
-import orderRoutes from "./routes/OrderRoutes.js";
+import shopRoutes from "./routes/ShopRoutes.js";
 import productRoutes from "./routes/ProductRoutes.js";
-import addressRoutes from "./routes/AddressRoutes.js";
+import productDetailsRoutes from "./routes/ProductDetailRoutes.js";
+import orderRoutes from "./routes/OrderRoutes.js";
+import design3DRoutes from "./routes/3dModelRoutes.js";
 import ratingRoutes from "./routes/RatingRoutes.js";
-// Catatan: Saya asumsikan design3DRoutes adalah untuk model 3DModel/3DModelRoutes.js
-import design3DRoutes from "./routes/3dModelRoutes.js"; // Menggunakan nama yang Anda berikan (design3DRoutes)
+import paymentRoutes from "./routes/PaymentRoutes.js";
 
-// === 2. Import Routes Detail dan Geografis (Tambahan) ===
+// Inventory & Components
 import itemRoutes from "./routes/ItemRoutes.js";
 import componentRoutes from "./routes/ComponentRoutes.js";
+
+// Shipping & Promo
+import addressRoutes from "./routes/AddressRoutes.js";
 import deliveryRoutes from "./routes/DeliveryRoutes.js";
 import discountRoutes from "./routes/DiscountRoutes.js";
 import administrationFeeRoutes from "./routes/AdministrationFeeRoutes.js";
+
+// Geographic Data
 import provinceRoutes from "./routes/ProvinceRoutes.js";
 import cityRoutes from "./routes/CityRoutes.js";
 import districtRoutes from "./routes/DistrictRoutes.js";
 import postalCodeRoutes from "./routes/PostalCodeRoutes.js";
-import shopRoutes from "./routes/ShopRoutes.js"; // Import ShopRoutes
-import paymentRoutes from "./routes/PaymentRoutes.js"; // Import PaymentRoutes
-import productDetailsRoutes from "./routes/ProductDetailRoutes.js"
 
-// Load environment variables
-dotenv.config();  
-
+// Configuration
+dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// === Konfigurasi path untuk folder publik ===
+// Path Setup untuk ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// === Middleware ===
-app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:3000" })); // Izinkan frontend React (menggunakan env atau fallback)
+// === Middlewares ===
+app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:3000" }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// === Folder publik untuk file model (GLB, dsb) ===
-// Ini akan melayani file statis di URL: http://localhost:5000/models/namafile.glb
+// === Static Files ===
+// Melayani file dari folder 'uploads' di root project
+// URL: http://localhost:5000/uploads/nama-file.jpg
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// Melayani file model 3D
+// URL: http://localhost:5000/models/nama-file.glb
 app.use("/models", express.static(path.join(__dirname, "public", "models")));
-app.use("/images", express.static(path.join(__dirname, "uploads")));
 
-// --- PENTING: Struktur database ini membutuhkan folder 'public/models' ---
-// 
+// Folder public umum
+app.use(express.static(path.join(__dirname, "public")));
 
-// === Routes ===
+
+// === 4. API Routes ===
+// Core API
 app.use("/api/users", userRoutes);
-app.use("/api/orders", orderRoutes);
+app.use("/api/shops", shopRoutes);
 app.use("/api/products", productRoutes);
-app.use("/api/addresses", addressRoutes);
+app.use("/api/productdetails", productDetailsRoutes);
+app.use("/api/orders", orderRoutes);
 app.use("/api/design3d", design3DRoutes);
-app.use('/api/ratings', ratingRoutes);
+app.use("/api/ratings", ratingRoutes);
+app.use("/api/payment", paymentRoutes);
 
-// Routes Detail dan Geografis
+// Inventory API
 app.use("/api/items", itemRoutes);
 app.use("/api/components", componentRoutes);
+
+// Logistic & Promo API
+app.use("/api/addresses", addressRoutes);
 app.use("/api/deliveries", deliveryRoutes);
 app.use("/api/discounts", discountRoutes);
 app.use("/api/adminfees", administrationFeeRoutes);
+
+// Geographic API
 app.use("/api/provinces", provinceRoutes);
 app.use("/api/cities", cityRoutes);
 app.use("/api/districts", districtRoutes);
 app.use("/api/postalcodes", postalCodeRoutes);
-app.use("/api/shops", shopRoutes); // Tambahkan route untuk Shop
-app.use("/api/payment", paymentRoutes);
-app.use("/api/productdetails", productDetailsRoutes);
-app.use(express.static('public'));
 
-// === Tes koneksi backend ===
-  app.get("/", (req, res) => {
+// === 5. Health Check & Database Connection ===
+app.get("/", (req, res) => {
   res.send("✅ Backend florist-3d API is running!");
 });
 
-// === Koneksi ke MongoDB ===
 mongoose
-  .connect(process.env.MONGO_URI, {
-    // Opsi ini tidak diperlukan di Mongoose terbaru, namun dipertahankan untuk kompatibilitas/gaya coding.
-    // useNewUrlParser: true,
-    // useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB Connected"))
   .catch((err) => console.error("❌ MongoDB Connection Error:", err));
 
-// === Jalankan server ===
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+// === 6. Start Server ===
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📂 Static uploads ready at http://localhost:${PORT}/uploads`);
+});

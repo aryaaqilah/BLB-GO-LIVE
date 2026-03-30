@@ -332,7 +332,7 @@ export default function Confirmation() {
 
         if (!data && !selectedProduct) {
           // Jika tidak ada data, arahkan kembali ke customizer
-          showAlert("Keranjang kosong, silakan buat desain terlebih dahulu.");
+          showAlert("Buket belum tersimpan, silakan buat desain terlebih dahulu.");
           navigate("/customizer");
           return;
         }

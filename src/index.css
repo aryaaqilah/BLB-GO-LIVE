@@ -1534,7 +1534,6 @@ h3,
 }
 
 @media screen and (min-width: 600px) and (max-width: 1024px) {
-
   .Customizer-MainSection {
     height: auto;
     min-height: 105vh;
@@ -2717,10 +2716,7 @@ h3,
   }
 
   .Customizer-colorAndPrice {
-    /* display: flex; */
     width: 90%;
-    /* height: 10%; */
-    /* background-color: lightcoral; */
   }
 
   .Customizer-btnAddress {
@@ -4069,4 +4065,64 @@ h3,
   .CustomizationNumberField {
     width: 100%;
   }
+}
+
+.Customizer-gallery-container {
+  display: flex;
+  gap: 20px;
+  padding: 10px 5% 30px 5%;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+}
+
+.Customizer-gallery-container::-webkit-scrollbar {
+  display: none;
+}
+.Customizer-gallery-card-btn {
+  flex-shrink: 0;
+  position: relative;
+  width: 140px;
+  height: 160px;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.Customizer-gallery-card-btn:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.25);
+}
+.Customizer-card-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.Customizer-bg-top {
+  flex: 65;
+}
+.Customizer-bg-bottom {
+  flex: 35;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 10px;
+}
+.Customizer-label-text {
+  font-family: "Times New Roman", serif;
+  color: white;
+  font-size: 18px;
+  letter-spacing: 1px;
+}
+.Customizer-card-img {
+  position: absolute;
+  top: 55%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: auto;
+  z-index: 2;
+  pointer-events: none;
 }

@@ -6,7 +6,8 @@ const shopSchema = new mongoose.Schema({
   Password: { type: String, required: true },
   PhoneNumber: { type: String, required: true },
   Address: { type: mongoose.Schema.Types.ObjectId, ref: 'Address', required: true },
-  Logo: { type: String, required: false }
+  Logo: { type: String, required: false },
+  AcceptCustomization: { type: Boolean, required: false },
 });
 
 export default mongoose.model("Shop", shopSchema);

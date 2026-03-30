@@ -16,20 +16,27 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// FUNGSI HELPER (Pastikan nama konsisten)
-const processDetails = async (detailsString) => {
-  if (!detailsString) return [];
-  const details = JSON.parse(detailsString); 
+const processDetails = async (detailsJson) => {
+  const details = JSON.parse(detailsJson);
   const detailIds = [];
-  for (const d of details) {
-    const newD = new ProductDetail({ 
-      ItemId: d.ItemId, 
-      Quantity: d.Quantity 
+  for (const item of details) {
+    const newDetail = new ProductDetail({
+      ItemId: item.ItemId,
+      Quantity: item.Quantity
     });
-    const savedD = await newD.save();
-    detailIds.push(savedD._id);
+    const savedDetail = await newDetail.save();
+    detailIds.push(savedDetail._id);
   }
   return detailIds;
+};
+
+const deleteFile = (relativePath) => {
+  if (relativePath) {
+    const fullPath = path.join(process.cwd(), relativePath); // sesuaikan jika path di DB diawali '/'
+    if (fs.existsSync(fullPath)) {
+      fs.unlinkSync(fullPath);
+    }
+  }
 };
 
 router.get("/best-sellers", async (req, res) => {
@@ -105,20 +112,15 @@ router.delete("/bulk-delete", async (req, res) => {
 // 🛍️ POST: Tambah Produk
 router.post("/", upload.single("Image"), async (req, res) => {
   try {
-    // Gunakan req.body secara langsung, multer sudah memprosesnya
-    if (!req.body.ProductDetail) {
-      return res.status(400).json({ error: "ProductDetail is required" });
-    }
-
-    const detailIds = await processDetails(req.body.ProductDetail);
+    const detailIds = req.body.ProductDetail ? await processDetails(req.body.ProductDetail) : [];
     
     const newProduct = new Product({
       Name: req.body.Name,
       Price: Number(req.body.Price),
-      Quantity: Number(req.body.Quantity),
       Memo: req.body.Memo,
       ShopId: req.body.ShopId,
       IsCustomized: 0,
+      Tipe: req.body.Tipe,
       ProductDetail: detailIds,
       Image: req.file ? `/uploads/${req.file.filename}` : ""
     });
@@ -143,42 +145,28 @@ router.post("/payment", async (req, res) => {
 // ✏️ PUT: Update Produk
 router.put("/:id", upload.single("Image"), async (req, res) => {
   try {
-    const oldProduct = await Product.findById(req.params.id);
-    if (!oldProduct) return res.status(404).json({ error: "Product not found" });
-
-    let detailIds = oldProduct.ProductDetail;
-
-    if (req.body.ProductDetail) {
-      // Hapus yang lama
-      if (oldProduct.ProductDetail.length > 0) {
-        await ProductDetail.deleteMany({ _id: { $in: oldProduct.ProductDetail } });
-      }
-      // Buat yang baru
-      detailIds = await processDetails(req.body.ProductDetail);
-    }
-
     const updateData = {
       Name: req.body.Name,
       Price: Number(req.body.Price),
-      Quantity: Number(req.body.Quantity),
       Memo: req.body.Memo,
-      ProductDetail: detailIds
+      Tipe: req.body.Tipe,
     };
+
+    if (req.body.ProductDetail) {
+      updateData.ProductDetail = await processDetails(req.body.ProductDetail);
+    }
 
     if (req.file) {
       updateData.Image = `/uploads/${req.file.filename}`;
     }
 
-    const product = await Product.findByIdAndUpdate(req.params.id, updateData, { new: true });
-    res.json(product);
+    const updatedProduct = await Product.findByIdAndUpdate(req.params.id, updateData, { new: true });
+    res.json(updatedProduct);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 
-
-
-// GET: Florist & ID (Tetap sama)
 router.get("/florist/:shopId", async (req, res) => {
   try {
     const products = await Product.find({ ShopId: req.params.shopId })
@@ -226,27 +214,11 @@ router.delete("/:id", async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
-// router.get("/florist/:shopId", async (req, res) => {
-//   try {
-//     const products = await Product.find({ ShopId: req.params.shopId })
-//       .populate("ThreeDModel") // Mengambil info file 3D
-//       .populate({
-//         path: "Items",
-//         populate: { path: "ComponentId" }
-//       })
-//       .sort({ Name: 1 });
-
-//     res.json(products);
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// });
-
 router.get("/shop/:shopId", async (req, res) => {
   try {
     const products = await Product.find({ ShopId: req.params.shopId, IsCustomized: 0 }).populate(POPULATE_FIELDS).populate({
       path: "ProductDetail",
-      populate: "ItemId" // ambil field yang kamu butuhin
+      populate: "ItemId"
     });
 
     res.json(products);
