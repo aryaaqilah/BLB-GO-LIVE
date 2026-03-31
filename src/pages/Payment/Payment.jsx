@@ -145,6 +145,7 @@ function MainSection({
         EstimatedArrival: date,
         TrackingLink: "To be inputed",
         Notes: addressData.Note || "No notes available",
+        Price : shippingFee
       };
 
       console.log("Delivery Payload:", deliveryPayload);
