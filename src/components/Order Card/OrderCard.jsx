@@ -248,13 +248,9 @@ const OrderCard = ({ order }) => {
 
       <div className="OrderFooter">
         <div>
-          {/* Using the estimatedArrival field from the model */}
           <span className="p3">Estimasi Pengiriman : </span>
           <span className="p3">{order.estimatedArrival}</span>
         </div>
-        <a href="#admin" className="p2">
-          Hubungi Admin
-        </a>
       </div>
     </div>
   );

@@ -171,8 +171,7 @@ const FloristManageOrder = () => {
             <label>Pesanan</label>
             <input type="text" value={formData.productName} disabled />
           </div>
-
-          {/* FOTO PRODUK */}
+          
           <div className="FloristInputGroup">
             <label>Foto Produk</label>
             <div className="FloristImageUploader" style={{ cursor: "default" }}>
@@ -184,7 +183,6 @@ const FloristManageOrder = () => {
             </div>
           </div>
 
-          {/* ALAMAT */}
           <div className="FloristInputGroup">
             <label>Alamat</label>
             <input type="text" value={formData.address} disabled />

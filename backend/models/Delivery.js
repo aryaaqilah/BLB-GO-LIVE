@@ -6,6 +6,7 @@ const deliverySchema = new mongoose.Schema({
   EstimatedArrival: { type: Date, required: true },
   TrackingLink: { type: String, required: true },
   Notes: { type: String, required: false },
+  Price: { type: Number, required: true },
 });
 
 export default mongoose.model("Delivery", deliverySchema);

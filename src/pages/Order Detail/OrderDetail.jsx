@@ -8,7 +8,7 @@ import React, {
 import { useParams, useNavigate } from "react-router-dom";
 import { useAlert } from "../../contexts/AlertContext";
 import { useLoading } from "../../contexts/LoadingContext";
-import { FaArrowLeft, FaStar } from "react-icons/fa";
+import { FaArrowLeft, FaStar, FaTimesCircle } from "react-icons/fa"; // Tambah icon silang
 
 const SectionError = ({ onRetry }) => (
   <div style={{ textAlign: "center", padding: "5rem 2rem" }}>
@@ -84,6 +84,7 @@ const OrderDetail = () => {
       2: "Pesanan Disiapkan",
       3: "Pesanan Dikirim",
       4: "Pesanan Tiba",
+      5: "Pesanan Dibatalkan", // Status baru
     };
 
     const addressParts = [
@@ -165,7 +166,13 @@ const OrderDetail = () => {
   }, [orderId, fetchOrderDetail]);
 
   useLayoutEffect(() => {
-    if (trackerRef.current && currentOrder) {
+    // Progress bar hanya dihitung jika status valid (0-4)
+    if (
+      trackerRef.current &&
+      currentOrder &&
+      currentOrder.statusInt <= 4 &&
+      currentOrder.statusInt >= 0
+    ) {
       const containerWidth = trackerRef.current.clientWidth;
       const stepWidth = 24;
       const spaceBetween = (containerWidth - 5 * stepWidth) / 4;
@@ -175,7 +182,6 @@ const OrderDetail = () => {
     }
   }, [currentOrder, isPageLoading]);
 
-  // LOGIKA PEMBARUAN STATUS (3 -> 4)
   const handleCompleteOrder = async () => {
     showLoading("Menyelesaikan pesanan...");
     try {
@@ -246,36 +252,61 @@ const OrderDetail = () => {
                 Nomor Pesanan : #
                 {currentOrder?.id.substring(0, 8).toUpperCase()}
               </span>
-              <span className="txt-color-primary weight-bold">
+              {/* Warna label berubah jadi merah jika dibatalkan (status 5) */}
+              <span
+                className={`${currentOrder?.statusInt === 5 ? "txt-color-primary" : "txt-color-primary"} weight-bold`}
+              >
                 {currentOrder?.statusLabel}
               </span>
             </div>
 
-            <div className="OrderTracker" ref={trackerRef}>
-              <div className="OrderDetailTrackerLineBackground"></div>
-              <div
-                className="OrderDetailTrackerLineProgress"
-                style={{ width: `${progressWidth}px` }}
-              ></div>
-              {steps.map((step, index) => (
+            {/* TRACKER HANYA MUNCUL JIKA STATUS 0-4 */}
+            {currentOrder?.statusInt >= 0 && currentOrder?.statusInt <= 4 ? (
+              <div className="OrderTracker" ref={trackerRef}>
+                <div className="OrderDetailTrackerLineBackground"></div>
                 <div
-                  key={index}
-                  className={`OrderDetailStepItem ${index <= currentOrder?.statusInt ? "active" : ""}`}
-                >
+                  className="OrderDetailTrackerLineProgress"
+                  style={{ width: `${progressWidth}px` }}
+                ></div>
+                {steps.map((step, index) => (
                   <div
-                    className={`OrderDetailStepCircle ${index <= currentOrder.statusInt ? "active" : ""}`}
-                  ></div>
-                  <div className="txt-color-ternary step-label">
-                    {step.label.split(" ").map((word, i) => (
-                      <span key={i}>
-                        {word}
-                        <br />
-                      </span>
-                    ))}
+                    key={index}
+                    className={`OrderDetailStepItem ${index <= currentOrder?.statusInt ? "active" : ""}`}
+                  >
+                    <div
+                      className={`OrderDetailStepCircle ${index <= currentOrder.statusInt ? "active" : ""}`}
+                    ></div>
+                    <div className="txt-color-ternary step-label">
+                      {step.label.split(" ").map((word, i) => (
+                        <span key={i}>
+                          {word}
+                          <br />
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : currentOrder?.statusInt === 5 ? (
+              /* TAMPILAN JIKA PESANAN DIBATALKAN */
+              <div
+                className="OrderCancelledInfo"
+                style={{ textAlign: "center", padding: "2rem 0" }}
+              >
+                <FaTimesCircle
+                  size={48}
+                  color="#A65E4E"
+                  style={{ marginBottom: "10px" }}
+                />
+                <p className="p1 weight-bold" style={{ color: "#A65E4E" }}>
+                  Mohon maaf, pesanan ini telah dibatalkan.
+                </p>
+                <p className="p3 txt-color-ternary">
+                  Silakan hubungi admin atau toko jika Anda merasa ini adalah
+                  kesalahan.
+                </p>
+              </div>
+            ) : null}
 
             {currentOrder?.statusInt === 4 && !hasRated && (
               <div className="RatingInputSection">
@@ -329,12 +360,11 @@ const OrderDetail = () => {
                 <div className="DeliveryInfoRow">
                   <span className="label">Estimasi Tiba</span>
                   <span className="value">
-                    {currentOrder?.estimatedArrival}
+                    : {currentOrder?.estimatedArrival}
                   </span>
                 </div>
               </div>
 
-              {/* TOMBOL KONFIRMASI TERIMA BARANG */}
               {currentOrder?.statusInt === 3 && (
                 <div className="action-area">
                   <button

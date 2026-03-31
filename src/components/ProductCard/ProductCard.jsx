@@ -1,7 +1,7 @@
 import { useContext } from "react";
-import React from 'react';
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import './ProductCard.css';
+import "./ProductCard.css";
 import { AuthContext } from "../../contexts/AuthContext";
 import { useAlert } from "../../contexts/AlertContext";
 
@@ -20,20 +20,20 @@ const ProductCard = ({ product }) => {
 
     try {
       const responses = await Promise.all(
-        items.map(item =>
-          fetch(`http://localhost:5000/api/items/${item.ItemStokId}`)
-        )
+        items.map((item) =>
+          fetch(`http://localhost:5000/api/items/${item.ItemStokId}`),
+        ),
       );
 
-      const dataResults = await Promise.all(responses.map(res => res.json()));
+      const dataResults = await Promise.all(responses.map((res) => res.json()));
 
-      if (responses.some(res => !res.ok)) {
+      if (responses.some((res) => !res.ok)) {
         throw new Error("Gagal fetch salah satu item");
       }
 
       const hasInsufficientStock = items.some((item) => {
         const stockData = dataResults.find(
-          data => data._id === item.ItemStokId
+          (data) => data._id === item.ItemStokId,
         );
 
         if (!stockData || !stockData.Stok) return true;
@@ -50,11 +50,14 @@ const ProductCard = ({ product }) => {
       console.log("Semua stok mencukupi, lanjut ke checkout.", items);
 
       const updateStock = async (items, type) => {
-        const res = await fetch("http://localhost:5000/api/items/update-stock", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ items, type }),
-        });
+        const res = await fetch(
+          "http://localhost:5000/api/items/update-stock",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ items, type }),
+          },
+        );
 
         const data = await res.json();
 
@@ -68,17 +71,14 @@ const ProductCard = ({ product }) => {
           navigate("/confirmation", {
             state: { selectedProduct: card },
           });
-
         } catch (error) {
           console.error(error);
           showAlert("Terjadi kesalahan saat proses checkout.");
         }
-
       } else {
         navigate("/login");
         showAlert("Silakan login terlebih dahulu untuk melakukan pembelian.");
       }
-
     } catch (error) {
       console.error("Gagal cek stok:", error);
       showAlert("Terjadi kesalahan saat mengecek stok.");
@@ -87,28 +87,24 @@ const ProductCard = ({ product }) => {
   return (
     <div className="product-card">
       <div className="image-container">
-        <img 
+        <img
           src={
-            product.image?.startsWith("data:image")
-              ? product.image
-              : `http://localhost:5000${product.image}`
-          } 
-          alt={product.title} 
-          className="product-image-pop" 
+            product.productImageUrl.startsWith("data:image")
+              ? product.productImageUrl
+              : `http://localhost:5000${product.productImageUrl}`
+          }
+          alt={product.title}
+          className="product-image-pop"
         />
-        
-        {/* Price positioned inside the beige box */}
-        <span className="price-overlay">
-          IDR {product.price}
-        </span>
+        <span className="price-overlay">IDR {product.price}</span>
       </div>
 
       <div className="product-info">
         <h2 className="txt-color-primary">{product.title}</h2>
         <p className="p2 txt-color-ternary">{product.description}</p>
-        
-        <button 
-          className="button-primary-fill" 
+
+        <button
+          className="button-primary-fill"
           onClick={() => handleCardSelect(product)}
         >
           Beli
