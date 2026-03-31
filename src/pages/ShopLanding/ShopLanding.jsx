@@ -174,6 +174,8 @@ const ShopLanding = () => {
 
   if (!storeInfo) return <div style={{ height: "100vh" }}></div>;
 
+  console.log("Render ShopLanding with storeInfo:", productState.data);
+
   return (
     <div
       className="ShopLandingContainer"

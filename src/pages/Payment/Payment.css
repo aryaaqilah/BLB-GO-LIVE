@@ -1,12 +1,4 @@
-.PaymentSection {
-  height: 90vh;
-  width: 100vw;
-  overflow: hidden;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  /* background-color: aqua; */
-}
+
 
 .PaymentContainer {
   /* height: 100%; */
@@ -105,4 +97,81 @@
   display: flex;
   height: 16%;
   width: 100%;
+}
+
+
+@media screen and (min-width: 1025px){
+  .PaymentSection {
+  height: 90vh;
+  width: 100vw;
+  overflow: hidden;
+  margin: 0;
+  padding-top: 2rem;
+  display: flex;
+  /* background-color: aqua; */
+}
+}
+
+@media screen and (min-width: 600px) and (max-width: 1024px){
+    .PaymentSection {
+  height: 90vh;
+  width: 100vw;
+  overflow: hidden;
+  margin: 0;
+  padding-top: 2rem;
+  display: flex;
+  /* background-color: aqua; */
+}
+}
+
+@media screen and (max-width: 600px){
+  .PaymentSection {
+  /* height: 90vh; */
+  width: 100vw;
+  overflow: hidden;
+  margin: 0;
+  padding-top: 2rem;
+  display: flex;
+  /* background-color: aqua; */
+}
+  .MainBoxPayment{
+    flex-direction: column;
+    /* height: 100%; */
+  }
+
+  .MainBoxPayment .LeftMainBox{
+  height: 100%;
+  width: 100%;
+  /* background-color: #D4BEA7; */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.MainBoxPayment .RightMainBox{
+  height: 100%;
+  width: 100%;
+  /* background-color: coral; */
+}
+
+.MainBoxPayment{
+  /* height: 90%; */
+  width: 100%;
+  /* background-color: lightcoral; */
+  display: flex;
+  border: 2px solid #404C4C;
+  box-sizing: border-box;
+}
+
+.PaymentContainer {
+  /* height: 100%; */
+  width: 76vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  
+  margin-top: 30px;
+  /* background-color: aquamarine; */
+}
 }

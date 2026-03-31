@@ -206,7 +206,12 @@ const OrderCard = ({ order }) => {
 
       <div className="ProductDetail">
         <div className="ProductImage">
-          <img src={order.productImageUrl} alt={order.productName} />
+          <img src={
+        order.productImageUrl?.startsWith("data:image")
+              ? order.productImageUrl
+              : `http://localhost:5000${order.productImageUrl}`
+        
+        } alt={order.productName} />
         </div>
 
         <div className="LeftItem">

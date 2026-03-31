@@ -28,7 +28,8 @@ router.get("/shop/:shopId", async (req, res) => {
       {
         $match: { 
           ShopId: new mongoose.Types.ObjectId(shopId),
-          Type: { $in: ["Other", "Wrapper", "Ribbon"] }
+          Type: { $in: ["Other", "Wrapper", "Ribbon"] },
+          ComponentId: { $ne: null }
         }
       },
       {

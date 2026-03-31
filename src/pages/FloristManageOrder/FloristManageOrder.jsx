@@ -23,6 +23,10 @@ const FloristManageOrder = () => {
   const [cancelReason, setCancelReason] = useState("");
   const [isCancelling, setIsCancelling] = useState(false);
 
+  const [showPopup, setShowPopup] = useState(false);
+
+  const [productDetail, setProductDetail] = useState([]);
+
   const [formData, setFormData] = useState({
     customerName: "",
     productName: "",
@@ -93,15 +97,29 @@ const FloristManageOrder = () => {
         setFormData({
           customerName: data.UserId?.Name || "-",
           productName: data.ProductId?.Name || "Custom Bouquet",
-          productImage: data.ProductId?.Image
-            ? `${data.ProductId.Image}`
-            : "/no-image.png",
+          productImage: data.ProductId.Image?.startsWith("data:image")
+            ? data.ProductId.Image
+            : `http://localhost:5000${data.ProductId.Image}`,
           address: addressParts.join(", ") || "-",
           status: data.Status,
           shippingCode: data.DeliveryId.ShippingCode || "-",
           trackingLink: data.DeliveryId.TrackingLink || "-",
-          service: data.DeliveryId.Service || "-"
+          service: data.DeliveryId.Service || "-",
+          productId : data.ProductId.ThreeDModel || null,
+          // items : data.ProductId?.ProductDetail || []
         });
+
+        const items = await data.ProductId?.ProductDetail.map((i) => ({
+            ItemId: i._id,
+            Quantity: i.Quantity,
+            ItemStokId: i.ItemId?._id,
+        }));
+
+        const productDetail = await items.map(
+            (d) => `${d.ItemId?.Name || "Item"} (x${d.Quantity})`,
+          ) || [];
+
+        await setProductDetail(productDetail);
       } else {
         showAlert("Gagal mengambil data order");
       }
@@ -111,6 +129,8 @@ const FloristManageOrder = () => {
       setIsLoading(false);
     }
   }, [id, showAlert]);
+
+
 
   useEffect(() => {
     fetchOrder();
@@ -171,6 +191,11 @@ const FloristManageOrder = () => {
             <label>Pesanan</label>
             <input type="text" value={formData.productName} disabled />
           </div>
+
+          <div className="FloristInputGroup">
+            <label>Detail Item</label>
+            <input type="text" value={productDetail} disabled />
+          </div>
           
           <div className="FloristInputGroup">
             <label>Foto Produk</label>
@@ -184,6 +209,106 @@ const FloristManageOrder = () => {
           </div>
 
           <div className="FloristInputGroup">
+        <label>3D Model</label>
+
+        <div>
+          <button
+            onClick={() => setShowPopup(true)}
+            style={{
+              padding: "10px 20px",
+              backgroundColor: "#a55749",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+            }}
+          >
+            👁️ Lihat 3D Model
+          </button>
+        </div>
+      </div>
+
+      {/* ===== POPUP MODAL ===== */}
+      {showPopup && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0,0,0,0.6)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 9999,
+          }}
+        >
+          <div
+            style={{
+              width: "90%",
+              height: "90%",
+              backgroundColor: "#d4c4b5",
+              borderRadius: "20px",
+              overflow: "hidden",
+              display: "flex",
+              flexDirection: "column",
+              position: "relative",
+            }}
+          >
+            {/* HEADER */}
+            <div
+              style={{
+                padding: "1rem",
+                background: "white",
+                textAlign: "center",
+              }}
+            >
+              <h2 style={{ margin: 0, color: "#a55749" }}>
+                "Preview Buket"
+              </h2>
+              <p style={{ fontSize: "12px", opacity: 0.7 }}>
+                Drag untuk rotate • Scroll untuk zoom
+              </p>
+            </div>
+
+            {/* CLOSE BUTTON */}
+            <button
+              onClick={() => setShowPopup(false)}
+              style={{
+                position: "absolute",
+                top: 10,
+                right: 15,
+                background: "transparent",
+                border: "none",
+                fontSize: "20px",
+                cursor: "pointer",
+              }}
+            >
+              ✖
+            </button>
+
+            {/* MODEL VIEWER */}
+            <div style={{ flex: 1 }}>
+              <model-viewer
+                src={`http://localhost:5000/models/exported/${formData.productId}.gltf`}
+                camera-controls
+                auto-rotate
+                shadow-intensity="1"
+                exposure="1"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  background:
+                    "radial-gradient(circle, #ffffff 0%, #d4c4b5 100%)",
+                }}
+              ></model-viewer>
+            </div>
+          </div>
+        </div>
+      )}
+
+          <div className="FloristInputGroup">
             <label>Alamat</label>
             <input type="text" value={formData.address} disabled />
           </div>
@@ -192,6 +317,7 @@ const FloristManageOrder = () => {
           <div className="FloristInputGroup">
             <label>Status</label>
             <select
+              className="FloristStatusSelect"
               value={formData.status}
               onChange={(e) =>
                 setFormData({ ...formData, status: parseInt(e.target.value) })

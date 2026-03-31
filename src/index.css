@@ -3796,6 +3796,7 @@ h3,
 
 .FloristInputGroup input,
 .FloristInputGroup textarea,
+.FloristInputGroup select,
 .FloristItemDropdown {
   background-color: #ece4db;
   border: 1px solid #d4c4b5;
@@ -4125,4 +4126,17 @@ h3,
   height: auto;
   z-index: 2;
   pointer-events: none;
+}
+
+.FloristStatusSelect {
+  padding: 10px 40px 10px 10px; /* kanan lebih besar */
+  appearance: none; /* hilangkan default arrow */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center; /* geser dari kanan */
+  background-size: 16px;
+  /* background-color: yellow; */
 }

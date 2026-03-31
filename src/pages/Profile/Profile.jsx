@@ -5,6 +5,7 @@ import { FaUser, FaEdit, FaSignOutAlt } from "react-icons/fa";
 import { useAuth } from "../../contexts/AuthContext";
 import { useAlert } from "../../contexts/AlertContext";
 import { useLoading } from "../../contexts/LoadingContext";
+import { useLocation } from "react-router-dom";
 
 const SectionError = ({ onRetry }) => (
   <div style={{ textAlign: "center", padding: "3rem" }}>
@@ -40,6 +41,7 @@ const Profile = () => {
   const { showAlert } = useAlert();
   const { showLoading: showGlobalLoading, hideLoading: hideGlobalLoading } = useLoading();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [orders, setOrders] = useState([]);
   const [profileData, setProfileData] = useState(null);
@@ -226,9 +228,20 @@ const Profile = () => {
     });
   };
 
+  console.log("Profile data:", location.state?.fromPayment);
+
+  const handlleGoBack = (fromPayment) => {
+    if (fromPayment) {
+      navigate("/");
+    }
+    else {
+      navigate(-1);
+    }
+  }
+
   return (
     <div className="ProfilePageContainer">
-      <button className="TernaryBackButton" onClick={() => navigate(-1)}>
+      <button className="TernaryBackButton" onClick={() => handlleGoBack(location.state?.fromPayment)}>
         ←
       </button>
 
