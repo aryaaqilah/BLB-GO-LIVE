@@ -79,14 +79,16 @@ function MainSection({
       navigate(-1);
     }
     else {      
-      
+      window.history.replaceState({ fromPayment: true }, "", "/profile");
       navigate("/profile", {
-        state: { fromPayment: true }
+        state: { fromPayment: true },
+        replace: true
       });
     }
   };
 
   const handleCardSelect = async () => {
+
     showLoading("Memproses pembayaran...");
     if (!user) {
       showAlert("Silakan login terlebih dahulu untuk melakukan pembelian.");
@@ -283,7 +285,7 @@ function MainSection({
         const productPayload = {
           Name: selectedProduct.title,
           Price: productPrice,
-          Quantity: 1,
+          // Quantity: 1,
           Image: selectedProduct.thumbnail,
           ThreeDModel: modelId,
           Memo: selectedProduct.pesan,
@@ -387,10 +389,13 @@ function MainSection({
         return;
       }
       setShowPayment(true);
+      
       hideLoading();
       setNavigateBack(false);
+      // await window.history.replaceState(null, "", "/profile");
 
       setTimeout(() => {
+
         window.snap.embed(midtransData.token, {
           embedId: "snap-container",
 
@@ -488,7 +493,7 @@ function MainSection({
               await updateStock(selectedProduct.items, "increase");
 
               clear();
-
+              window.location.replace("/");
               navigate("/profile", {
                 replace: true,
                 state: null,
@@ -517,7 +522,7 @@ function MainSection({
             );
 
             clear();
-
+            window.location.replace("/");
             navigate("/profile", {
               replace: true,
               state: null,

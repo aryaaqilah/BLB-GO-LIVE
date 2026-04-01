@@ -95,7 +95,7 @@
 
 .PaymentSummaryItem{
   display: flex;
-  height: 16%;
+  min-height: 16%;
   width: 100%;
 }
 

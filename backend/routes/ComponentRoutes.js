@@ -15,7 +15,9 @@ router.post("/", async (req, res) => {
 // 📚 Ambil Semua Component (GET /api/components)
 router.get("/", async (req, res) => {
   try {
-    const components = await Component.find();
+    const components = await Component.find({
+      _id: { $ne: "694e44d385890620cea2e870" }
+    });
     res.json(components);
   } catch (err) { res.status(500).json({ error: err.message }); }
 });

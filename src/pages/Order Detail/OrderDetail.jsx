@@ -423,7 +423,7 @@ const OrderDetail = () => {
                   </ul>
                   <div className="OrderDetailQuantityRow">
                     <span className="qty">
-                      x{currentOrder?.productQuantity}
+                      {/* x1 */}
                     </span>
                     <span className="price-at-qty">
                       {currentOrder?.productPrice}

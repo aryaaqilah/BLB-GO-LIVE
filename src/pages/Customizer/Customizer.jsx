@@ -185,18 +185,26 @@ const GalleryCard = ({ name, imageSrc, onAddObject, path }) => {
           className="Customizer-bg-top"
           style={{ backgroundColor: topBgColor }}
         ></div>
-        <div
+
+        
+      <div
           className="Customizer-bg-bottom"
           style={{ backgroundColor: bottomBgColor }}
         >
-          <span className="Customizer-label-text">{`+ ${name}`}</span>
+          {/* <span className="Customizer-label-text"></span> */}
         </div>
+
       </div>
-      <img
+        <img
         src={imageSrc}
         className="Customizer-card-img"
         style={{ width: isWrapper ? "110%" : "85%" }}
       />
+
+      <div className="" style={{ position: "absolute", bottom: "5px", width: "100%", textAlign: "center" , zIndex: 10}}>
+        <span className="Customizer-label-text">{`+ ${name}`}</span>
+      </div>
+
     </div>
   );
 };
@@ -313,6 +321,8 @@ function MainSection({ storeId }) {
         const wrapperList = [];
         const ribbonList = [];
 
+        
+
         dataShop.forEach((item) => {
           if (item.Type === "Other" && item.Stok > 0) {
             flowerList.push({
@@ -338,6 +348,8 @@ function MainSection({ storeId }) {
             });
           }
         });
+        console.log("Raw fetched items:", dataShop);
+        console.log("Fetched components:", { flowerList, wrapperList, ribbonList });
 
         if (
           flowerList.length === 0 ||

@@ -1597,7 +1597,7 @@ h3,
 
   .Customizer-AddModel {
     width: 95%;
-    height: auto;
+    /* height: auto; */
     min-height: 180px;
   }
 
@@ -2573,7 +2573,7 @@ h3,
 
   .Customizer-AddModel {
     width: 90%;
-    height: 28%;
+    /* height: 28%; */
     /* background-color: lightyellow; */
   }
 
@@ -4071,7 +4071,7 @@ h3,
 .Customizer-gallery-container {
   display: flex;
   gap: 20px;
-  padding: 10px 5% 30px 5%;
+  /* padding: 10px 5% 30px 5%; */
   overflow-x: auto;
   scroll-behavior: smooth;
 }
@@ -4111,6 +4111,7 @@ h3,
   justify-content: center;
   align-items: center;
   padding-top: 10px;
+  width: 100%;
 }
 .Customizer-label-text {
   font-family: "Times New Roman", serif;

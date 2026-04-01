@@ -161,7 +161,7 @@ const FloristManageItem = () => {
               <div className="FloristSelectedAssetPreview">
                 <div className="PreviewImageFrame">
                   <img
-                    src={`http://localhost:5000${formData.ComponentId.Image}`}
+                    src={formData.ComponentId.Image}
                     alt="Preview"
                     onError={(e) => (e.target.src = "https://via.placeholder.com/100?text=No+Image")}
                   />

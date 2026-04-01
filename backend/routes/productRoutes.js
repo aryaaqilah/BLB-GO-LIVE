@@ -29,7 +29,7 @@ const processDetails = async (detailsJson) => {
 router.get("/best-sellers", async (req, res) => {
   try {
     let results = await Order.aggregate([
-      { $match: { Status: { $gte: 1 } } }, 
+      { $match: { Status: { $gte: 1 }, ProductDetail: { $ne: null } } }, 
       {
         $lookup: {
           from: "products", 
@@ -39,7 +39,7 @@ router.get("/best-sellers", async (req, res) => {
         }
       },
       { $unwind: "$ProductInfo" },
-      { $match: { "ProductInfo.IsCustomized": 0, "ProductInfo.IsDeleted": false } }, // Filter IsDeleted
+      { $match: { "ProductInfo.IsCustomized": 0, "ProductInfo.IsDeleted": false, "ProductInfo.ProductDetail": { $ne: null } } }, // Filter IsDeleted
       {
         $group: {
           _id: "$ProductId",

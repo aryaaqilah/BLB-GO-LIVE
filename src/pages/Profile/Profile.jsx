@@ -106,7 +106,7 @@ const Profile = () => {
       ).toLocaleDateString(),
       productName: order.ProductId?.Name || "Product",
       productImageUrl: order.ProductId?.Image || "",
-      quantity: order.ProductId?.Quantity || 1,
+      quantity: 1,
       customizationDetails:
         productDetails.map(
           (d) => `${d.ItemId?.Name || "Item"} (x${d.Quantity})`,
@@ -229,6 +229,11 @@ const Profile = () => {
   };
 
   console.log("Profile data:", location.state?.fromPayment);
+
+  if(location.state?.fromPayment) {
+    window.history.replaceState(null, "", "/profile");
+  }
+
 
   const handlleGoBack = (fromPayment) => {
     if (fromPayment) {

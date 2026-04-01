@@ -34,25 +34,47 @@ router.get("/shop/:shopId", async (req, res) => {
     const { shopId } = req.params;
     const items = await Item.aggregate([
       {
-        $match: { 
+        $match: {
           ShopId: new mongoose.Types.ObjectId(shopId),
-          Type: { $in: ["Other", "Wrapper", "Ribbon"] },
-          IsDeleted: false, // Filter item yang belum dihapus,
-          ComponentId: { $ne: null }
+          IsDeleted: false,
+          $or: [
+            { 
+              // Kondisi 1: Jika Type "Other", ComponentId tidak boleh null
+              Type: "Other", 
+              ComponentId: { $ne: null } 
+            },
+            { 
+              // Kondisi 2: Jika Type "Wrapper" atau "Ribbon", ComponentId bebas (boleh null)
+              Type: { $in: ["Wrapper", "Ribbon"] } 
+            }
+          ]
         }
       },
       {
         $group: {
-          _id: { $cond: [{ $eq: ["$Type", "Other"] }, "$ComponentId", "$_id"] },
+          // Tetap mempertahankan logika grouping unik untuk "Other" berdasarkan ComponentId
+          _id: { 
+            $cond: [
+              { $eq: ["$Type", "Other"] }, 
+              "$ComponentId", 
+              "$_id"
+            ] 
+          },
           item: { $first: "$$ROOT" }
         }
       },
       { $replaceRoot: { newRoot: "$item" } }
     ]);
 
-    const populatedItems = await Item.populate(items, [{ path: "ComponentId" }, { path: "ShopId" }]);
+    const populatedItems = await Item.populate(items, [
+      { path: "ComponentId" }, 
+      { path: "ShopId" }
+    ]);
+    
     res.json(populatedItems);
-  } catch (error) { res.status(500).json({ message: error.message }); }
+  } catch (error) { 
+    res.status(500).json({ message: error.message }); 
+  }
 });
 
 router.get("/florist/:shopId", async (req, res) => {
