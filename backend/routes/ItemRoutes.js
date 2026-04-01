@@ -37,7 +37,8 @@ router.get("/shop/:shopId", async (req, res) => {
         $match: { 
           ShopId: new mongoose.Types.ObjectId(shopId),
           Type: { $in: ["Other", "Wrapper", "Ribbon"] },
-          IsDeleted: false // Filter item yang belum dihapus
+          IsDeleted: false, // Filter item yang belum dihapus,
+          ComponentId: { $ne: null }
         }
       },
       {

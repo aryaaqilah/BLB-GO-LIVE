@@ -71,7 +71,21 @@ function MainSection({
   const [showPayment, setShowPayment] = useState(false);
 
   console.log("Current user:", user);
-  
+
+  const [navigateBack, setNavigateBack] = useState(true);
+
+  const handleGoBack = () => {
+    if (navigateBack) {
+      navigate(-1);
+    }
+    else {      
+      
+      navigate("/profile", {
+        state: { fromPayment: true }
+      });
+    }
+  };
+
   const handleCardSelect = async () => {
     showLoading("Memproses pembayaran...");
     if (!user) {
@@ -140,11 +154,12 @@ function MainSection({
       // const formattedDate = date.toISOString().split('T')[0];
 
       const deliveryPayload = {
-        ShippingCode: "To be inputed"+date.getTime(),
-        Service: "GrabSend",
+        ShippingCode: "To be inputed ["+date.getTime()+"]",
+        Service: "To be inputed",
         EstimatedArrival: date,
         TrackingLink: "To be inputed",
         Notes: addressData.Note || "No notes available",
+        Price : shippingFee
       };
 
       console.log("Delivery Payload:", deliveryPayload);
@@ -373,6 +388,7 @@ function MainSection({
       }
       setShowPayment(true);
       hideLoading();
+      setNavigateBack(false);
 
       setTimeout(() => {
         window.snap.embed(midtransData.token, {
@@ -653,6 +669,11 @@ function MainSection({
       <section className="PaymentSection">
         <div className="box"></div>
         <div className="PaymentContainer">
+          <div className="Confirmation-Back-Container" style={{ display : "flex", justifyContent : "flex-start", alignItems : "center", width : "100%", height : "10px" }}>
+            <button className="TernaryBackButton" onClick={handleGoBack}>
+            ←
+            </button>
+          </div>
           <div style={{ alignSelf: "flex-start", color: "#A95C4C" }}>
             <h1>Pembayaran</h1>
           </div>
@@ -677,7 +698,9 @@ function MainSection({
                   }}
                 >
                   <img
-                    src={selectedProduct?.thumbnail || selectedProduct?.image}
+                    src={selectedProduct?.thumbnail || (selectedProduct.image?.startsWith("data:image")
+                        ? selectedProduct.image
+                        : `http://localhost:5000${selectedProduct.image}`)}
                     alt="Product"
                     style={{ width: "70%", height: "70%" }}
                   />
@@ -774,7 +797,7 @@ function MainSection({
             </button>) : (<div
                 id="snap-container"
                 style={{ width: "100%",
-                  height: "550px", // boleh kamu adjust
+                  maxHeight: "460px", // boleh kamu adjust
                   overflowY: "auto",
                   borderRadius: "10px" }}
               ></div>)

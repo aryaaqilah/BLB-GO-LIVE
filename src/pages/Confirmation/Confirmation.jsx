@@ -102,7 +102,7 @@ function MainSection({ selectedProduct, modelScene, meta }) {
                 ) : (
                   /* Kondisi B: Menampilkan Gambar */
                   <img
-                    src={selectedProduct.image}
+                    src={`http://localhost:5000${selectedProduct.image}` || `${selectedProduct.image}` || ""}
                     alt="Model Preview"
                     style={{
                       width: "100%",

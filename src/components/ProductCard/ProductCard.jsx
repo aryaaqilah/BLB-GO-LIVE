@@ -13,7 +13,7 @@ const ProductCard = ({ product }) => {
   const handleCardSelect = async (card) => {
     const items = card.items || [];
 
-    if (items.length === 0) {
+    if (items.length === 0 || items === null) {
       showAlert("Produk tidak memiliki item.");
       return;
     }
@@ -84,14 +84,16 @@ const ProductCard = ({ product }) => {
       showAlert("Terjadi kesalahan saat mengecek stok.");
     }
   };
+
+  console.log("Render ProductCard:", product);
   return (
     <div className="product-card">
       <div className="image-container">
         <img
           src={
-            product.productImageUrl.startsWith("data:image")
-              ? product.productImageUrl
-              : `http://localhost:5000${product.productImageUrl}`
+            product.image?.startsWith("data:image")
+              ? product.image
+              : `http://localhost:5000${product.image}`
           }
           alt={product.title}
           className="product-image-pop"
