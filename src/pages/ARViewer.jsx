@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
-import "@google/model-viewer"; // penting agar tag <model-viewer> dikenali
+import "@google/model-viewer"; 
 
 export default function ARViewer() {
   const { id } = useParams();
@@ -18,7 +18,7 @@ export default function ARViewer() {
         if (!res.ok) throw new Error(data.message || "Gagal memuat model");
         if (!data.modelPath) throw new Error("Path model tidak ditemukan");
 
-        // Model path akan dipakai langsung oleh <model-viewer>
+        
         setModelUrl(`http://localhost:5000${data.modelPath}`);
       } catch (err) {
         setError(err.message);

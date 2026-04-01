@@ -4,7 +4,7 @@ import { FaUser, FaLock, FaEnvelope } from 'react-icons/fa';
 import { useAlert } from "../../contexts/AlertContext";
 import { useNavigate } from "react-router-dom";
 
-// --- Komponen Umpan Balik Validasi Inline (Dibiarkan untuk kebutuhan tampilan Anda) ---
+
 const ValidationMessage = ({ field, isValid, message, isTouched }) => {
     if (isTouched && isValid === false) {
         return (
@@ -35,17 +35,17 @@ export default function Register() {
         confirmPassword: false
     });
 
-    // Perubahan Utama: Tambahkan state untuk loading
+    
     const [isLoading, setIsLoading] = useState(false);
     
-    // Perubahan Utama: Ganti state submitError menjadi list error untuk penanganan yang lebih baik
+    
     const [submitErrorsList, setSubmitErrorsList] = useState([]);
     const [isButtonDisabled, setIsButtonDisabled] = useState(true);
 
-    // Perubahan Utama: Definisikan Endpoint API
+    
     const API_URL = "http://localhost:5000/api/users"; 
 
-    // --- Definisi Fungsi Validasi ---
+    
 
     const validatePassword = (password) => {
         const alphanumericRegex = /^(?=.*[a-zA-Z])(?=.*[0-9])[A-Za-z0-9]{8,}$/;
@@ -56,7 +56,7 @@ export default function Register() {
         let isValid = true;
         let errorMessage = null;
 
-        // ... (LOGIKA VALIDASI TETAP SAMA DENGAN KODE ASLI ANDA) ...
+        
         if (name === 'name') {
             const onlyLettersRegex = /^[a-zA-Z ]+$/;
             if (value.length <= 8) {
@@ -90,7 +90,7 @@ export default function Register() {
         return { isValid, errorMessage };
     };
     
-    // --- Handlers ---
+    
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -99,12 +99,12 @@ export default function Register() {
             [name]: value
         }));
         
-        setSubmitErrorsList([]); // Hapus error submit saat mulai mengetik
+        setSubmitErrorsList([]); 
         
-        // Validasi real-time dan update validationErrors
+        
         const { isValid } = validateField(name, value);
         
-        // Khusus untuk password/confirmPassword, selalu validasi ulang
+        
         if (name === 'password' || name === 'confirmPassword') {
             const confirmedValid = name === 'password' ? value === formData.confirmPassword : value === formData.password;
             const passwordValid = name === 'password' ? isValid : validatePassword(formData.password);
@@ -130,28 +130,28 @@ export default function Register() {
         }));
     };
 
-    // --- useEffect untuk Mengontrol Status Tombol ---
+    
     useEffect(() => {
         const isFormComplete = Object.values(formData).every(value => value.trim() !== '');
         const allFieldsValid = Object.values(validationErrors).every(isValid => isValid === true);
         setIsButtonDisabled(!(isFormComplete && allFieldsValid));
     }, [formData, validationErrors]);
 
-    // --- Perubahan Utama: Handler Submit Form dengan POST API ---
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setSubmitErrorsList([]); // Reset error sebelum submit
-        setIsLoading(true); // Mulai proses loading
+        setSubmitErrorsList([]); 
+        setIsLoading(true); 
         
-        // Pastikan semua field telah ditandai sebagai 'touched' sebelum submit
+        
         setIsTouched({ name: true, email: true, password: true, confirmPassword: true });
         
-        // 1. Kumpulkan semua error Validasi Klien
+        
         const errors = [];
         for (const key in formData) {
             const { isValid, errorMessage } = validateField(key, formData[key]);
             if (!isValid && errorMessage) {
-                // Pastikan hanya error valid yang dimasukkan
+                
                 if (!errors.includes(errorMessage)) {
                     errors.push(errorMessage);
                 }
@@ -159,20 +159,20 @@ export default function Register() {
         }
 
         if (errors.length > 0) {
-            // Tampilkan error message (Poin 6)
+            
             if (errors.length === 1) {
                 setSubmitErrorsList([errors[0]]);
             } else {
                 setSubmitErrorsList(["Terdapat beberapa kesalahan. Mohon periksa kembali semua field."]);
             }
             setIsLoading(false);
-            return; // Hentikan proses submit jika ada error klien
+            return; 
         }
 
-        // 2. Kirim Data ke Server
+        
         if (!isButtonDisabled) {
             try {
-                // Hapus confirmPassword karena tidak dikirim ke server
+                
                 const { confirmPassword, ...dataToSubmit } = formData;
 
                 const finalDataToSubmit = {
@@ -181,9 +181,9 @@ export default function Register() {
                     Password: dataToSubmit.password,
                 };
 
-                console.log("Mengirim data ke server:", finalDataToSubmit);
                 
-                // Panggilan API POST
+                
+                
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: {
@@ -195,30 +195,30 @@ export default function Register() {
                 const responseData = await response.json();
 
                 if (response.ok) {
-                    // Status 200-299: Berhasil
-                    console.log("Registrasi/Penyimpanan Berhasil:", responseData);
+                    
+                    
                     navigate("/login");
                     showAlert("Data Berhasil Disimpan!");
                 } else {
-                    // Status 400 atau 500: Error dari Server 
+                    
                     const serverErrorMessage = responseData.message || responseData.error || "Gagal menyimpan data ke server.";
                     setSubmitErrorsList([`Server Error: ${serverErrorMessage}`]);
                     console.error("Penyimpanan Gagal:", responseData);
                 }
 
             } catch (error) {
-                // Error jaringan atau error lain di sisi klien
+                
                 console.error("Network Error:", error);
                 setSubmitErrorsList(["Terjadi kesalahan koneksi. Pastikan server berjalan di http://localhost:5000."]);
             } finally {
-                setIsLoading(false); // Selesai loading
+                setIsLoading(false); 
             }
         } else {
-            setIsLoading(false); // Hentikan loading jika tombol sudah disabled (seharusnya tidak terjadi)
+            setIsLoading(false); 
         }
     };
 
-    // --- Render ---
+    
     return (
         <div className='RegisterSection'>
             <form className='RegisterForm' onSubmit={handleSubmit} noValidate>
@@ -275,7 +275,7 @@ export default function Register() {
                     <button
                         className='button-primary-fill'
                         type='submit'
-                        // Tombol disabled jika validasi gagal ATAU sedang loading
+                        
                         disabled={isButtonDisabled || isLoading} 
                     >
                         {/* Tampilkan teks berbeda saat loading */}

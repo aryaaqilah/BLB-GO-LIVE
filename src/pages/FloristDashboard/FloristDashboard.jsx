@@ -22,14 +22,17 @@ const FloristDashboard = () => {
   const [orderState, setOrderState] = useState({ data: [], loading: true, error: false });
   const [ratingState, setRatingState] = useState({ data: [], loading: true, error: false });
 
-  // Map label status dari angka ke teks
+  
   const statusLabels = {
     0: "Pesanan Dibuat",
     1: "Pembayaran Berhasil",
     2: "Pesanan Disiapkan",
     3: "Dalam Pengiriman",
     4: "Pesanan Selesai",
+    5: "Pesanan Dibatalkan"
   };
+
+                            
 
   const fetchOrders = useCallback(async () => {
     if (!user?._id) return;
@@ -67,11 +70,11 @@ const FloristDashboard = () => {
   }, [fetchOrders, fetchRatings]);
 
   const getStatusClass = (s) => {
-    // Jika status adalah angka 3 atau teks "DALAM PENGIRIMAN"
+    
     if (s === 3 || String(s).toUpperCase() === "DALAM PENGIRIMAN") return "Shipping";
-    // Jika status adalah angka 4 atau teks "PESANAN SELESAI"
+    
     if (s === 4 || String(s).toUpperCase() === "PESANAN SELESAI") return "Done";
-    return "Done"; // Default color
+    return "Done"; 
   };
 
   const currentData = activeTab === "Pesanan" ? orderState.data.slice(0, 10) : ratingState.data;

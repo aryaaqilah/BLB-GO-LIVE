@@ -8,7 +8,7 @@ import React, {
 import { useParams, useNavigate } from "react-router-dom";
 import { useAlert } from "../../contexts/AlertContext";
 import { useLoading } from "../../contexts/LoadingContext";
-import { FaArrowLeft, FaStar, FaTimesCircle } from "react-icons/fa"; // Tambah icon silang
+import { FaArrowLeft, FaStar, FaTimesCircle } from "react-icons/fa"; 
 
 const SectionError = ({ onRetry }) => (
   <div style={{ textAlign: "center", padding: "5rem 2rem" }}>
@@ -84,7 +84,7 @@ const OrderDetail = () => {
       2: "Pesanan Disiapkan",
       3: "Pesanan Dikirim",
       4: "Pesanan Tiba",
-      5: "Pesanan Dibatalkan", // Status baru
+      5: "Pesanan Dibatalkan", 
     };
 
     const addressParts = [
@@ -166,7 +166,7 @@ const OrderDetail = () => {
   }, [orderId, fetchOrderDetail]);
 
   useLayoutEffect(() => {
-    // Progress bar hanya dihitung jika status valid (0-4)
+    
     if (
       trackerRef.current &&
       currentOrder &&

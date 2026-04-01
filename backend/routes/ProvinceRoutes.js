@@ -3,7 +3,7 @@ import Province from "../models/Province.js";
 
 const router = express.Router();
 
-// ➕ Tambah Province (POST /api/provinces)
+
 router.post("/", async (req, res) => {
   try {
     const province = new Province(req.body);
@@ -12,7 +12,7 @@ router.post("/", async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
-// 📚 Ambil Semua Province (GET /api/provinces)
+
 router.get("/", async (req, res) => {
   try {
     const provinces = await Province.find();
@@ -20,18 +20,18 @@ router.get("/", async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 📚 Ambil Province by province_id (GET /api/provinces)
+
 router.get("/get-by-id/", async (req, res) => {
   try {
         const { provinsi_id } = req.query;
         
         let filter = {};
         if (provinsi_id) {
-            // Penting: Gunakan Number() karena data di gambar Anda adalah tipe angka
+            
             filter = { provinsi_id: Number(provinsi_id) };
         }
 
-        // Mencari ke database menggunakan model yang sudah ada di backend
+        
         const data = await Province.find(filter); 
         res.status(200).json(data);
     } catch (error) {
@@ -39,7 +39,7 @@ router.get("/get-by-id/", async (req, res) => {
     }
 });
 
-// 📖 Ambil Province Berdasarkan ID (GET /api/provinces/:id)
+
 router.get("/:id", async (req, res) => {
   try {
     const province = await Province.findById(req.params.id);
@@ -48,7 +48,7 @@ router.get("/:id", async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
-// ✏️ Update Province (PUT /api/provinces/:id)
+
 router.put("/:id", async (req, res) => {
   try {
     const province = await Province.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
@@ -57,7 +57,7 @@ router.put("/:id", async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
-// 🗑️ Hapus Province (DELETE /api/provinces/:id)
+
 router.delete("/:id", async (req, res) => {
   try {
     const province = await Province.findByIdAndDelete(req.params.id);

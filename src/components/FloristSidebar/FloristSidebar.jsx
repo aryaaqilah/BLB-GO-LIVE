@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthContext";
 import { useAlert } from "../../contexts/AlertContext";
-import { FaSignOutAlt, FaBars, FaTimes, FaUser } from "react-icons/fa"; // Tambahkan FaUserCircle
+import { FaSignOutAlt, FaBars, FaTimes, FaUser } from "react-icons/fa"; 
 import Logo from "../../assets/Logo/Logo_Primary_Light.png";
 import "./FloristSidebar.css";
 

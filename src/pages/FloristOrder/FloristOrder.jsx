@@ -36,7 +36,7 @@ const FloristOrders = () => {
     error: false
   });
 
-  // 🔥 FETCH ORDERS
+  
   const fetchOrders = useCallback(async () => {
       if (!user?._id) return;
       setOrderState(prev => ({ ...prev, loading: true, error: false }));
@@ -55,7 +55,7 @@ const FloristOrders = () => {
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
-  console.log("Filtered Order state:", orderState.data);
+  
 
 const filteredData = orderState.data
   .filter((item) => {
@@ -66,8 +66,8 @@ const filteredData = orderState.data
 
     return true;
   });
-  console.log("Filtered Orders:", filteredData);
-  console.log("Filtered Order state:", orderState.data);
+  
+  
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const displayedItems = filteredData.slice(
@@ -113,6 +113,8 @@ const filteredData = orderState.data
         return { bg: "#D1FADF", color: "#027A48" };
         case 1:
         return { bg: "#FEF3C7", color: "#B54708" };
+        case 0:
+        return { bg: "#c3c3c3", color: "#282828" };
         default:
         return { bg: "#FEE2E2", color: "#B42318" };
     }
@@ -263,17 +265,21 @@ const filteredData = orderState.data
             {/* PAGINATION */}
             <div className="InventoryFooterContainer">
               <div className="FloristPagination">
-                <button onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}>
+                <button className="FloristPagArrow" onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}>
                   <FaChevronLeft />
                 </button>
 
                 {[...Array(totalPages)].map((_, i) => (
-                  <button key={i} onClick={() => setCurrentPage(i + 1)}>
+                  <button key={i} 
+                  className={`FloristPagNum ${currentPage === i + 1 ? "FloristPagActive" : ""}`}
+                  onClick={() => setCurrentPage(i + 1)}>
                     {String(i + 1).padStart(2, '0')}
                   </button>
                 ))}
 
-                <button onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}>
+                <button 
+                className="FloristPagArrow"
+                onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}>
                   <FaChevronRight />
                 </button>
               </div>

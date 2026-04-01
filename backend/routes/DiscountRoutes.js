@@ -3,7 +3,7 @@ import Discount from "../models/Discount.js";
 
 const router = express.Router();
 
-// ➕ Tambah Discount (POST /api/discounts)
+
 router.post("/", async (req, res) => {
   try {
     const discount = new Discount(req.body);
@@ -12,7 +12,7 @@ router.post("/", async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
-// 📚 Ambil Semua Discount (GET /api/discounts)
+
 router.get("/", async (req, res) => {
   try {
     const discounts = await Discount.find();
@@ -25,19 +25,19 @@ router.get("/get-voucher/", async (req, res) => {
         const { Name } = req.query;
         let filter = {};
         if (Name) {
-            // Penting: Gunakan Number() karena data di gambar Anda adalah tipe angka
+            
             filter = { Name: Name };
         }
-        // Mencari ke database menggunakan model yang sudah ada di backend
+        
         const data = await Discount.find(filter); 
-        console.log("Discount : ", data);
+        
         res.status(200).json(data);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 });
 
-// 📖 Ambil Discount Berdasarkan ID (GET /api/discounts/:id)
+
 router.get("/:id", async (req, res) => {
   try {
     const discount = await Discount.findById(req.params.id);
@@ -46,7 +46,7 @@ router.get("/:id", async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
-// ✏️ Update Discount (PUT /api/discounts/:id)
+
 router.put("/:id", async (req, res) => {
   try {
     const discount = await Discount.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
@@ -55,7 +55,7 @@ router.put("/:id", async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
-// 🗑️ Hapus Discount (DELETE /api/discounts/:id)
+
 router.delete("/:id", async (req, res) => {
   try {
     const discount = await Discount.findByIdAndDelete(req.params.id);

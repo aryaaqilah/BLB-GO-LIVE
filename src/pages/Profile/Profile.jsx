@@ -18,14 +18,14 @@ const SectionError = ({ onRetry }) => (
   </div>
 );
 
-// MODIFIKASI: Loading di tengah dengan teks
+
 const SectionLoading = () => (
   <div style={{ 
     display: "flex", 
     flexDirection: "column",
     justifyContent: "center", 
     alignItems: "center",
-    minHeight: "60vh", // Mengambil tinggi area konten agar terlihat di tengah
+    minHeight: "60vh", 
     width: "100%",
     gap: "1.5rem"
   }}>
@@ -206,7 +206,7 @@ const Profile = () => {
         updateAuthContext(updatedUser);
         setIsEditing(false);
         showAlert("Profil berhasil diperbarui!");
-        // Refresh data lokal tanpa reload halaman penuh
+        
         fetchProfileData();
       }
     } catch (error) {
@@ -228,7 +228,7 @@ const Profile = () => {
     });
   };
 
-  console.log("Profile data:", location.state?.fromPayment);
+  
 
   if(location.state?.fromPayment) {
     window.history.replaceState(null, "", "/profile");

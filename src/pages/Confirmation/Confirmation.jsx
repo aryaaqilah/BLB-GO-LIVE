@@ -42,7 +42,7 @@ function MainSection({ selectedProduct, modelScene, meta }) {
         description: summaryText,
         price: meta?.totalPrice,
         image: "",
-        // modelScene: modelScene, // ❌ HAPUS BARIS INI (Penyebab Error)
+        
         quantity: 1,
         catatan: catatan,
         voucher: voucher,
@@ -64,7 +64,7 @@ function MainSection({ selectedProduct, modelScene, meta }) {
       navigate("/login");
     }
   };
-  console.log("Selected Product:", selectedProduct);
+  
   return (
     <div>
       <section className="Confirmation-MainSection">
@@ -82,14 +82,14 @@ function MainSection({ selectedProduct, modelScene, meta }) {
               >
                 {!selectedProduct ? (
                   /* Kondisi A: Menampilkan Canvas */
-                  // <Canvas>
-                  //   <ambientLight intensity={0.8} />
-                  //   <pointLight position={[10, 10, 10]} />
-                  //   {modelScene && (
-                  //     <primitive object={modelScene} scale={0.8} />
-                  //   )}
-                  //   <OrbitControls />
-                  // </Canvas>
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
                   <img
                     src={meta?.thumbnail || ""}
                     alt="Model Preview"
@@ -215,11 +215,11 @@ function MainSection({ selectedProduct, modelScene, meta }) {
                 </div> */}
                 <div
                   className="Confirmation-btnContainer"
-                  // style={{
-                  //   display: "flex",
-                  //   justifyContent: "center",
-                  //   paddingTop: "30px",
-                  // }}
+                  
+                  
+                  
+                  
+                  
                 >
                   <button
                     className="Confirmation-btnConfirm"
@@ -245,7 +245,7 @@ export default function Confirmation() {
     window.history.state &&
     window.history.state.usr &&
     window.history.state.usr.selectedProduct;
-  // console.log("Selected Product in Confirmation Page:", selectedProduct);
+  
 
   const navigate = useNavigate();
 
@@ -256,13 +256,13 @@ export default function Confirmation() {
       navigate("/profile", { replace: true });
     }
   };
-  // useEffect(() => {
-  //   if (!selectedProduct) {
-  //     showAlert("Data produk tidak ditemukan. Silahkan ulangi dari awal.");
+  
+  
+  
 
-  //     navigate("/profile", { replace: true });
-  //   }
-  // }, [selectedProduct, navigate]);
+  
+  
+  
 
   const [modelScene, setModelScene] = useState(null);
   const [meta, setMeta] = useState(null);
@@ -272,7 +272,7 @@ export default function Confirmation() {
   useEffect(() => {
     showLoading("Menyiapkan data ...");
     const loadFromDB = async () => {
-      // 1. Ambil Metadata
+      
       let savedMetaDB;
       if(!selectedProduct){
         savedMetaDB = await getDb("pending_order_meta");
@@ -282,34 +282,34 @@ export default function Confirmation() {
       handleEmpty(savedMetaDB, selectedProduct)
 
       if (!savedMetaDB && !selectedProduct) {
-        // Jika tidak ada data, arahkan kembali ke customizer
+        
         showAlert("Keranjang kosong, silakan buat desain terlebih dahulu.");
         navigate("/customizer");
         return;
       }
 
-      // console.log("Nama Buket : ", meta.modelName);
-      // console.log("Question : ", meta.question);
-      // console.log("Answer : ", meta.answer);
+      
+      
+      
 
-      // 2. Ambil Data Model
+      
       let savedModelDB;
       if(!selectedProduct){
         savedModelDB = await getDb("pending_order_model");
-        // setMeta(savedMetaDB);
+        
       }
       const data = savedModelDB;
 
       if (data) {
         const loader = new GLTFLoader();
 
-        // JIKA DATA ADALAH ARRAYBUFFER (Hasil binary: true)
-        // Gunakan method .parse() bukan .load()
+        
+        
         loader.parse(
           data,
-          "", // path dasar kosong
+          "", 
           (gltf) => {
-            // Atur posisi/skala agar terlihat di preview tengah
+            
             gltf.scene.position.set(0, -1, 0);
             setModelScene(gltf.scene);
           },
@@ -323,7 +323,7 @@ export default function Confirmation() {
     loadFromDB();
     hideLoading();
   }, []);
-  // const navigate = useNavigate();
+  
   useEffect(() => {
     const loadAndDestroy = async () => {
       if(!selectedProduct){      
@@ -331,24 +331,24 @@ export default function Confirmation() {
         const meta = await getDb("pending_order_meta");
 
         if (!data && !selectedProduct) {
-          // Jika tidak ada data, arahkan kembali ke customizer
+          
           showAlert("Buket belum tersimpan, silakan buat desain terlebih dahulu.");
           navigate("/customizer");
           return;
         }
 
-        // 1. Simpan ke State untuk ditampilkan
+        
         const loader = new GLTFLoader();
         loader.parse(data, "", (gltf) => {
           setModelScene(gltf.scene);
         });
         setMeta(meta);
 
-        // 2. LANGSUNG HAPUS dari IndexedDB
-        // Sekarang data hanya hidup di memori RAM (React State)
-        // await delDb('pending_order_model');
-        // await delDb('pending_order_meta');
-        console.log("🗑️ Data IndexedDB dihapus demi keamanan.");
+        
+        
+        
+        
+        
       }
     };
 
@@ -356,12 +356,12 @@ export default function Confirmation() {
   }, []);
 
   const handleBackToEditor = () => {
-    // Navigasi balik saja, data di IndexedDB tidak dihapus
-    // agar MainSection bisa memuatnya kembali.
+    
+    
     navigate("/customizer");
   };
 
-  console.log("Meta Data:", meta);
+  
 
   return (
     <div>

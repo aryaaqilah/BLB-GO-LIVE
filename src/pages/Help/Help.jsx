@@ -20,7 +20,7 @@ function HelpLanding() {
 
 function FAQ() {
   const [openFAQ, setOpenFAQ] = useState(null);
-  const answerRefs = useRef([]); // Create refs for each answer to measure height
+  const answerRefs = useRef([]); 
 
   const faqs = [
     {

@@ -43,7 +43,7 @@ const FloristManageBouquet = () => {
     ProductDetail: [],
   });
 
-  // ✅ FIX HARGA: Initial value reduce harus 0
+  
   const calculateTotalPrice = useCallback(
     (details) => {
       return details.reduce((sum, current) => {
@@ -95,7 +95,7 @@ const FloristManageBouquet = () => {
     fetchData();
   }, [fetchData]);
 
-  // Update Harga otomatis hanya jika ada perubahan
+  
   useEffect(() => {
     const total = calculateTotalPrice(formData.ProductDetail);
     if (total !== formData.Price) {

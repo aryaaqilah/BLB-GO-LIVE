@@ -9,7 +9,7 @@ import District from "../models/District.js"
 const router = express.Router();
 const POPULATE_FIELDS = ['Address'];
 
-// ➕ Tambah Shop (POST /api/shops)
+
 router.post("/", async (req, res) => {
   try {
     const shop = new Shop(req.body);
@@ -18,7 +18,7 @@ router.post("/", async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
-// 📚 Ambil Semua Shop (GET /api/shops)
+
 router.get("/", async (req, res) => {
   try {
     const shops = await Shop.find().populate(POPULATE_FIELDS);
@@ -26,7 +26,7 @@ router.get("/", async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 📖 Ambil Shop Berdasarkan ID (GET /api/shops/:id)
+
 router.get("/:id", async (req, res) => {
   try {
     const shop = await Shop.findById(req.params.id).populate(POPULATE_FIELDS);
@@ -35,7 +35,7 @@ router.get("/:id", async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
-// ✏️ Update Shop (PUT /api/shops/:id)
+
 router.put("/:id", async (req, res) => {
   try {
     const shop = await Shop.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true }).populate(POPULATE_FIELDS);
@@ -44,7 +44,7 @@ router.put("/:id", async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
-// 🗑️ Hapus Shop (DELETE /api/shops/:id)
+
 router.delete("/:id", async (req, res) => {
   try {
     const shop = await Shop.findByIdAndDelete(req.params.id);

@@ -7,7 +7,7 @@ const addressSchema = new mongoose.Schema({
   CityId: { type: mongoose.Schema.Types.ObjectId, ref: 'City', required: true },
   DistrictId: { type: mongoose.Schema.Types.ObjectId, ref: 'District', required: true },
   PostalCodeId: { type: String, required: true },
-  // PostalCodeId: { type: mongoose.Schema.Types.ObjectId, ref: 'PostalCode', required: true },
+  
   Detail: { type: String, required: true }
 });
 

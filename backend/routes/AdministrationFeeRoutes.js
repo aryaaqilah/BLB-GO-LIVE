@@ -3,7 +3,7 @@ import AdministrationFee from "../models/AdministrationFee.js";
 
 const router = express.Router();
 
-// ➕ Tambah AdministrationFee (POST /api/adminfees)
+
 router.post("/", async (req, res) => {
   try {
     const adminFee = new AdministrationFee(req.body);
@@ -12,7 +12,7 @@ router.post("/", async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
-// 📚 Ambil Semua AdministrationFee (GET /api/adminfees)
+
 router.get("/", async (req, res) => {
   try {
     const adminFees = await AdministrationFee.find();
@@ -20,7 +20,7 @@ router.get("/", async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 📖 Ambil AdministrationFee Berdasarkan ID (GET /api/adminfees/:id)
+
 router.get("/:id", async (req, res) => {
   try {
     const adminFee = await AdministrationFee.findById(req.params.id);
@@ -29,7 +29,7 @@ router.get("/:id", async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
-// ✏️ Update AdministrationFee (PUT /api/adminfees/:id)
+
 router.put("/:id", async (req, res) => {
   try {
     const adminFee = await AdministrationFee.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
@@ -38,7 +38,7 @@ router.put("/:id", async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
-// 🗑️ Hapus AdministrationFee (DELETE /api/adminfees/:id)
+
 router.delete("/:id", async (req, res) => {
   try {
     const adminFee = await AdministrationFee.findByIdAndDelete(req.params.id);

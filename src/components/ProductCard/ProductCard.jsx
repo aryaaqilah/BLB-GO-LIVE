@@ -41,13 +41,13 @@ const ProductCard = ({ product }) => {
         return item.Quantity > stockData.Stok;
       });
 
-      console.log("Data stok items:", dataResults);
+      
       if (hasInsufficientStock) {
         showAlert("Stok tidak mencukupi untuk beberapa item.");
         return;
       }
 
-      console.log("Semua stok mencukupi, lanjut ke checkout.", items);
+      
 
       const updateStock = async (items, type) => {
         const res = await fetch(
@@ -85,7 +85,7 @@ const ProductCard = ({ product }) => {
     }
   };
 
-  console.log("Render ProductCard:", product);
+  
   return (
     <div className="product-card">
       <div className="image-container">

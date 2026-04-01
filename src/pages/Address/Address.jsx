@@ -119,7 +119,7 @@ function AddressSection({ selectedProduct, modelData, provinceData, cityData, di
                   name="ProvinceId"
                   value={addressData.ProvinceId}
                   onChange={handleChange}
-                  className="AddressSelect" // Tambahkan styling jika perlu
+                  className="AddressSelect" 
                 >
                   <option value="">-- Pilih Provinsi --</option>
                   {provinceData.map((prov) => (
@@ -136,7 +136,7 @@ function AddressSection({ selectedProduct, modelData, provinceData, cityData, di
                   name="CityId"
                   value={addressData.CityId}
                   onChange={handleChange}
-                  disabled={!addressData.ProvinceId} // Disable jika provinsi belum dipilih
+                  disabled={!addressData.ProvinceId} 
                   className="AddressSelect"
                 >
                   <option value="">Pilih Kota</option>
@@ -156,7 +156,7 @@ function AddressSection({ selectedProduct, modelData, provinceData, cityData, di
                   name="DistrictId"
                   value={addressData.DistrictId}
                   onChange={handleChange}
-                  disabled={!addressData.CityId} // Disable jika provinsi belum dipilih
+                  disabled={!addressData.CityId} 
                   className="AddressSelect"
                 >
                   <option value="">Pilih Kota</option>
@@ -259,12 +259,12 @@ export default function Address() {
           },
         });
         const data = await response.json();
-        // const latestData = data.reverse().slice(0, 3);
+        
         setProvinceData(data);
-        console.log(data);
-        console.log("Fetch successful");
+        
+        
       } catch (error) {
-        console.log("Error:", error);
+        
       } finally {
       }
     };
@@ -278,12 +278,12 @@ export default function Address() {
           },
         });
         const data = await response.json();
-        // const latestData = data.reverse().slice(0, 3);
+        
         setCityData(data);
-        console.log(data);
-        console.log("Fetch successful");
+        
+        
       } catch (error) {
-        console.log("Error:", error);
+        
       } finally {
       }
     };
@@ -297,12 +297,12 @@ export default function Address() {
           },
         });
         const data = await response.json();
-        // const latestData = data.reverse().slice(0, 3);
+        
         setDistrictData(data);
-        console.log(data);
-        console.log("Fetch successful");
+        
+        
       } catch (error) {
-        console.log("Error:", error);
+        
       } finally {
       }
     };

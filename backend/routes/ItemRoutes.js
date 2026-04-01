@@ -7,12 +7,12 @@ import mongoose from 'mongoose';
 
 const router = express.Router();
 
-// --- 1. HELPER (Cek penggunaan item di produk yang belum dihapus) ---
+
 const checkItemUsage = async (itemIds) => {
-  // Cari ProductDetail yang merujuk ke itemIds tersebut
+  
   const details = await ProductDetail.find({ ItemId: { $in: itemIds } }).distinct('_id');
   
-  // Cari Product yang menggunakan detail tersebut dan IsDeleted-nya masih false
+  
   const activeProduct = await Product.findOne({ 
     ProductDetail: { $in: details },
     IsDeleted: false 
@@ -20,7 +20,7 @@ const checkItemUsage = async (itemIds) => {
   return activeProduct;
 };
 
-// --- 2. RUTE STATIC / SPESIFIK (Wajib di Atas /:id) ---
+
 
 router.get("/", async (req, res) => {
   try {
@@ -39,12 +39,12 @@ router.get("/shop/:shopId", async (req, res) => {
           IsDeleted: false,
           $or: [
             { 
-              // Kondisi 1: Jika Type "Other", ComponentId tidak boleh null
+              
               Type: "Other", 
               ComponentId: { $ne: null } 
             },
             { 
-              // Kondisi 2: Jika Type "Wrapper" atau "Ribbon", ComponentId bebas (boleh null)
+              
               Type: { $in: ["Wrapper", "Ribbon"] } 
             }
           ]
@@ -52,7 +52,7 @@ router.get("/shop/:shopId", async (req, res) => {
       },
       {
         $group: {
-          // Tetap mempertahankan logika grouping unik untuk "Other" berdasarkan ComponentId
+          
           _id: { 
             $cond: [
               { $eq: ["$Type", "Other"] }, 
@@ -86,7 +86,7 @@ router.get("/florist/:shopId", async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// BULK DELETE (Wajib sebelum /:id)
+
 router.delete("/bulk-delete", async (req, res) => {
   try {
     const { ids } = req.body;
@@ -99,7 +99,7 @@ router.delete("/bulk-delete", async (req, res) => {
       return res.status(400).json({ error: `Gagal. Salah satu item masih digunakan dalam produk '${isUsed.Name}' yang aktif.` });
     }
 
-    // Soft Delete: Ubah IsDeleted jadi true
+    
     await Item.updateMany({ _id: { $in: ids } }, { $set: { IsDeleted: true } });
     res.json({ message: "Item berhasil dihapus" });
   } catch (err) { res.status(500).json({ error: err.message }); }
@@ -126,7 +126,7 @@ router.put("/customization/:shopId", async (req, res) => {
     const { accept, wrappers, ribbons } = req.body;
     const { shopId } = req.params;
     await Shop.findByIdAndUpdate(shopId, { AcceptCustomization: accept });
-    await Item.deleteMany({ ShopId: shopId, Type: { $in: ['Wrapper', 'Ribbon'] } }); // System items bisa hard delete
+    await Item.deleteMany({ ShopId: shopId, Type: { $in: ['Wrapper', 'Ribbon'] } }); 
 
     if (accept) {
       const newItems = wrappers.map(w => ({
@@ -142,7 +142,7 @@ router.put("/customization/:shopId", async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// --- 3. RUTE DINAMIS (ID) (Wajib di Paling Bawah) ---
+
 
 router.post("/", async (req, res) => {
   try {
@@ -175,7 +175,7 @@ router.delete("/:id", async (req, res) => {
       return res.status(400).json({ error: `Gagal. Item masih digunakan dalam produk '${isUsed.Name}' yang aktif.` });
     }
 
-    // Soft Delete
+    
     const item = await Item.findByIdAndUpdate(req.params.id, { $set: { IsDeleted: true } });
     if (!item) return res.status(404).json({ error: "Item tidak ditemukan" });
     res.json({ message: "Item berhasil dihapus" });

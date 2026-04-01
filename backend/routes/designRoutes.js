@@ -3,7 +3,7 @@ import Design3D from "../models/Design3D.js";
 
 const router = express.Router();
 
-// Simpan design baru
+
 router.post("/", async (req, res) => {
   try {
     let{name, flowers, wrapperColor, cardColor, cardText, userId} = req.body;
@@ -18,7 +18,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-// Ambil semua design
+
 router.get("/", async (req, res) => {
   const designs = await Design3D.find().populate("userId");
   res.json(designs);

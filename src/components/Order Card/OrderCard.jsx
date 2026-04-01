@@ -49,8 +49,8 @@ const OrderCard = ({ order }) => {
     window.snap.pay(order.token, {
           onSuccess: async function () {
           try {
-            console.log("✅ Pembayaran berhasil:", order);
-            // showAlert("Pembayaran berhasil!");
+            
+            
     
             const StatusTemp = 0;
     
@@ -69,9 +69,9 @@ const OrderCard = ({ order }) => {
               throw new Error("Gagal update status pembayaran");
             }
     
-            console.log("✅ Status pembayaran berhasil diupdate");
+            
     
-            await clear(); // idb-keyval
+            await clear(); 
     
             navigate("/profile", {
               replace: true,
@@ -85,21 +85,21 @@ const OrderCard = ({ order }) => {
         },
     
           onPending: function () {
-            // showAlert("Menunggu pembayaran...");
+            
             const StatusTemp = 2;
             clear();
             navigate("/profile", {
-              // state: {
-              //   selectedProduct,
-              //   orderId: savedOrder._id,
-              // },
+              
+              
+              
+              
                 replace: true,
                 state: null,
             });
           },
     
           onError: async function () {
-            // showAlert("Pembayaran gagal!");
+            
             const StatusTemp = 1;
             clear();
             const updateStatus = fetch(
@@ -128,24 +128,24 @@ const OrderCard = ({ order }) => {
             await updateStock(order.productDetails, "increase");
             updateStatus();
             navigate("/profile", {
-              // state: {
-              //   selectedProduct,
-              //   orderId: savedOrder._id,
-              // },
+              
+              
+              
+              
                 replace: true,
                 state: null,
             });
           },
     
           onClose: function () {
-            // showAlert("Kamu menutup pembayaran.");
+            
             clear();
             const StatusTemp = 2;
                     navigate("/profile", {
-              // state: {
-              //   selectedProduct,
-              //   orderId: savedOrder._id,
-              // },
+              
+              
+              
+              
                 replace: true,
                 state: null,
             });

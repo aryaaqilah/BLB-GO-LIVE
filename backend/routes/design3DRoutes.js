@@ -167,7 +167,7 @@ router.get("/:id/ar", async (req, res) => {
     const design = await Design3D.findById(req.params.id);
     if (!design) return res.status(404).send("<h2>❌ Desain tidak ditemukan</h2>");
 
-    // Jika belum ada jawaban yang dikirim, tampilkan form pertanyaan
+    
     if (!req.query.answer) {
       return res.send(`
         <!DOCTYPE html>
@@ -220,7 +220,7 @@ router.get("/:id/ar", async (req, res) => {
       `);
     }
 
-    // Jika sudah ada jawaban, cek validitasnya
+    
     if (req.query.answer.trim().toLowerCase() !== design.answer.trim().toLowerCase()) {
       return res.send(`
         <h2>❌ Jawaban salah</h2>
@@ -228,7 +228,7 @@ router.get("/:id/ar", async (req, res) => {
       `);
     }
 
-    // Jika jawaban benar → tampilkan AR model
+    
 const arPage = `
       <!DOCTYPE html>
       <html lang="en">
@@ -301,7 +301,7 @@ router.post("/save", async (req, res) => {
   try {
     const { name, user, flowers, wrapper, card, question, answer } = req.body;
 
-    // Validasi sederhana
+    
     if (!name || !flowers || !wrapper || !card) {
       return res.status(400).json({ message: "Missing required fields" });
     }
@@ -318,7 +318,7 @@ router.post("/save", async (req, res) => {
 
     await newDesign.save();
 
-    // Setelah disimpan, generate link unik dengan ID design
+    
     const shareLink = `${req.protocol}://${req.get("host")}/api/design3d/${newDesign._id}/ar`;
 
     res.status(201).json({
@@ -332,7 +332,7 @@ router.post("/save", async (req, res) => {
   }
 });
 
-// === Konfigurasi folder penyimpanan model GLB ===
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const folderPath = path.join("public", "models", "exported");

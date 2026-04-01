@@ -3,7 +3,7 @@ import District from "../models/District.js";
 
 const router = express.Router();
 
-// ➕ Tambah District (POST /api/districts)
+
 router.post("/", async (req, res) => {
   try {
     const district = new District(req.body);
@@ -12,7 +12,7 @@ router.post("/", async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
-// 📚 Ambil Semua District (GET /api/districts)
+
 router.get("/", async (req, res) => {
   try {
     const districts = await District.find().populate('city_id');
@@ -20,18 +20,18 @@ router.get("/", async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 📚 Ambil kecamatan by kecamatan_id (GET /api/districts)
+
 router.get("/get-by-id/", async (req, res) => {
   try {
         const { kecamatan_id } = req.query;
         
         let filter = {};
         if (kecamatan_id) {
-            // Penting: Gunakan Number() karena data di gambar Anda adalah tipe angka
+            
             filter = { kecamatan_id: Number(kecamatan_id) };
         }
 
-        // Mencari ke database menggunakan model yang sudah ada di backend
+        
         const data = await District.find(filter); 
         res.status(200).json(data);
     } catch (error) {
@@ -39,7 +39,7 @@ router.get("/get-by-id/", async (req, res) => {
     }
 });
 
-// 📖 Ambil District Berdasarkan ID (GET /api/districts/:id)
+
 router.get("/:id", async (req, res) => {
   try {
     const district = await District.findById(req.params.id).populate('city_id');
@@ -48,7 +48,7 @@ router.get("/:id", async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
-// ✏️ Update District (PUT /api/districts/:id)
+
 router.put("/:id", async (req, res) => {
   try {
     const district = await District.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true }).populate('CityId');
@@ -57,7 +57,7 @@ router.put("/:id", async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
-// 🗑️ Hapus District (DELETE /api/districts/:id)
+
 router.delete("/:id", async (req, res) => {
   try {
     const district = await District.findByIdAndDelete(req.params.id);

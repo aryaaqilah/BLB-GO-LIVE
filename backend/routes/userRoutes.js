@@ -16,11 +16,11 @@ import ProductDetail from "../models/ProductDetail.js"
 
 const router = express.Router();
 
-// 🚀 Tambah User Baru (POST /api/users)
+
 router.post("/", async (req, res) => {
   try {
     const user = new User(req.body);
-    console.log("Membuat user baru:", user);
+    
     await user.save();
     res.status(201).json(user);
   } catch (err) {
@@ -28,7 +28,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-// 🔍 Ambil Semua User (GET /api/users)
+
 router.get("/", async (req, res) => {
   try {
     const users = await User.find().populate('Orders');
@@ -63,7 +63,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// 🔎 Ambil User Berdasarkan ID (GET /api/users/:id)
+
 router.get("/:id", async (req, res) => {
   try {
     const user = await User.findById(req.params.id).populate('Orders');
@@ -74,7 +74,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// ✍️ Update User Berdasarkan ID (PUT /api/users/:id)
+
 router.put("/:id", async (req, res) => {
   try {
     const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
@@ -90,16 +90,16 @@ router.put("/:id/add-order", async (req, res) => {
     const userId = req.params.id;
     const { OrderId } = req.body;
 
-    console.log("User ID:", userId);
-    console.log("Order ID:", OrderId);
+    
+    
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { 
-        // DI SINI LETAK $PUSH
+        
         $push: { Orders: OrderId } 
       },
-      { new: true } // Mengembalikan data user yang sudah terupdate
+      { new: true } 
     );
 
     res.status(200).json(updatedUser);
@@ -108,7 +108,7 @@ router.put("/:id/add-order", async (req, res) => {
   }
 });
 
-// 🗑️ Hapus User Berdasarkan ID (DELETE /api/users/:id)
+
 router.delete("/:id", async (req, res) => {
   try {
     const user = await User.findByIdAndDelete(req.params.id);
@@ -119,7 +119,7 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-// 💣 Hapus Order (DELETE /api/orders/:id)
+
 router.delete("/:id", async (req, res) => {
   try {
     const order = await Order.findByIdAndDelete(req.params.id);

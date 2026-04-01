@@ -9,7 +9,7 @@ import mongoose from 'mongoose';
 
 const router = express.Router();
 
-// ➕ Tambah 3DModel (POST /api/3dmodels)
+
 router.post("/", async (req, res) => {
   try {
     const model = new ThreeDModel(req.body);
@@ -18,7 +18,7 @@ router.post("/", async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
-// 📚 Ambil Semua 3DModel (GET /api/3dmodels)
+
 router.get("/", async (req, res) => {
   try {
     const models = await ThreeDModel.find();
@@ -26,7 +26,7 @@ router.get("/", async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 📖 Ambil 3DModel Berdasarkan ID (GET /api/3dmodels/:id)
+
 router.get("/:id", async (req, res) => {
   try {
     const model = await ThreeDModel.findById(req.params.id);
@@ -35,7 +35,7 @@ router.get("/:id", async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
-// ✏️ Update 3DModel (PUT /api/3dmodels/:id)
+
 router.put("/:id", async (req, res) => {
   try {
     const model = await ThreeDModel.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
@@ -44,7 +44,7 @@ router.put("/:id", async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
-// 🗑️ Hapus 3DModel (DELETE /api/3dmodels/:id)
+
 router.delete("/:id", async (req, res) => {
   try {
     const model = await ThreeDModel.findByIdAndDelete(req.params.id);
@@ -57,11 +57,11 @@ router.post("/save", async (req, res) => {
   try {
     const { path, question, answer } = req.body;
 
-    console.log("Path ", path);
-    console.log("question ", question);
-    console.log("answer ", answer);
+    
+    
+    
 
-    // Validasi sederhana
+    
     if (!path) {
       return res.status(400).json({ message: "Missing required fields" });
     }
@@ -74,7 +74,7 @@ router.post("/save", async (req, res) => {
 
     await newDesign.save();
 
-    // Setelah disimpan, generate link unik dengan ID design
+    
     const shareLink = `${req.protocol}://${req.get("host")}/api/design3d/${newDesign._id}/ar`;
 
     res.status(201).json({
@@ -88,7 +88,7 @@ router.post("/save", async (req, res) => {
   }
 });
 
-// === Konfigurasi folder penyimpanan model GLB ===
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const folderPath = path.join("public", "models", "exported");
@@ -122,18 +122,18 @@ router.post("/:id/export", upload.single("model"), async (req, res) => {
 
 router.put("/:id/add-path", async (req, res) => {
   try {
-    console.log("req.body", req.body);
+    
     const { ModelId, Path } = req.body;
 
-    console.log("Model ID:", ModelId);
-    console.log("Path :", Path);
+    
+    
 
     const updatedModel = await ThreeDModel.findByIdAndUpdate(
       ModelId,
       { 
         Path : Path 
       },
-      { new: true } // Mengembalikan data user yang sudah terupdate
+      { new: true } 
     );
 
     res.status(200).json(updatedModel);
@@ -151,89 +151,89 @@ router.get("/:id/ar", async (req, res) => {
     let filter = { ThreeDModel: ThreeDModelId };
     const product = await Product.findOne(filter);
 
-    // 1. TAMPILAN FORM PERTANYAAN (VERIFIKASI)
-    // if (!req.query.answer) {
-    //   return res.send(`
-    //     <!DOCTYPE html>
-    //     <html lang="id">
-    //     <head>
-    //       <meta charset="UTF-8">
-    //       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    //       <title>Verifikasi - ${product ? product.Name : 'Florist3D'}</title>
-    //       <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-    //       <style>
-    //         :root {
-    //           --primary: #a55749;
-    //           --bg: #d4c4b5;
-    //           --dark: #3e4a49;
-    //         }
-    //         body {
-    //           margin: 0; padding: 0;
-    //           font-family: 'Playfair Display', serif;
-    //           background-color: var(--bg);
-    //           display: flex; align-items: center; justify-content: center;
-    //           height: 100vh; color: var(--dark);
-    //         }
-    //         .card {
-    //           background: white;
-    //           padding: 3rem 2rem;
-    //           border-radius: 2.5rem;
-    //           box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-    //           text-align: center;
-    //           width: 90%; max-width: 400px;
-    //         }
-    //         h2 { color: var(--primary); margin-bottom: 0.5rem; }
-    //         .question-box {
-    //           background: rgba(165, 87, 73, 0.05);
-    //           border-left: 4px solid var(--primary);
-    //           padding: 1rem; margin: 1.5rem 0;
-    //           text-align: left; border-radius: 0 1rem 1rem 0;
-    //         }
-    //         input[type=text] {
-    //           width: 100%; padding: 1rem;
-    //           border: 1px solid #ddd; border-radius: 1rem;
-    //           font-family: inherit; font-size: 1rem;
-    //           margin-bottom: 1rem; outline: none; box-sizing: border-box;
-    //         }
-    //         button {
-    //           width: 100%; padding: 1rem;
-    //           background: var(--primary); color: white;
-    //           border: none; border-radius: 5rem;
-    //           font-family: inherit; font-size: 1.1rem;
-    //           cursor: pointer; transition: 0.3s;
-    //         }
-    //         button:hover { opacity: 0.9; transform: translateY(-2px); }
-    //       </style>
-    //     </head>
-    //     <body>
-    //       <div class="card">
-    //         <h2>${product ? product.Name : 'Florist3D'}</h2>
-    //         <div class="question-box">
-    //           <small style="text-transform:uppercase; letter-spacing:1px; opacity:0.7">Teka-teki</small>
-    //           <p style="margin:5px 0 0; font-style:italic;">"${design.Question || "Siapa nama kecil kesayangan kita?"}"</p>
-    //         </div>
-    //         <form method="GET" action="/api/design3d/${design._id}/ar">
-    //           <input type="text" name="answer" placeholder="Jawaban Anda..." autocomplete="off" />
-    //           <button type="submit">Buka Kejutan</button>
-    //         </form>
-    //       </div>
-    //     </body>
-    //     </html>
-    //   `);
-    // }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
-    // 2. LOGIKA CEK JAWABAN
-    // if (req.query.answer.trim().toLowerCase() !== design.Answer.trim().toLowerCase()) {
-    //   return res.send(`
-    //     <div style="font-family: 'Playfair Display', serif; text-align: center; padding-top: 100px; background: #d4c4b5; height: 100vh;">
-    //       <h2 style="color: #a55749;">❌ Jawaban Kurang Tepat</h2>
-    //       <p>Mungkin ada kenangan yang sedikit terlupa?</p>
-    //       <a href="/api/design3d/${design._id}/ar" style="color: #3e4a49; text-decoration: underline;">Coba Ingat Lagi</a>
-    //     </div>
-    //   `);
-    // }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
-    // 3. TAMPILAN AR MODEL (JIKA BENAR)
+    
     const arPage = `
       <!DOCTYPE html>
       <html lang="id">

@@ -12,13 +12,13 @@ const CardSet = ({ cards }) => {
   const navigate = useNavigate();
 
   const handleCardClick = (index, card) => {
-    console.log("Card clicked:", card);
+    
     setActiveIndex(index);
   };
 
   const handleCardSelect = (card) => {
     if (user) {
-      console.log("Selected card:", card);
+      
       navigate("/confirmation", {
         state: { selectedProduct: card },
       });
@@ -28,7 +28,7 @@ const CardSet = ({ cards }) => {
     }
   };
 
-  // Proteksi jika data cards belum termuat
+  
   if (!cards || cards.length === 0) return null;
 
   return (

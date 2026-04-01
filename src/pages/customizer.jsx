@@ -6,13 +6,13 @@ import * as THREE from "three";
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter.js";
 import { useAlert } from "../contexts/AlertContext";
 
-// ✅ Daftar warna yang diizinkan untuk Wrapper dan Ribbon
+
 const ALLOWED_COLORS = [
-  "#000000", // Hitam
-  "#ffffff", // Putih
-  "#f4cb9e", // Krem/Peach
-  "#fca1b6", // Pink
-  "#8fd9fa", // Biru Muda
+  "#000000", 
+  "#ffffff", 
+  "#f4cb9e", 
+  "#fca1b6", 
+  "#8fd9fa", 
 ];
 
 function Object3DModel({
@@ -33,7 +33,7 @@ function Object3DModel({
   const modelRef = useRef();
   const { camera, gl } = useThree();
 
-  // ✅ Clone dan atur warna, tanpa shadow
+  
   useEffect(() => {
     if (!scene || !modelRef.current) return;
     const cloned = scene.clone(true);
@@ -54,7 +54,7 @@ function Object3DModel({
     if (type === "wrapper") cloned.scale.set(2.0, 2.0, 2.0);
     if (type === "card") cloned.scale.set(0.3, 0.3, 0.3);
 
-    // 🎨 Warna parcel & ribbon
+    
     if (type === "wrapper") {
       const parcels = cloned.getObjectByName("Parcels");
       const ribbon = cloned.getObjectByName("Ribbon");
@@ -91,7 +91,7 @@ function Object3DModel({
     modelRef.current.add(cloned);
   }, [scene, type, modelPath, parcelColor, ribbonColor, color]);
 
-  // 🔹 Highlight objek terpilih
+  
   useEffect(() => {
     if (!modelRef.current) return;
     modelRef.current.traverse((child) => {
@@ -104,7 +104,7 @@ function Object3DModel({
     });
   }, [isSelected]);
 
-  // 🔹 Seleksi objek dengan klik
+  
   useEffect(() => {
     const model = modelRef.current;
     if (!model) return;
@@ -124,7 +124,7 @@ function Object3DModel({
     return () => gl.domElement.removeEventListener("click", handleClick);
   }, [camera, gl, id, onSelect]);
 
-  // 🔹 Drag & Rotate mode
+  
   useEffect(() => {
     if (mode === "camera") return;
     const model = modelRef.current;
@@ -214,7 +214,7 @@ function SceneContent({ children, sceneRef }) {
   useEffect(() => {
     if (exportGroupRef.current) {
       sceneRef.current = exportGroupRef.current;
-      console.log("Export Group berhasil di-set.");
+      
     }
   }, [sceneRef]);
 
@@ -226,7 +226,7 @@ export default function FlowerScene() {
   const [selectedId, setSelectedId] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [mode, setMode] = useState("camera");
-  // Set default awal ke salah satu warna yang diizinkan agar konsisten
+  
   const [parcelColor, setParcelColor] = useState("#f4cb9e");
   const [ribbonColor, setRibbonColor] = useState("#fca1b6");
   const [cardColor, setCardColor] = useState("#cccccc");
@@ -311,7 +311,7 @@ export default function FlowerScene() {
       answer,
     };
 
-    console.log("🧩 Data dikirim ke backend:", designData);
+    
 
     try {
       const res = await fetch("http://localhost:5000/api/design3d/save", {
@@ -324,7 +324,7 @@ export default function FlowerScene() {
       if (res.ok) {
         setDesignId(data._id || data.designId);
         showAlert("✅ Desain berhasil disimpan!");
-        // reset field pertanyaan
+        
         setQuestion("");
         setAnswer("");
       } else {
@@ -348,9 +348,9 @@ export default function FlowerScene() {
 
     const exporter = new GLTFExporter();
 
-    // 1. Opsi Eksport: Pastikan binary: false untuk GLTF (JSON)
+    
     const options = {
-      binary: false, // Menghasilkan JSON
+      binary: false, 
       embedImages: true,
       onlyVisible: true,
     };
@@ -358,7 +358,7 @@ export default function FlowerScene() {
     exporter.parse(
       sceneRef.current,
       async (result) => {
-        // 2. Pemeriksaan Tipe Hasil: Cek apakah result adalah objek JSON
+        
         if (typeof result !== "object") {
           console.error(
             "❌ Export GAGAL menghasilkan objek JSON (GLTF). Cek konsol Three.js."
@@ -367,19 +367,19 @@ export default function FlowerScene() {
           return;
         }
 
-        // --- Proses Upload GLTF (JSON) ---
+        
 
-        // Konversi objek JSON menjadi string
+        
         const outputJSON = JSON.stringify(result, null, 2);
 
-        // 3. Blob & Upload: Buat Blob dengan tipe application/json dan nama file .gltf
+        
         const blob = new Blob([outputJSON], { type: "application/json" });
         const formData = new FormData();
 
-        // Ubah ekstensi menjadi .gltf
+        
         formData.append("model", blob, `${designId}.gltf`);
 
-        // ... (Kode fetch ke backend)
+        
         try {
           const res = await fetch(
             `http://localhost:5000/api/design3d/${designId}/export`,
@@ -406,7 +406,7 @@ export default function FlowerScene() {
     );
   };
 
-  // 🔹 Fungsi menambah objek
+  
   const addFlower = (type) => {
     let modelPath = "/models/tulip.glb";
     if (type === "rose") modelPath = "/models/rose.glb";

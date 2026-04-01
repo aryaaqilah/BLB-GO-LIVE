@@ -4,7 +4,7 @@ import ProductDetail from "../models/ProductDetail.js";
 const router = express.Router();
 
 
-// CREATE ProductDetail
+
 router.post("/", async (req, res) => {
   try {
     const { ItemId, Quantity } = req.body;
@@ -22,7 +22,7 @@ router.post("/", async (req, res) => {
 });
 
 
-// GET ALL ProductDetails
+
 router.get("/", async (req, res) => {
   try {
     const data = await ProductDetail.find().populate("Item");
@@ -33,7 +33,7 @@ router.get("/", async (req, res) => {
 });
 
 
-// GET BY ID
+
 router.get("/:id", async (req, res) => {
   try {
     const data = await ProductDetail.findById(req.params.id).populate("Item");
@@ -49,7 +49,7 @@ router.get("/:id", async (req, res) => {
 });
 
 
-// UPDATE
+
 router.put("/:id", async (req, res) => {
   try {
     const { Item, Quantity } = req.body;
@@ -71,7 +71,7 @@ router.put("/:id", async (req, res) => {
 });
 
 
-// DELETE
+
 router.delete("/:id", async (req, res) => {
   try {
     const deleted = await ProductDetail.findByIdAndDelete(req.params.id);

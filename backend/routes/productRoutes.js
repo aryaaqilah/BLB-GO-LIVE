@@ -39,7 +39,7 @@ router.get("/best-sellers", async (req, res) => {
         }
       },
       { $unwind: "$ProductInfo" },
-      { $match: { "ProductInfo.IsCustomized": 0, "ProductInfo.IsDeleted": false, "ProductInfo.ProductDetail": { $ne: null } } }, // Filter IsDeleted
+      { $match: { "ProductInfo.IsCustomized": 0, "ProductInfo.IsDeleted": false, "ProductInfo.ProductDetail": { $ne: null } } }, 
       {
         $group: {
           _id: "$ProductId",
@@ -48,7 +48,7 @@ router.get("/best-sellers", async (req, res) => {
           Price: { $first: "$ProductInfo.Price" },
           Image: { $first: "$ProductInfo.Image" },
           Memo: { $first: "$ProductInfo.Memo" },
-          Tipe: { $first: "$ProductInfo.Tipe" } // Tambahkan Tipe
+          Tipe: { $first: "$ProductInfo.Tipe" } 
         }
       },
       { $sort: { TotalSales: -1 } },
@@ -60,7 +60,7 @@ router.get("/best-sellers", async (req, res) => {
       const limitNeeded = 5 - results.length;
       const recentProducts = await Product.find({
         IsCustomized: 0,
-        IsDeleted: false, // Filter IsDeleted
+        IsDeleted: false, 
         _id: { $nin: existingIds }
       }).sort({ CreatedAt: -1 }).limit(limitNeeded);
 
@@ -76,7 +76,7 @@ router.get("/best-sellers", async (req, res) => {
 router.delete("/bulk-delete", async (req, res) => {
   try {
     const { ids } = req.body;
-    // Ubah status menjadi IsDeleted: true
+    
     await Product.updateMany({ _id: { $in: ids } }, { $set: { IsDeleted: true } });
     res.json({ message: "Produk berhasil dihapus" });
   } catch (err) { res.status(500).json({ error: err.message }); }
@@ -90,7 +90,7 @@ router.post("/", upload.single("Image"), async (req, res) => {
       Price: Number(req.body.Price),
       IsCustomized: 0,
       ProductDetail: detailIds,
-      IsDeleted: false, // Set awal
+      IsDeleted: false, 
       Image: req.file ? `/uploads/${req.file.filename}` : ""
     });
     await newProduct.save();
@@ -130,7 +130,7 @@ router.get("/shop/:shopId", async (req, res) => {
     const products = await Product.find({ 
         ShopId: req.params.shopId, 
         IsCustomized: 0, 
-        IsDeleted: false // Filter IsDeleted
+        IsDeleted: false 
     }).populate(POPULATE_FIELDS).populate({
       path: "ProductDetail",
       populate: "ItemId"

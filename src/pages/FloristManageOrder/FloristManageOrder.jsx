@@ -106,7 +106,7 @@ const FloristManageOrder = () => {
           trackingLink: data.DeliveryId.TrackingLink || "-",
           service: data.DeliveryId.Service || "-",
           productId : data.ProductId.ThreeDModel || null,
-          // items : data.ProductId?.ProductDetail || []
+          isCustomized: data.ProductId.IsCustomized
         });
 
         const items = await data.ProductId?.ProductDetail.map((i) => ({
@@ -167,6 +167,7 @@ const FloristManageOrder = () => {
     }
     };
 
+
   return (
     <div className="FloristManageBouquetContainer">
       <button className="TernaryBackButton" onClick={() => navigate(-1)}>
@@ -207,26 +208,28 @@ const FloristManageOrder = () => {
               />
             </div>
           </div>
+          {formData?.isCustomized === 1 && (
+            <div className="FloristInputGroup">
+              <label>3D Model</label>
 
-          <div className="FloristInputGroup">
-        <label>3D Model</label>
-
-        <div>
-          <button
-            onClick={() => setShowPopup(true)}
-            style={{
-              padding: "10px 20px",
-              backgroundColor: "#a55749",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-            }}
-          >
-            👁️ Lihat 3D Model
-          </button>
-        </div>
-      </div>
+              <div>
+                <button
+                  onClick={() => setShowPopup(true)}
+                  style={{
+                    padding: "10px 20px",
+                    backgroundColor: "#a55749",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                  }}
+                >
+                  👁️ Lihat 3D Model
+                </button>
+              </div>
+            </div>
+          )}
+          
 
       {/* ===== POPUP MODAL ===== */}
       {showPopup && (

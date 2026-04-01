@@ -31,7 +31,7 @@ const ShopLanding = () => {
   });
   const [totalRating, setTotalRating] = useState(0);
 
-  // --- FETCH DATA TOKO & ALAMAT ---
+  
   const fetchStoreData = useCallback(async () => {
     try {
       const response = await fetch(
@@ -41,7 +41,7 @@ const ShopLanding = () => {
       const dataShop = await response.json();
       setStoreInfo(dataShop);
 
-      // Fetch detail alamat secara paralel
+      
       const [resProv, resCity, resDist] = await Promise.all([
         fetch(
           `http://localhost:5000/api/provinces/${dataShop.Address.ProvinceId}`,
@@ -68,7 +68,7 @@ const ShopLanding = () => {
     }
   }, [storeId]);
 
-  // --- FETCH RATINGS ---
+  
   const fetchRatings = useCallback(async () => {
     setRatingState((prev) => ({ ...prev, loading: true, error: false }));
     try {
@@ -88,7 +88,7 @@ const ShopLanding = () => {
     }
   }, [storeId]);
 
-  // --- FETCH PRODUCTS ---
+  
   const fetchProducts = useCallback(async () => {
     setProductState((prev) => ({ ...prev, loading: true, error: false }));
     try {
@@ -136,7 +136,7 @@ const ShopLanding = () => {
     loadAllData();
   }, [storeId, fetchStoreData, fetchProducts, fetchRatings]);
 
-  // --- HANDLERS ---
+  
   const handleCustom = () => {
     if (!user) {
       navigate("/login");
@@ -154,7 +154,7 @@ const ShopLanding = () => {
     navigate("/confirmation", { state: { selectedProduct: product } });
   };
 
-  // --- RENDER HELPERS ---
+  
   const SectionError = ({ onRetry }) => (
     <div style={{ textAlign: "center", padding: "2rem" }}>
       <p className="p1 txt-color-ternary" style={{ marginBottom: "1rem" }}>
@@ -174,7 +174,7 @@ const ShopLanding = () => {
 
   if (!storeInfo) return <div style={{ height: "100vh" }}></div>;
 
-  console.log("Render ShopLanding with storeInfo:", productState.data);
+  
 
   return (
     <div

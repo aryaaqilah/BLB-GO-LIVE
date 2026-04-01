@@ -3,7 +3,7 @@ import Delivery from "../models/Delivery.js";
 
 const router = express.Router();
 
-// ➕ Tambah Delivery (POST /api/deliveries)
+
 router.post("/", async (req, res) => {
   try {
     const delivery = new Delivery(req.body);
@@ -12,7 +12,7 @@ router.post("/", async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
-// 📚 Ambil Semua Delivery (GET /api/deliveries)
+
 router.get("/", async (req, res) => {
   try {
     const deliveries = await Delivery.find();
@@ -20,7 +20,7 @@ router.get("/", async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 📖 Ambil Delivery Berdasarkan ID (GET /api/deliveries/:id)
+
 router.get("/:id", async (req, res) => {
   try {
     const delivery = await Delivery.findById(req.params.id);
@@ -29,7 +29,7 @@ router.get("/:id", async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
-// ✏️ Update Delivery (PUT /api/deliveries/:id)
+
 router.put("/:id", async (req, res) => {
   try {
     const delivery = await Delivery.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
@@ -38,7 +38,7 @@ router.put("/:id", async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
-// 🗑️ Hapus Delivery (DELETE /api/deliveries/:id)
+
 router.delete("/:id", async (req, res) => {
   try {
     const delivery = await Delivery.findByIdAndDelete(req.params.id);

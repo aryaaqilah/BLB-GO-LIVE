@@ -25,10 +25,10 @@ const FloristManageItem = () => {
     Price: "",
     Stok: "",
     ComponentId: null,
-    Type: "Other" // Menambah field type
+    Type: "Other" 
   });
 
-  // Tentukan apakah item ini dibatasi (Wrapper/Ribbon)
+  
   const isRestricted = formData.Type === "Wrapper" || formData.Type === "Ribbon";
 
   const fetchData = useCallback(async () => {

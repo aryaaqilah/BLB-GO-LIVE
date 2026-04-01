@@ -348,8 +348,8 @@ function MainSection({ storeId }) {
             });
           }
         });
-        console.log("Raw fetched items:", dataShop);
-        console.log("Fetched components:", { flowerList, wrapperList, ribbonList });
+        
+        
 
         if (
           flowerList.length === 0 ||
