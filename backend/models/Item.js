@@ -8,6 +8,7 @@ const itemSchema = new mongoose.Schema({
   ShopId: { type: mongoose.Schema.Types.ObjectId, ref: 'Shop', required: true },
   Type: { type: String, enum: ['Other', 'Wrapper', 'Ribbon'], default: 'Other' },
   HexCode: { type: String, required: false },
+  IsDeleted: { type: Boolean, default: false },
 });
 
 export default mongoose.model("Item", itemSchema);

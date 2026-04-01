@@ -15,6 +15,7 @@ const productSchema = new mongoose.Schema({
     default: 'tidak diketahui',
     required: true 
   },
+  IsDeleted: { type: Boolean, default: false },
 });
 
 export default mongoose.model("Product", productSchema);

@@ -139,13 +139,18 @@ const FloristProduct = () => {
         },
       );
 
+      const result = await response.json(); // Get the actual JSON response
+
       if (response.ok) {
-        showAlert("Data berhasil dihapus!");
+        showAlert(result.message || "Data berhasil dihapus!");
         setSelectedIds([]);
         activeTab === "Buket" ? fetchProducts() : fetchItems();
-      } else throw new Error();
-    } catch {
-      showAlert("Gagal menghapus data.");
+      } else {
+        // ⚠️ This will now show "Gagal. Item masih digunakan..." from Backend
+        showAlert(result.error || "Gagal menghapus data.");
+      }
+    } catch (err) {
+      showAlert("Terjadi kesalahan koneksi ke server.");
     } finally {
       hideLoading();
     }

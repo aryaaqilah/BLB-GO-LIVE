@@ -120,7 +120,6 @@ const FloristManageItem = () => {
       ) : (
         <div className="FloristManageItemFormSection">
           
-          {/* PERINGATAN JIKA ITEM RESTRICTED */}
           {isRestricted && (
             <div className="FloristRestrictedNotice">
               <FaExclamationTriangle />
