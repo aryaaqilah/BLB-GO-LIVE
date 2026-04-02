@@ -94,6 +94,18 @@ const FloristProduct = () => {
     fetchItems();
   }, [fetchProducts, fetchItems]);
 
+  useEffect(() => {
+    if (activeTab === "Item" && itemState.data.length > 0) {
+      const hasZeroStock = itemState.data.some(
+        (item) => item.Stok === 0
+      );
+
+      if (hasZeroStock) {
+        showAlert("⚠️ Ada item dengan stok 0, segera restock!");
+      }
+    }
+  }, [activeTab, itemState.data]);
+
   const handleTabChange = (tab) => {
     setActiveTab(tab);
     setCurrentPage(1);
@@ -265,7 +277,9 @@ const FloristProduct = () => {
                     </th>
                     <th className="p2 weight-semibold">Harga</th>
                     {/* GANTI STOK JADI TIPE */}
-                    <th className="p2 weight-semibold">Tipe</th>
+                    <th className="p2 weight-semibold">
+                      {activeTab === "Item" ? "Stok" : "Tipe"}
+                    </th>
                     <th
                       className="p2 weight-semibold"
                       style={{ textAlign: "center" }}
@@ -297,19 +311,28 @@ const FloristProduct = () => {
                         <td className="p2">{formatCurrency(item.Price)}</td>
                         {/* TAMPILKAN TIPE SECARA DINAMIS */}
                         <td className="p2">
-                          <span
-                            className="TipeBadge"
-                            style={{
-                              background: "#f0f0f0",
-                              padding: "4px 10px",
-                              borderRadius: "15px",
-                              fontSize: "12px",
-                            }}
-                          >
-                            {activeTab === "Buket"
-                              ? item.Tipe || "Segar"
-                              : item.Type || "Other"}
-                          </span>
+                          {activeTab === "Item" ? (
+                            <span
+                              style={{
+                                color: item.Stok === 0 ? "red" : "#333",
+                                fontWeight: item.Stok === 0 ? "bold" : "normal",
+                              }}
+                            >
+                              {item.Stok}
+                            </span>
+                          ) : (
+                            <span
+                              className="TipeBadge"
+                              style={{
+                                background: "#f0f0f0",
+                                padding: "4px 10px",
+                                borderRadius: "15px",
+                                fontSize: "12px",
+                              }}
+                            >
+                              {item.Tipe || "Segar"}
+                            </span>
+                          )}
                         </td>
                         <td>
                           <div

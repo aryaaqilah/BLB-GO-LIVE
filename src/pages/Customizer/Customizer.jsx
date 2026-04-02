@@ -324,7 +324,7 @@ function MainSection({ storeId }) {
         
 
         dataShop.forEach((item) => {
-          if (item.Type === "Other" && item.Stok > 0) {
+          if (item.Type === "Non-Custom" && item.Stok > 0) {
             flowerList.push({
               Name: item.Name,
               Asset: item.ComponentId?.Asset,

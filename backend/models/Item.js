@@ -6,7 +6,7 @@ const itemSchema = new mongoose.Schema({
   Price: { type: Number, required: true },
   Stok: { type: Number, required: true },
   ShopId: { type: mongoose.Schema.Types.ObjectId, ref: 'Shop', required: true },
-  Type: { type: String, enum: ['Other', 'Wrapper', 'Ribbon'], default: 'Other' },
+  Type: { type: String, enum: ['Non-Custom', 'Wrapper', 'Ribbon'], default: 'Non-Custom' },
   HexCode: { type: String, required: false },
   IsDeleted: { type: Boolean, default: false },
 });

@@ -40,7 +40,7 @@ router.get("/shop/:shopId", async (req, res) => {
           $or: [
             { 
               
-              Type: "Other", 
+              Type: "Non-Custom", 
               ComponentId: { $ne: null } 
             },
             { 
@@ -55,7 +55,7 @@ router.get("/shop/:shopId", async (req, res) => {
           
           _id: { 
             $cond: [
-              { $eq: ["$Type", "Other"] }, 
+              { $eq: ["$Type", "Non-Custom"] }, 
               "$ComponentId", 
               "$_id"
             ] 
