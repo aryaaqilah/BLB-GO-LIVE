@@ -74,7 +74,7 @@ export default function Shop() {
   const fetchProducts = async () => {
     setProductState(prev => ({ ...prev, loading: true, error: false }));
     try {
-      const response = await fetch("http://localhost:5000/api/products/best-sellers");
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/products/best-sellers`);
       if (!response.ok) throw new Error();
       const data = await response.json();
       setProductState({ data: data.reverse().slice(0, 4), loading: false, error: false });
@@ -86,7 +86,7 @@ export default function Shop() {
   const fetchShops = async () => {
     setShopState(prev => ({ ...prev, loading: true, error: false }));
     try {
-      const response = await fetch("http://localhost:5000/api/shops");
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/shops`);
       if (!response.ok) throw new Error();
       const data = await response.json();
       setShopState({ data, loading: false, error: false });

@@ -314,7 +314,7 @@ function MainSection({ storeId }) {
       showLoading("Menyiapkan data model...");
       try {
         const response = await fetch(
-          `http://localhost:5000/api/items/shop/${shopId}`,
+          `${process.env.REACT_APP_API_URL}/api/items/shop/${shopId}`,
         );
         const dataShop = await response.json();
         const flowerList = [];

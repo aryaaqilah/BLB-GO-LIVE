@@ -34,12 +34,12 @@ const FloristManageItem = () => {
   const fetchData = useCallback(async () => {
     setIsInitialLoading(true);
     try {
-      const compRes = await fetch("http://localhost:5000/api/components");
+      const compRes = await fetch(`${process.env.REACT_APP_API_URL}/api/components`);
       const compData = await compRes.json();
       setAvailableComponents(compData);
 
       if (id) {
-        const itemRes = await fetch(`http://localhost:5000/api/items/${id}`);
+        const itemRes = await fetch(`${process.env.REACT_APP_API_URL}/api/items/${id}`);
         const itemData = await itemRes.json();
         
         if (itemRes.ok) {
@@ -76,7 +76,7 @@ const FloristManageItem = () => {
 
     showGlobalLoading("Menyimpan perubahan...");
     const method = id ? "PUT" : "POST";
-    const url = id ? `http://localhost:5000/api/items/${id}` : `http://localhost:5000/api/items`;
+    const url = id ? `${process.env.REACT_APP_API_URL}/api/items/${id}` : `${process.env.REACT_APP_API_URL}/api/items`;
 
     const payload = {
       ...formData,

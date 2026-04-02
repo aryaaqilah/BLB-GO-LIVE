@@ -35,7 +35,7 @@ const ShopLanding = () => {
   const fetchStoreData = useCallback(async () => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/shops/${storeId}`,
+        `${process.env.REACT_APP_API_URL}/api/shops/${storeId}`,
       );
       if (!response.ok) throw new Error("Gagal mengambil data toko");
       const dataShop = await response.json();
@@ -44,11 +44,11 @@ const ShopLanding = () => {
       
       const [resProv, resCity, resDist] = await Promise.all([
         fetch(
-          `http://localhost:5000/api/provinces/${dataShop.Address.ProvinceId}`,
+          `${process.env.REACT_APP_API_URL}/api/provinces/${dataShop.Address.ProvinceId}`,
         ),
-        fetch(`http://localhost:5000/api/cities/${dataShop.Address.CityId}`),
+        fetch(`${process.env.REACT_APP_API_URL}/api/cities/${dataShop.Address.CityId}`),
         fetch(
-          `http://localhost:5000/api/districts/${dataShop.Address.DistrictId}`,
+          `${process.env.REACT_APP_API_URL}/api/districts/${dataShop.Address.DistrictId}`,
         ),
       ]);
 
@@ -73,7 +73,7 @@ const ShopLanding = () => {
     setRatingState((prev) => ({ ...prev, loading: true, error: false }));
     try {
       const res = await fetch(
-        `http://localhost:5000/api/ratings/florist/${storeId}`,
+        `${process.env.REACT_APP_API_URL}/api/ratings/florist/${storeId}`,
       );
       const data = await res.json();
       if (res.ok) {
@@ -93,7 +93,7 @@ const ShopLanding = () => {
     setProductState((prev) => ({ ...prev, loading: true, error: false }));
     try {
       const responseProduct = await fetch(
-        `http://localhost:5000/api/products/shop/${storeId}`,
+        `${process.env.REACT_APP_API_URL}/api/products/shop/${storeId}`,
       );
       if (!responseProduct.ok) throw new Error();
       const dataProduct = await responseProduct.json();

@@ -98,7 +98,7 @@ function MainSection({
     try {
       
       const response = await fetch(
-        `http://localhost:5000/api/provinces/${tempProvince}`
+        `${process.env.REACT_APP_API_URL}/api/provinces/${tempProvince}`
       );
       if (!response.ok) {
         throw new Error("Gagal mengambil data provinsi");
@@ -106,7 +106,7 @@ function MainSection({
       const dataProv = await response.json();
 
       const response2 = await fetch(
-        `http://localhost:5000/api/cities/${tempCity}`
+        `${process.env.REACT_APP_API_URL}/api/cities/${tempCity}`
       );
       if (!response2.ok) {
         throw new Error("Gagal mengambil data kota");
@@ -115,7 +115,7 @@ function MainSection({
       
 
       const response3 = await fetch(
-        `http://localhost:5000/api/districts/${tempDistrict}`
+        `${process.env.REACT_APP_API_URL}/api/districts/${tempDistrict}`
       );
       if (!response3.ok) {
         throw new Error("Gagal mengambil data kecamatan");
@@ -137,7 +137,7 @@ function MainSection({
         Detail: addressData.Detail,
       };
       
-      const addressRes = await fetch("http://localhost:5000/api/addresses", {
+      const addressRes = await fetch(`${process.env.REACT_APP_API_URL}/api/addresses`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(addressPayload),
@@ -165,7 +165,7 @@ function MainSection({
       };
 
       
-      const deliveryRes = await fetch("http://localhost:5000/api/deliveries", {
+      const deliveryRes = await fetch(`${process.env.REACT_APP_API_URL}/api/deliveries`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(deliveryPayload),
@@ -194,7 +194,7 @@ function MainSection({
         }
       }
 
-      const resModel = await fetch("http://localhost:5000/api/design3d/");
+      const resModel = await fetch(`${process.env.REACT_APP_API_URL}/api/design3d/`);
       const dataModel = await resModel.json();
       const modelId = dataModel.reverse().slice(0, 1)[0]._id;
       
@@ -211,7 +211,7 @@ function MainSection({
       
 
       const modelRes = await fetch(
-        `http://localhost:5000/api/design3d/${dataModel._id}/add-path`,
+        `${process.env.REACT_APP_API_URL}/api/design3d/${dataModel._id}/add-path`,
         {
           method: "PUT", 
           headers: { "Content-Type": "application/json" },
@@ -244,7 +244,7 @@ function MainSection({
           
 
           try {
-            const response = await fetch("http://localhost:5000/api/productdetails", {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/productdetails`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(payload),
@@ -301,7 +301,7 @@ function MainSection({
 
         
 
-        const productRes = await fetch("http://localhost:5000/api/products/payment", {
+        const productRes = await fetch(`${process.env.REACT_APP_API_URL}/api/products/payment`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(productPayload),
@@ -341,7 +341,7 @@ function MainSection({
         UserId : user._id
       };
       
-      const orderRes = await fetch("http://localhost:5000/api/orders", {
+      const orderRes = await fetch(`${process.env.REACT_APP_API_URL}/api/orders`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderPayload),
@@ -351,7 +351,7 @@ function MainSection({
       if (!orderRes.ok) throw new Error("Gagal memproses pesanan");
 
       
-      const midtransRes = await fetch("http://localhost:5000/api/payment/create-transaction", {
+      const midtransRes = await fetch(`${process.env.REACT_APP_API_URL}/api/payment/create-transaction`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -373,7 +373,7 @@ function MainSection({
       }
 
       const updateToken = await fetch(
-        `http://localhost:5000/api/orders/${savedOrder._id}/token`,
+        `${process.env.REACT_APP_API_URL}/api/orders/${savedOrder._id}/token`,
         {
           method: "PATCH",
           headers: {
@@ -408,7 +408,7 @@ function MainSection({
               const StatusTemp = 0;
 
               const response = await fetch(
-                `http://localhost:5000/api/orders/${savedOrder._id}/status-pembayaran`,
+                `${process.env.REACT_APP_API_URL}/api/orders/${savedOrder._id}/status-pembayaran`,
                 {
                   method: "PATCH",
                   headers: {
@@ -419,7 +419,7 @@ function MainSection({
               );
 
             await fetch(
-              `http://localhost:5000/api/orders/${savedOrder._id}/update-status-order`,
+              `${process.env.REACT_APP_API_URL}/api/orders/${savedOrder._id}/update-status-order`,
               {
                 method: "PATCH",
                 headers: {
@@ -454,7 +454,7 @@ function MainSection({
             const StatusTemp = 2;
 
             fetch(
-              `http://localhost:5000/api/orders/${savedOrder._id}/status-pembayaran`,
+              `${process.env.REACT_APP_API_URL}/api/orders/${savedOrder._id}/status-pembayaran`,
               {
                 method: "PATCH",
                 headers: {
@@ -481,7 +481,7 @@ function MainSection({
 
             try {
               await fetch(
-                `http://localhost:5000/api/orders/${savedOrder._id}/status-pembayaran`,
+                `${process.env.REACT_APP_API_URL}/api/orders/${savedOrder._id}/status-pembayaran`,
                 {
                   method: "PATCH",
                   headers: {
@@ -493,7 +493,7 @@ function MainSection({
 
               const updateStock = async (items, type) => {
                 const res = await fetch(
-                  "http://localhost:5000/api/items/update-stock",
+                  `${process.env.REACT_APP_API_URL}/api/items/update-stock`,
                   {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -526,7 +526,7 @@ function MainSection({
             const StatusTemp = 2;
 
             fetch(
-              `http://localhost:5000/api/orders/${savedOrder._id}/status-pembayaran`,
+              `${process.env.REACT_APP_API_URL}/api/orders/${savedOrder._id}/status-pembayaran`,
               {
                 method: "PATCH",
                 headers: {
@@ -613,7 +613,7 @@ function MainSection({
 
     try {
       
-      const saveRes = await fetch("http://localhost:5000/api/design3d/save", {
+      const saveRes = await fetch(`${process.env.REACT_APP_API_URL}/api/design3d/save`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(designData),
@@ -652,7 +652,7 @@ function MainSection({
 
       
       const exportRes = await fetch(
-        `http://localhost:5000/api/design3d/${newDesignId}/export`,
+        `${process.env.REACT_APP_API_URL}/api/design3d/${newDesignId}/export`,
         {
           method: "POST",
           body: formData,
@@ -720,7 +720,7 @@ function MainSection({
                   <img
                     src={selectedProduct?.thumbnail || (selectedProduct.image?.startsWith("data:image")
                         ? selectedProduct.image
-                        : `http://localhost:5000${selectedProduct.image}`)}
+                        : `${process.env.REACT_APP_API_URL}${selectedProduct.image}`)}
                     alt="Product"
                     style={{ width: "70%", height: "70%" }}
                   />
@@ -892,14 +892,14 @@ export default function Payment() {
     showLoading("Menyiapkan data pembayaran...");
     try {
       
-      const resFee = await fetch("http://localhost:5000/api/adminfees/");
+      const resFee = await fetch(`${process.env.REACT_APP_API_URL}/api/adminfees/`);
       const dataFee = await resFee.json();
       setAdminFee(dataFee.reverse().slice(0, 1));
 
       
 
       const response = await fetch(
-        `http://localhost:5000/api/discounts/get-voucher?name=${selectedProduct.voucher}`
+        `${process.env.REACT_APP_API_URL}/api/discounts/get-voucher?name=${selectedProduct.voucher}`
       );
       if (!response.ok) {
         throw new Error("Gagal mengambil data voucher");
