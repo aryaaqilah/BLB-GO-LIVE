@@ -285,7 +285,7 @@ function MainSection({
         const productPayload = {
           Name: selectedProduct.title,
           Price: productPrice,
-          
+          Quantity: 1,
           Image: selectedProduct.thumbnail,
           ThreeDModel: modelId,
           Memo: selectedProduct.pesan,
@@ -294,7 +294,9 @@ function MainSection({
             
           ,
           ShopId : selectedProduct.ShopId,
-          IsCustomized : 1
+          IsCustomized : 1,
+          Tipe : "custom",
+          IsDeleted : false
         };
 
         

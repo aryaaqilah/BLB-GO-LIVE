@@ -25,7 +25,7 @@ const FloristManageItem = () => {
     Price: "",
     Stok: "",
     ComponentId: null,
-    Type: "Other" 
+    Type: "Non-Custom" 
   });
 
   
@@ -48,7 +48,7 @@ const FloristManageItem = () => {
             Price: itemData.Price,
             Stok: itemData.Stok,
             ComponentId: itemData.ComponentId,
-            Type: itemData.Type || "Other"
+            Type: itemData.Type || "Non-Custom"
           });
         }
       }
