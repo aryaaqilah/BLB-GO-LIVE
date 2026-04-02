@@ -130,7 +130,7 @@ const Profile = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/users/orders/${user._id}`,
+        `${process.env.REACT_APP_API_URL}/api/users/orders/${user._id}`,
       );
       if (!response.ok) throw new Error();
       const data = await response.json();
@@ -190,7 +190,7 @@ const Profile = () => {
     showGlobalLoading("Memperbarui Profil...");
     try {
       const response = await fetch(
-        `http://localhost:5000/api/users/${user._id}`,
+        `${process.env.REACT_APP_API_URL}/api/users/${user._id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

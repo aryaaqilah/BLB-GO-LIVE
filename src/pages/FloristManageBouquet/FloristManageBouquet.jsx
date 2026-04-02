@@ -60,13 +60,13 @@ const FloristManageBouquet = () => {
     setIsInitialLoading(true);
     try {
       const itemsRes = await fetch(
-        `http://localhost:5000/api/items/florist/${user._id}`,
+        `${process.env.REACT_APP_API_URL}/api/items/florist/${user._id}`,
       );
       const itemsData = await itemsRes.json();
       setAvailableItems(itemsData);
 
       if (id) {
-        const res = await fetch(`http://localhost:5000/api/products/${id}`);
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/products/${id}`);
         const data = await res.json();
         if (res.ok) {
           setFormData({
@@ -141,8 +141,8 @@ const FloristManageBouquet = () => {
     if (formData.Image) data.append("Image", formData.Image);
 
     const url = id
-      ? `http://localhost:5000/api/products/${id}`
-      : `http://localhost:5000/api/products`;
+      ? `${process.env.REACT_APP_API_URL}/api/products/${id}`
+      : `${process.env.REACT_APP_API_URL}/api/products`;
     try {
       const res = await fetch(url, { method: id ? "PUT" : "POST", body: data });
       if (res.ok) {
@@ -167,7 +167,7 @@ const FloristManageBouquet = () => {
     const cleanPath = formData.PreviewImage.startsWith("/")
       ? formData.PreviewImage
       : `/${formData.PreviewImage}`;
-    return `http://localhost:5000${cleanPath}`;
+    return `${process.env.REACT_APP_API_URL}${cleanPath}`;
   }, [formData.PreviewImage]);
 
   return (

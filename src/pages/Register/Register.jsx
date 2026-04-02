@@ -43,7 +43,7 @@ export default function Register() {
     const [isButtonDisabled, setIsButtonDisabled] = useState(true);
 
     
-    const API_URL = "http://localhost:5000/api/users"; 
+    const API_URL = `${process.env.REACT_APP_API_URL}/api/users`; 
 
     
 
@@ -209,7 +209,7 @@ export default function Register() {
             } catch (error) {
                 
                 console.error("Network Error:", error);
-                setSubmitErrorsList(["Terjadi kesalahan koneksi. Pastikan server berjalan di http://localhost:5000."]);
+                setSubmitErrorsList(["Terjadi kesalahan koneksi. Pastikan server berjalan di ${process.env.REACT_APP_API_URL}."]);
             } finally {
                 setIsLoading(false); 
             }

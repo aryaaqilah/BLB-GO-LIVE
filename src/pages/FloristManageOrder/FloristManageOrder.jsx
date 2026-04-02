@@ -51,7 +51,7 @@ const FloristManageOrder = () => {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/orders/${id}/cancel`,
+        `${process.env.REACT_APP_API_URL}/api/orders/${id}/cancel`,
         {
           method: "PATCH",
           headers: {
@@ -80,7 +80,7 @@ const FloristManageOrder = () => {
   // 🔥 FETCH ORDER DETAIL
   const fetchOrder = useCallback(async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/orders/${id}`);
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/orders/${id}`);
       const data = await res.json();
 
       console.log("Fetched order data:", data); // Debug log
@@ -99,7 +99,7 @@ const FloristManageOrder = () => {
           productName: data.ProductId?.Name || "Custom Bouquet",
           productImage: data.ProductId.Image?.startsWith("data:image")
             ? data.ProductId.Image
-            : `http://localhost:5000${data.ProductId.Image}`,
+            : `${process.env.REACT_APP_API_URL}${data.ProductId.Image}`,
           address: addressParts.join(", ") || "-",
           status: data.Status,
           shippingCode: data.DeliveryId.ShippingCode || "-",
@@ -141,7 +141,7 @@ const FloristManageOrder = () => {
     showLoading("Menyimpan perubahan...");
 
     try {
-        const res = await fetch(`http://localhost:5000/api/orders/update-status/${id}`, {
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/orders/update-status/${id}`, {
         method: "PATCH",
         headers: {
             "Content-Type": "application/json"
@@ -294,7 +294,7 @@ const FloristManageOrder = () => {
             {/* MODEL VIEWER */}
             <div style={{ flex: 1 }}>
               <model-viewer
-                src={`http://localhost:5000/models/exported/${formData.productId}.gltf`}
+                src={`${process.env.REACT_APP_API_URL}/models/exported/${formData.productId}.gltf`}
                 camera-controls
                 auto-rotate
                 shadow-intensity="1"

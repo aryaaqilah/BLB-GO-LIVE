@@ -56,7 +56,7 @@ const FloristProduct = () => {
     setProductState((prev) => ({ ...prev, loading: true, error: false }));
     try {
       const res = await fetch(
-        `http://localhost:5000/api/products/florist/${user._id}`,
+        `${process.env.REACT_APP_API_URL}/api/products/florist/${user._id}`,
       );
       const data = await res.json();
       if (res.ok) {
@@ -75,7 +75,7 @@ const FloristProduct = () => {
     setItemState((prev) => ({ ...prev, loading: true, error: false }));
     try {
       const res = await fetch(
-        `http://localhost:5000/api/items/florist/${user._id}`,
+        `${process.env.REACT_APP_API_URL}/api/items/florist/${user._id}`,
       );
       const data = await res.json();
       if (res.ok) {
@@ -131,7 +131,7 @@ const FloristProduct = () => {
     try {
       const folder = activeTab === "Buket" ? "products" : "items";
       const response = await fetch(
-        `http://localhost:5000/api/${folder}/bulk-delete`,
+        `${process.env.REACT_APP_API_URL}/api/${folder}/bulk-delete`,
         {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
