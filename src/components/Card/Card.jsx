@@ -8,7 +8,9 @@ const Card = ({ isActive, onClick, cardModel, onSelect }) => (
   <div className={`card ${isActive ? 'active' : 'inactive'}`} onClick={onClick}>
     {isActive ? (
       <>
-        <img src={`${cardModel.image}`} alt={cardModel.title} className="bouquet-image" />
+        <img src={cardModel.image?.startsWith("data:image")
+              ? cardModel.image
+              : `${process.env.REACT_APP_API_URL}${cardModel.image}`} alt={cardModel.title} className="bouquet-image" />
         <div className="card-content">
           <div className="title-price">
             <h2 className='txt-color-primary'>{cardModel.title}</h2>

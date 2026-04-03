@@ -10,38 +10,57 @@
   align-items: center;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   margin-top: 60px;
-  height: 80%;
 }
 
+/* 🔥 IMAGE CONTAINER (JADI KOTAK) */
 .product-card .image-container {
   position: relative;
   width: 100%;
-  height: 180px;
+  aspect-ratio: 1 / 1; /* ✅ bikin square */
   background-color: #E8DFD3;
-  border-radius: 1svh;
+  border-radius: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end; /* ✅ dorong gambar ke bawah */
   margin-bottom: 1.5rem;
+  overflow: hidden;
 }
 
+/* 🔥 IMAGE */
 .product-image-pop {
-  position: absolute;
-  width: 80%;
-  bottom: 4rem;
-  left: 50%;
-  transform: translateX(-50%);
+  width: 85%;
+  /* height: 85%; */
+  object-fit: cover; /* ✅ biar proporsional */
+  border-radius: 12px;
+
+  transform: translateY(20px); /* ✅ turun sedikit */
   filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));
+  transition: 0.3s;
 }
 
+/* 🔥 HOVER EFFECT */
+.product-card:hover .product-image-pop {
+  transform: translateY(10px) scale(1.03);
+}
+
+/* 🔥 PRICE */
 .price-overlay {
   position: absolute;
-  bottom: 0.625rem;
-  right: 1rem;
-  color: var(--color-ternary);
+  bottom: 10px;
+  right: 12px;
+  background: #d9cfc4;
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  color: #333;
 }
 
+/* 🔥 INFO */
 .product-info {
   text-align: center;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
   width: 100%;
+  margin-top: 10px;
 }
