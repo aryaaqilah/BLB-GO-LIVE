@@ -549,7 +549,7 @@ function MainSection({ storeId }) {
                 </div>
               </div>
               <Canvas
-                camera={{ position: [1, 5, 5] }}
+                camera={{ position: [1, 3, 4] }}
                 gl={{ preserveDrawingBuffer: true }}
                 onPointerMissed={() => setSelectedId(null)}
               >
