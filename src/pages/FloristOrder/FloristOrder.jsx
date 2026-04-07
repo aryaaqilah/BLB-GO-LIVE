@@ -244,7 +244,7 @@ const filteredData = orderState.data
                         <td style={{ textAlign: "center" }}>
                             <FaRegEdit
                             className="InventoryActionIcon"
-                            onClick={() => navigate(`/florist/orders/edit/${item._id}`)}
+                            onClick={() => navigate(`/manage-orders/orders/edit/${item._id}`)}
                             />
                         </td>
 

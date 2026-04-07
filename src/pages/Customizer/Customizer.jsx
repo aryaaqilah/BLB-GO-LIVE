@@ -369,14 +369,18 @@ function MainSection({ storeId }) {
         setDynamicRibbons(ribbonList);
         if (wrapperList.length > 0) setParcelColor(wrapperList[0].hex);
         if (ribbonList.length > 0) setRibbonColor(ribbonList[0].hex);
-        setObjects([
-          {
-            id: "base-wrapper",
-            type: "Wrapper",
-            modelPath: "/models/wrapper.glb",
-            position: [0, 0, 0],
-          },
-        ]);
+        const saved = await getDb("pending_order_meta");
+
+        if (!saved) {
+          setObjects([
+            {
+              id: "base-wrapper",
+              type: "Wrapper",
+              modelPath: "/models/wrapper.glb",
+              position: [0, 0, 0],
+            },
+          ]);
+        }
       } catch (error) {
         console.error(error);
       }
@@ -520,7 +524,9 @@ function MainSection({ storeId }) {
                 </button>
                 <div className="Customizer-rotate-menu-Wrapper">
                   <button
-                    className={`Customizer-toolbar-btn ${["rotateX", "rotateY", "rotateZ"].includes(mode) ? "active" : ""}`}
+                    className={`Customizer-toolbar-btn ${
+                      ["rotateX", "rotateY", "rotateZ"].includes(mode) ? "active" : ""
+                    }`}
                     onClick={() => setShowRotateMenu(!showRotateMenu)}
                   >
                     <FontAwesomeIcon icon={faRotate} />
@@ -530,7 +536,9 @@ function MainSection({ storeId }) {
                       {["X", "Y", "Z"].map((axis) => (
                         <button
                           key={axis}
-                          className={`Customizer-submenu-btn ${mode === `rotate${axis}` ? "active" : ""}`}
+                          className={`Customizer-submenu-btn ${
+                            mode === `rotate${axis}` ? "active" : ""
+                          }`}
                           onClick={() => setMode(`rotate${axis}`)}
                         >
                           {axis}
@@ -596,11 +604,35 @@ function MainSection({ storeId }) {
                 </div>
               </div>
               <div
-                className="Customizer-AddModel"
-                style={{ width: "90%", position: "relative", zIndex: 5 }}
-              >
+                  className="Customizer-AddModel"
+                  style={{
+                    width: "90%",
+                    position: "relative",
+                    zIndex: 5,
+                    opacity: modelName ? 1 : 0.5,
+                    pointerEvents: modelName ? "auto" : "none", // 🔥 ini kunci
+                  }}
+                >
+                   {!modelName && (
+                  <div
+                    style={{
+                      color: "#A95C4C",
+                      fontSize: "13px",
+                      marginBottom: "8px",
+                      textAlign: "center",
+                      fontStyle: "italic",
+                    }}
+                  >
+                    Isi nama buket terlebih dahulu untuk memilih bunga 🌸
+                  </div>
+                )}
                 <FlowerGallery
-                  onAddObject={(name, path) =>
+                  onAddObject={(name, path) => {
+                    if (!modelName) {
+                      showAlert("Isi nama buket dulu ya 😊");
+                      return;
+                    }
+
                     setObjects((prev) => [
                       ...prev,
                       {
@@ -609,8 +641,8 @@ function MainSection({ storeId }) {
                         modelPath: path,
                         position: [prev.length * 0.1, 0.5, 0],
                       },
-                    ])
-                  }
+                    ]);
+                  }}
                   components={components}
                 />
               </div>
@@ -630,7 +662,12 @@ function MainSection({ storeId }) {
                 </div>
                 <div
                   className="Customizer-order-summary-container"
-                  style={{ padding: "5px", clear: "both" }}
+                   style={{
+                    padding: "5px",
+                    clear: "both",
+                    maxHeight: "130px",   // 👈 batas tinggi
+                    overflowY: "auto",    // 👈 aktifkan scroll
+                  }}
                 >
                   <h3
                     style={{

@@ -4141,3 +4141,36 @@ h3,
   background-size: 16px;
   /* background-color: yellow; */
 }
+
+.Customizer-toolbar-btn {
+  background: white;
+  border: 1px solid #ccc;
+  transition: all 0.2s ease;
+}
+
+.Customizer-toolbar-btn.active {
+  background: #A95C4C;
+  color: white;
+  border: 1px solid #A95C4C;
+  transform: scale(1.05);
+}
+
+.Customizer-submenu-btn.active {
+  background: #A95C4C;
+  color: white;
+}
+
+.Customizer-toolbar-btn {
+  background: white;
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  color: #888; /* default (non-active) */
+  transition: all 0.2s ease;
+}
+
+.Customizer-toolbar-btn.active {
+  background: #A95C4C;
+  color: white; /* icon ikut putih */
+}

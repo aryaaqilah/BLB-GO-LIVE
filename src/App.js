@@ -126,7 +126,7 @@ function AppContent() {
           <Route path="/inventory/bouquet/edit/:id" element={<FloristManageBouquet />} />
           <Route path="/inventory/item/add" element={<FloristManageItem />} />
           <Route path="/inventory/item/edit/:id" element={<FloristManageItem />} />
-          <Route path="/florist/orders/edit/:id" element={<FloristManageOrder />} />
+          <Route path="/manage-orders/orders/edit/:id" element={<FloristManageOrder />} />
           <Route path="/customization" element={<FloristCustomization />} />
         </Route>
 

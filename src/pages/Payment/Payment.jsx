@@ -8,6 +8,7 @@ import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { get as getDb } from "idb-keyval";
 import { clear } from "idb-keyval";
+import { del } from "idb-keyval";
 
 function MainSection({
   selectedProduct,
@@ -91,6 +92,7 @@ function MainSection({
 
     showLoading("Memproses pembayaran...");
     if (!user) {
+      hideLoading();
       showAlert("Silakan login terlebih dahulu untuk melakukan pembelian.");
       navigate("/login");
       return;
@@ -190,7 +192,9 @@ function MainSection({
         
         modelUrl = result.modelUrl;
         if (!result.success) {
-          
+          hideLoading();
+          showAlert("Gagal menyimpan dan mengekspor model 3D");
+          return;     
         }
       }
 
@@ -260,6 +264,7 @@ function MainSection({
             );
           } catch (error) {
             console.error(`❌ Gagal simpan ${payload.ItemId}:`, error);
+            throw error;
           }
         }
       };
@@ -387,6 +392,7 @@ function MainSection({
       
 
       if (!window.snap) {
+        hideLoading();
         showAlert("Payment gateway belum siap");
         return;
       }
@@ -395,6 +401,8 @@ function MainSection({
       hideLoading();
       setNavigateBack(false);
       
+      await del("pending_order_meta");    
+      await del("pending_order_model");
 
       setTimeout(() => {
 
@@ -475,6 +483,7 @@ function MainSection({
           },
 
           onError: async function () {
+             hideLoading();
             showAlert("Pembayaran gagal!");
 
             const StatusTemp = 1;
@@ -521,6 +530,7 @@ function MainSection({
           },
 
           onClose: function () {
+             hideLoading();
             showAlert("Kamu menutup pembayaran.");
 
             const StatusTemp = 2;
@@ -594,6 +604,7 @@ function MainSection({
       
     } catch (error) {
       console.error("Error Transaction:", error);
+       hideLoading();
       showAlert("Terjadi kesalahan: " + error.message);
     }
   };
