@@ -551,6 +551,7 @@ function MainSection({ storeId }) {
               <Canvas
                 camera={{ position: [1, 5, 5] }}
                 gl={{ preserveDrawingBuffer: true }}
+                onPointerMissed={() => setSelectedId(null)}
               >
                 <color attach="background" args={["#fdfdfd"]} />
                 <ambientLight intensity={0.6} />
