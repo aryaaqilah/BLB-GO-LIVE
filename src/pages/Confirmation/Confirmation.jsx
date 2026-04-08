@@ -33,7 +33,11 @@ function MainSection({ selectedProduct, modelScene, meta }) {
     let finalDataToSend;
 
     if (selectedProduct) {
-      finalDataToSend = selectedProduct;
+      finalDataToSend = {
+        ...selectedProduct,
+        catatan: catatan,
+        pesan: pesan
+      };
     } else {
       finalDataToSend = {
         id: "",

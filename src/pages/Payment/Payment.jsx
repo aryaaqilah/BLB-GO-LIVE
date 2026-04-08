@@ -71,7 +71,8 @@ function MainSection({
 
   const [showPayment, setShowPayment] = useState(false);
 
-  
+  let productTemp = null;
+  let shopIdTemp = null;
 
   const [navigateBack, setNavigateBack] = useState(true);
 
@@ -233,15 +234,15 @@ function MainSection({
       const postItems = async (itemsData) => {
         
         for (const itemArray of itemsData) {
-          const item = itemArray[0];
+          const item = itemArray;
           if (!item || item.Quantity <= 0) {
             
             continue;
           }
           
           const payload = {
-            ItemId: itemArray[0].ItemId,
-            Quantity: itemArray[0].Quantity,
+            ItemId: itemArray.ItemId,
+            Quantity: itemArray.Quantity,
           };
 
           
@@ -306,7 +307,7 @@ function MainSection({
 
         
 
-        const productRes = await fetch(`${process.env.REACT_APP_API_URL}/api/products/payment`, {
+        const productRes = await fetch(`${process.env.REACT_APP_API_URL}/api/products/payment/post`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(productPayload),
@@ -318,8 +319,19 @@ function MainSection({
         
 
         productIdTemp = savedProduct._id;
+        shopIdTemp = selectedProduct.ShopId;
       } else {
-        productIdTemp = selectedProduct.key;
+        productIdTemp = selectedProduct.id;
+        const response = await fetch(
+          `http://localhost:5000/api/products/get-by-id/${productIdTemp}`
+        );
+        if (!response.ok) {
+          throw new Error("Gagal mengambil data product");
+        }
+        const dataProduct = await response.json();
+        productTemp = dataProduct;
+        productIdTemp = dataProduct._id;
+        shopIdTemp = dataProduct.ShopId._id;
       }
 
       
@@ -337,10 +349,17 @@ function MainSection({
         ProductId: productIdTemp,
         ProductPrice: productPrice,
         AdministrationFee: adminFee[0]._id,
-        
+        Notes: (
+          [
+            selectedProduct?.catatan && `Catatan Pesanan: ${selectedProduct.catatan}`,
+            selectedProduct?.pesan && `Pesan untuk ditulis: ${selectedProduct.pesan}`
+          ]
+            .filter(Boolean)
+            .join(" | ")
+        ) || "No notes available",
         
         Total: totalOrder,
-        ShopId : selectedProduct.ShopId,
+        ShopId : shopIdTemp,
         Token : null,
         StatusPembayaran : 2,
         UserId : user._id
