@@ -119,33 +119,19 @@ function MainSection({ selectedProduct, modelScene, meta }) {
                 <div className="Confirmation-NameBox">
                   <h1>{selectedProduct?.title || "Customized Bouquet"}</h1>
                 </div>
-                <div className="Confirmation-DetailBox">
+              <div className="Confirmation-DetailBox">
                   <p>
                     {
-                    selectedProduct?.items.map(
-                        (item, index) =>
-                          /* Hanya tampilkan jika qty lebih besar dari 0 */
-                          item.Quantity > 0 && (
-                            <div key={index} className="Confirmation-summary-item">
-                              {/* <p style={{ fontSize: '15px', fontWeight: '500' }}> */}
-                              {item.ItemName} x{item.Quantity}
-                              {/* </p> */}
-                            </div>
-                          )
-                      )
-                    ||
-                      meta?.summary.map(
-                        (item, index) =>
-                          /* Hanya tampilkan jika qty lebih besar dari 0 */
-                          item.qty > 0 && (
-                            <div key={index} className="Confirmation-summary-item">
-                              {/* <p style={{ fontSize: '15px', fontWeight: '500' }}> */}
-                              {item.name} x{item.qty}
-                              {/* </p> */}
-                            </div>
-                          )
-                      )}
-                    <br />
+                      (
+                        selectedProduct?.items
+                          ?.filter(item => item.Quantity > 0)
+                          .map(item => `${item.ItemName} (x${item.Quantity})`)
+                        ||
+                        meta?.summary
+                          ?.filter(item => item.qty > 0)
+                          .map(item => `${item.name} x${item.qty}`)
+                      )?.join(", ")
+                    }
                   </p>
                 </div>
                 <div className="Confirmation-SummaryBox">
