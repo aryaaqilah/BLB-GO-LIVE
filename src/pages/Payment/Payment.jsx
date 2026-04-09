@@ -10,6 +10,18 @@ import { get as getDb } from "idb-keyval";
 import { clear } from "idb-keyval";
 import { del } from "idb-keyval";
 
+const updateStock = async (items, type) => {
+  const res = await fetch(`${process.env.REACT_APP_API_URL}/api/items/update-stock`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ items, type }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) throw new Error(data.message);
+};
+
 function MainSection({
   selectedProduct,
   addressData,
@@ -323,7 +335,7 @@ function MainSection({
       } else {
         productIdTemp = selectedProduct.id;
         const response = await fetch(
-          `http://localhost:5000/api/products/get-by-id/${productIdTemp}`
+          `${process.env.REACT_APP_API_URL}/api/products/get-by-id/${productIdTemp}`
         );
         if (!response.ok) {
           throw new Error("Gagal mengambil data product");
@@ -455,6 +467,8 @@ function MainSection({
                 body: JSON.stringify({ Status: 1 }),
               }
             );
+
+            localStorage.removeItem("reservedItems");
 
               if (!response.ok) {
                 throw new Error("Gagal update status pembayaran");
@@ -968,7 +982,42 @@ export default function Payment() {
     }
   }, []);
 
-  
+  useEffect(() => {
+    return () => {
+      const reserved = JSON.parse(localStorage.getItem("reservedItems"));
+
+      if (!window.history.state?.usr?.fromCheckout && reserved?.length > 0) {
+        console.log("Rollback dari Payment");
+
+        updateStock(reserved, "increase");
+
+        localStorage.removeItem("reservedItems");
+        localStorage.removeItem("isCheckoutFlow");
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      const reserved = JSON.parse(localStorage.getItem("reservedItems"));
+
+      if (reserved && reserved.length > 0) {
+        navigator.sendBeacon(
+          `${process.env.REACT_APP_API_URL}/api/items/update-stock`,
+          JSON.stringify({
+            items: reserved,
+            type: "increase",
+          })
+        );
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
 
   return (
     <div>

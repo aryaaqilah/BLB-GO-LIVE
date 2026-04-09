@@ -151,7 +151,7 @@ const ShopLanding = () => {
     if (!user) {
       return showAlert("Silakan login terlebih dahulu untuk memesan produk.");
     }
-    navigate("/confirmation", { state: { selectedProduct: product } });
+    navigate("/confirmation", { state: { selectedProduct: product, fromCheckout: true } });
   };
 
   

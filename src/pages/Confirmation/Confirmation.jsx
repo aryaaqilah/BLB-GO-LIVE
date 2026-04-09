@@ -11,6 +11,18 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { useAlert } from "../../contexts/AlertContext";
 import { useLoading } from "../../contexts/LoadingContext";
 
+const updateStock = async (items, type) => {
+  const res = await fetch(`${process.env.REACT_APP_API_URL}/api/items/update-stock`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ items, type }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) throw new Error(data.message);
+};
+
 function MainSection({ selectedProduct, modelScene, meta }) {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -61,7 +73,7 @@ function MainSection({ selectedProduct, modelScene, meta }) {
 
     if (user) {
       navigate("/address", {
-        state: { selectedProduct: finalDataToSend },
+        state: { selectedProduct: finalDataToSend, fromCheckout: true },
       });
     } else {
       showAlert("Silakan login terlebih dahulu.");
@@ -351,7 +363,55 @@ export default function Confirmation() {
     navigate("/customizer");
   };
 
-  
+  const [reservedItems, setReservedItems] = useState([]);
+
+  useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem("reservedItems")) || [];
+    setReservedItems(stored);
+
+    // 🔥 tandai user sedang di checkout flow
+    localStorage.setItem("isCheckoutFlow", "true");
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      const reserved = JSON.parse(localStorage.getItem("reservedItems"));
+      console.log("Checking for reserved items on unmount:", reserved);
+
+      if (!window.history.state?.usr?.fromCheckout && reserved?.length > 0) {
+        console.log("Rollback dari Confirmation");
+
+        updateStock(reserved, "increase");
+
+        localStorage.removeItem("reservedItems");
+        localStorage.removeItem("isCheckoutFlow");
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      const reserved = JSON.parse(localStorage.getItem("reservedItems"));
+
+      if (reserved && reserved.length > 0) {
+        navigator.sendBeacon(
+          `${process.env.REACT_APP_API_URL}/api/items/update-stock`,
+          JSON.stringify({
+            items: reserved,
+            type: "increase",
+          })
+        );
+      }
+    };
+    console.log("Adding beforeunload listener");
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      console.log("Removing beforeunload listener");
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
 
   return (
     <div>

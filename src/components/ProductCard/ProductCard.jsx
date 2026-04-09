@@ -5,6 +5,18 @@ import "./ProductCard.css";
 import { AuthContext } from "../../contexts/AuthContext";
 import { useAlert } from "../../contexts/AlertContext";
 
+const updateStock = async (items, type) => {
+  const res = await fetch(`${process.env.REACT_APP_API_URL}/api/items/update-stock`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ items, type }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) throw new Error(data.message);
+};
+
 const ProductCard = ({ product }) => {
   const { user } = useContext(AuthContext);
   const { showAlert } = useAlert();
@@ -67,9 +79,10 @@ const ProductCard = ({ product }) => {
       if (user) {
         try {
           await updateStock(items, "decrease");
+          localStorage.setItem("reservedItems", JSON.stringify(items));
 
           navigate("/confirmation", {
-            state: { selectedProduct: card },
+            state: { selectedProduct: card, fromCheckout: true  },
           });
         } catch (error) {
           console.error(error);

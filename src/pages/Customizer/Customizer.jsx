@@ -11,6 +11,18 @@ import { FaCamera, FaTrash } from "react-icons/fa";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRotate, faHand } from "@fortawesome/free-solid-svg-icons";
 
+const updateStock = async (items, type) => {
+  const res = await fetch(`${process.env.REACT_APP_API_URL}/api/items/update-stock`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ items, type }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) throw new Error(data.message);
+};
+
 function Object3DModel({
   id,
   modelPath,
@@ -465,6 +477,35 @@ function MainSection({ storeId }) {
             })),
             timestamp: Date.now(),
           });
+
+          const itemsForStock = summaryData.map((item) => ({
+            ItemStokId: item.ItemId,
+            Quantity: item.qty,
+          }));
+          const responses = await Promise.all(
+            itemsForStock.map((item) =>
+              fetch(`${process.env.REACT_APP_API_URL}/api/items/${item.ItemStokId}`)
+            )
+          );
+
+          const dataResults = await Promise.all(responses.map((res) => res.json()));
+
+          const hasInsufficientStock = itemsForStock.some((item) => {
+            const stockData = dataResults.find(
+              (data) => data._id === item.ItemStokId
+            );
+
+            return !stockData || item.Quantity > stockData.Stok;
+          });
+                                
+          if (hasInsufficientStock) {
+            showAlert("Stok tidak mencukupi.");
+            return;
+          } 
+
+          await updateStock(itemsForStock, "decrease");
+          localStorage.setItem("reservedItems", JSON.stringify(itemsForStock));
+
           navigate("/confirmation");
         } catch (err) {
           showAlert("Gagal memproses model 3D.");
