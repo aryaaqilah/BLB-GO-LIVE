@@ -66,7 +66,7 @@ const FloristManageBouquet = () => {
       setAvailableItems(itemsData);
 
       if (id) {
-        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/products/${id}`);
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/products/get-by-id/${id}`);
         const data = await res.json();
         if (res.ok) {
           setFormData({
