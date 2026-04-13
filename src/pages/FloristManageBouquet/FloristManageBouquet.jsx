@@ -141,7 +141,7 @@ const FloristManageBouquet = () => {
     if (formData.Image) data.append("Image", formData.Image);
 
     const url = id
-      ? `${process.env.REACT_APP_API_URL}/api/products/${id}`
+      ? `${process.env.REACT_APP_API_URL}/api/products/get-by-id/${id}`
       : `${process.env.REACT_APP_API_URL}/api/products`;
     try {
       const res = await fetch(url, { method: id ? "PUT" : "POST", body: data });
