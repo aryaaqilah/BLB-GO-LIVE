@@ -17,7 +17,7 @@ const AdminManageOrder = () => {
     const fetchOrder = async () => {
       showLoading("Memuat...");
       try {
-        const res = await fetch(`http://localhost:5000/api/orders/${id}`);
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/orders/${id}`);
         const data = await res.json();
         if (res.ok) setFormData({ Status: data.Status, ShippingCode: data.DeliveryId?.ShippingCode || "", Service: data.DeliveryId?.Service || "" });
       } finally { hideLoading(); }
@@ -28,13 +28,13 @@ const AdminManageOrder = () => {
   const handleSave = async () => {
     showLoading("Menyimpan...");
     try {
-      const res = await fetch(`http://localhost:5000/api/orders/update-status/${id}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/orders/update-status/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData)
       });
       if (res.ok) {
-        await fetch("http://localhost:5000/api/changelogs", {
+        await fetch(`${process.env.REACT_APP_API_URL}/api/changelogs`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

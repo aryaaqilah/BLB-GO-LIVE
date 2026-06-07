@@ -45,7 +45,7 @@ router.get("/shop/:shopId", async (req, res) => {
             },
             { 
               
-              Type: { $in: ["Wrapper", "Ribbon"] } 
+              Type: { $in: ["Wrapper", "Ribbon", "Other"] } 
             }
           ]
         }

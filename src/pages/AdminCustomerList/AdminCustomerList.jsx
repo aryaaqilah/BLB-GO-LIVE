@@ -18,7 +18,7 @@ const AdminCustomerList = () => {
   const fetchCustomers = useCallback(async () => {
     showLoading("Memuat data kustomer...");
     try {
-      const res = await fetch("http://localhost:5000/api/users/admin/customers");
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/users/admin/customers`);
       const data = await res.json();
       if (res.ok) setCustomers(data);
       else setCustomers([]);
@@ -35,7 +35,7 @@ const AdminCustomerList = () => {
 
   const createLog = async (targetId, name, action) => {
     try {
-      await fetch("http://localhost:5000/api/changelogs", {
+      await fetch(`${process.env.REACT_APP_API_URL}/api/changelogs`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -58,7 +58,7 @@ const AdminCustomerList = () => {
       onConfirm: async () => {
         showLoading("Menghapus...");
         try {
-          const res = await fetch(`http://localhost:5000/api/users/admin/customers/${id}`, { 
+          const res = await fetch(`${process.env.REACT_APP_API_URL}/api/users/admin/customers/${id}`, { 
             method: "DELETE" 
           });
           if (res.ok) {

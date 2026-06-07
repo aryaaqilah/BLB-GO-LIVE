@@ -38,7 +38,7 @@ const AdminManageCustomer = () => {
     const fetchCustomerData = async () => {
       showLoading("Mengambil data...");
       try {
-        const res = await fetch(`http://localhost:5000/api/users/admin/customers/${id}`);
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/users/admin/customers/${id}`);
         const data = await res.json();
         if (res.ok) {
           setFormData({ Name: data.Name || "", Email: data.Email || "", Password: "", ConfirmPassword: "" });
@@ -74,7 +74,7 @@ const AdminManageCustomer = () => {
 
   const handleSave = async () => {
     showLoading("Menyimpan...");
-    const url = id ? `http://localhost:5000/api/users/admin/customers/${id}` : `http://localhost:5000/api/users/admin/customers`;
+    const url = id ? `${process.env.REACT_APP_API_URL}/api/users/admin/customers/${id}` : `${process.env.REACT_APP_API_URL}/api/users/admin/customers`;
     const payload = { Name: formData.Name, Email: formData.Email };
     if (!id) payload.Password = formData.Password;
 
@@ -86,7 +86,7 @@ const AdminManageCustomer = () => {
       });
       const resData = await res.json();
       if (res.ok) {
-        await fetch("http://localhost:5000/api/changelogs", {
+        await fetch(`${process.env.REACT_APP_API_URL}/api/changelogs`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

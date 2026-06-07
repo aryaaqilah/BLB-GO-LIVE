@@ -25,15 +25,15 @@ const AdminManageFlorist = () => {
     setIsInitialLoading(true);
     try {
       const [resProv, resCity, resDist] = await Promise.all([
-        fetch("http://localhost:5000/api/provinces"),
-        fetch("http://localhost:5000/api/cities"),
-        fetch("http://localhost:5000/api/districts")
+        fetch(`${process.env.REACT_APP_API_URL}/api/provinces`),
+        fetch(`${process.env.REACT_APP_API_URL}/api/cities`),
+        fetch(`${process.env.REACT_APP_API_URL}/api/districts`)
       ]);
       setProvinceData(await resProv.json());
       setCityData(await resCity.json());
       setDistrictData(await resDist.json());
       if (id) {
-        const resShop = await fetch(`http://localhost:5000/api/shops/${id}`);
+        const resShop = await fetch(`${process.env.REACT_APP_API_URL}/api/shops/${id}`);
         const shop = await resShop.json();
         if (resShop.ok) {
           setFormData({
@@ -68,7 +68,7 @@ const AdminManageFlorist = () => {
     if (id && !Password) delete payload.Password;
 
     try {
-      const url = id ? `http://localhost:5000/api/shops/${id}` : `http://localhost:5000/api/shops/admin/register`;
+      const url = id ? `${process.env.REACT_APP_API_URL}/api/shops/${id}` : `${process.env.REACT_APP_API_URL}/api/shops/admin/register`;
       const res = await fetch(url, {
         method: id ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
@@ -76,7 +76,7 @@ const AdminManageFlorist = () => {
       });
       const resData = await res.json();
       if (res.ok) {
-        await fetch("http://localhost:5000/api/changelogs", {
+        await fetch(`${process.env.REACT_APP_API_URL}/api/changelogs`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

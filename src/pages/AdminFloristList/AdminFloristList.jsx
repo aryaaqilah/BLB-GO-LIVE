@@ -18,7 +18,7 @@ const AdminFloristList = () => {
   const fetchFlorists = useCallback(async () => {
     showLoading("Memuat data florist...");
     try {
-      const res = await fetch("http://localhost:5000/api/shops/admin/list");
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/shops/admin/list`);
       const data = await res.json();
       if (res.ok) setFlorists(data);
       else setFlorists([]);
@@ -40,9 +40,9 @@ const AdminFloristList = () => {
       onConfirm: async () => {
         showLoading("Menghapus...");
         try {
-          const res = await fetch(`http://localhost:5000/api/shops/admin/${id}`, { method: "DELETE" });
+          const res = await fetch(`${process.env.REACT_APP_API_URL}/api/shops/admin/${id}`, { method: "DELETE" });
           if (res.ok) {
-            await fetch("http://localhost:5000/api/changelogs", {
+            await fetch(`${process.env.REACT_APP_API_URL}/api/changelogs`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({

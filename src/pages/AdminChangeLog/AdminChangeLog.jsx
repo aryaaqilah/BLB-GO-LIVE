@@ -10,7 +10,7 @@ const AdminChangeLog = () => {
   const fetchLogs = useCallback(async () => {
     showLoading("Memuat riwayat...");
     try {
-      const res = await fetch("http://localhost:5000/api/changelogs");
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/changelogs`);
       const data = await res.json();
       if (res.ok) setLogs(data);
     } catch (err) {

@@ -26,6 +26,28 @@ const processDetails = async (detailsJson) => {
   return detailIds;
 };
 
+router.get("/get-by-id/:id", async (req, res) => {
+  try {
+    const product = await Product.findOne({
+      _id: req.params.id,
+      IsDeleted: false
+    })
+      .populate(POPULATE_FIELDS)
+      .populate({
+        path: "ProductDetail",
+        populate: { path: "ItemId" }
+      });
+
+    if (!product) {
+      return res.status(404).json({ error: "Product tidak ditemukan" });
+    }
+
+    res.json(product);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.get("/best-sellers", async (req, res) => {
   try {
     let results = await Order.aggregate([
@@ -146,5 +168,50 @@ router.delete("/:id", async (req, res) => {
     res.json({ message: "Produk berhasil dihapus" });
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
+
+router.post("/payment/post", async (req, res) => {
+  try {
+    const {
+      Name,
+      Price,
+      Image,
+      ThreeDModel,
+      Memo,
+      ProductDetail,
+      ShopId,
+      IsCustomized,
+      Tipe,
+      IsDeleted
+    } = req.body;
+
+    const newProduct = new Product({
+      Name,
+      Price: Number(Price),
+      Image,
+      ThreeDModel,
+      Memo,
+      ProductDetail, // langsung array of ObjectId
+      ShopId,
+      IsCustomized,
+      Tipe,
+      IsDeleted
+    });
+
+    const savedProduct = await newProduct.save();
+
+    // optional: populate biar langsung usable di FE
+    const populatedProduct = await Product.findById(savedProduct._id)
+      .populate(POPULATE_FIELDS)
+      .populate({
+        path: "ProductDetail",
+        populate: { path: "ItemId" }
+      });
+
+    res.status(201).json(populatedProduct);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 
 export default router;

@@ -111,7 +111,7 @@ router.post("/api/payment/notification", async (req, res) => {
     
     else if (status === "cancel") {
       await fetch(
-        `${process.env.REACT_APP_API_URL}/api/orders/${orderId}/status-pembayaran`,
+        `http://localhost:5000/api/orders/${orderId}/status-pembayaran`,
         {
           method: "PATCH",
           headers: {
