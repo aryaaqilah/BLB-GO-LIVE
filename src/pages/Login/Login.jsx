@@ -28,8 +28,7 @@ export default function Login() {
   const validateField = (name, value) => {
     let isValid = true;
     if (name === "email") {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      isValid = emailRegex.test(value);
+      isValid = value.length >= 1; 
     } else if (name === "password") {
       isValid = value.length >= 1;
     }
@@ -61,7 +60,7 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/login`, {
+      const response = await fetch("http://localhost:5000/api/users/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -74,6 +73,8 @@ export default function Login() {
         
         if (responseData.userType === "florist") {
           navigate("/dashboard");
+        } else if (responseData.userType === "admin") {
+          navigate("/admin/customers");
         } else {
           navigate("/");
         }
@@ -101,9 +102,9 @@ export default function Login() {
         <div className="LoginInputGroup">
           <div className="LoginInput">
             <FaUser className="LoginIcon" />
-            <input type="email" placeholder="Email" className="LoginInputTextfield" name="email" value={formData.email} onChange={handleInputChange} onBlur={handleInputBlur} />
+            <input type="text" placeholder="Email" className="LoginInputTextfield" name="email" value={formData.email} onChange={handleInputChange} onBlur={handleInputBlur} />
           </div>
-          <ValidationMessage isValid={validationErrors.email} message="Format email tidak valid." isTouched={isTouched.email} />
+          <ValidationMessage isValid={validationErrors.email} message="Email atau Username wajib diisi." isTouched={isTouched.email} />
 
           <div className="LoginInput">
             <FaLock className="LoginIcon" />

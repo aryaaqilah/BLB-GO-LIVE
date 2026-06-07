@@ -39,6 +39,18 @@ function Object3DModel({
   const modelRef = useRef();
   const { camera, gl } = useThree();
 
+  const raycaster = useMemo(() => new THREE.Raycaster(), []);
+  const mouse = useMemo(() => new THREE.Vector2(), []);
+  const plane = useMemo(
+    () => new THREE.Plane(new THREE.Vector3(0, 1, 0), 0),
+    []
+  );
+
+  const offset = useRef(new THREE.Vector3());
+  const intersection = useRef(new THREE.Vector3());
+
+  const draggingRef = useRef(false);
+
   useEffect(() => {
     if (!scene || !modelRef.current) return;
     const cloned = scene.clone(true);
@@ -49,10 +61,17 @@ function Object3DModel({
       }
     });
 
-    if (type === "flower") {
+    console.log(type);
+    console.log(modelPath);
+    console.log(modelPath.includes("daisy"));
+
+    if (type === "flower" || type === "Non-Custom") {
       if (modelPath.includes("tulip")) cloned.scale.set(0.15, 0.15, 0.15);
       else if (modelPath.includes("rose")) cloned.scale.set(1.1, 1.1, 1.1);
       else if (modelPath.includes("lilly")) cloned.scale.set(1.5, 1.5, 1.5);
+      else if (modelPath.includes("sunflower")) cloned.scale.set(1.5, 1.5, 1.5);
+      else if (modelPath.includes("daisy")) cloned.scale.set(1.5, 1.5, 1.5);
+      else if (modelPath.includes("chrisan")) cloned.scale.set(1.5, 1.5, 1.5);
       else cloned.scale.set(0.5, 0.5, 0.5);
     }
     if (type === "Wrapper") cloned.scale.set(2.0, 2.0, 2.0);
@@ -84,94 +103,120 @@ function Object3DModel({
   }, [scene, type, modelPath, parcelColor, ribbonColor]);
 
   useEffect(() => {
-    if (!modelRef.current) return;
-    modelRef.current.traverse((child) => {
-      if (child.isMesh && child.material) {
-        child.material = child.material.clone();
-        child.material.emissive = new THREE.Color(
-          isSelected ? 0x00ff00 : 0x000000,
+  if (!modelRef.current) return;
+
+  modelRef.current.traverse((child) => {
+    if (child.isMesh && child.material) {
+      child.material = child.material.clone();
+
+      if ("emissive" in child.material) {
+        child.material.emissive.set(
+          isSelected ? 0x00ff00 : 0x000000
         );
+
+        child.material.emissiveIntensity =
+          isSelected ? 2 : 0;
       }
-    });
-  }, [isSelected]);
+    }
+  });
+}, [isSelected]);
 
-  useEffect(() => {
-    const model = modelRef.current;
-    if (!model) return;
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-    const handleClick = (event) => {
-      const rect = gl.domElement.getBoundingClientRect();
-      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-      raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObject(model, true);
-      if (intersects.length > 0) onSelect(id);
-    };
-    gl.domElement.addEventListener("click", handleClick);
-    return () => gl.domElement.removeEventListener("click", handleClick);
-  }, [camera, gl, id, onSelect]);
+  // useEffect(() => {
+  //   const model = modelRef.current;
+  //   if (!model) return;
+  //   const raycaster = new THREE.Raycaster();
+  //   const mouse = new THREE.Vector2();
+  //   const handleClick = (event) => {
+  //     const rect = gl.domElement.getBoundingClientRect();
+  //     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+  //     mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+  //     raycaster.setFromCamera(mouse, camera);
+  //     const intersects = raycaster.intersectObject(model, true);
+  //     if (intersects.length > 0) onSelect(id);
+  //   };
+  //   gl.domElement.addEventListener("click", handleClick);
+  //   return () => gl.domElement.removeEventListener("click", handleClick);
+  // }, [camera, gl, id, onSelect]);
 
-  useEffect(() => {
-    if (mode === "camera") return;
-    const model = modelRef.current;
-    if (!model) return;
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-    const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
-    const offset = new THREE.Vector3();
-    const intersection = new THREE.Vector3();
-    let isActive = false;
+  console.log('aman');
 
-    const handleMouseDown = (event) => {
-      const rect = gl.domElement.getBoundingClientRect();
-      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-      raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObject(model, true);
-      if (intersects.length > 0) {
-        isActive = true;
-        setDragging(true);
-        if (mode === "drag") {
-          plane.setFromNormalAndCoplanarPoint(
-            camera.getWorldDirection(new THREE.Vector3()),
-            model.position,
-          );
-          raycaster.ray.intersectPlane(plane, intersection);
-          offset.copy(intersection).sub(model.position);
-        }
-      }
-    };
-    const handleMouseMove = (event) => {
-      if (!isActive) return;
-      if (mode === "drag") {
-        const rect = gl.domElement.getBoundingClientRect();
-        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-        raycaster.setFromCamera(mouse, camera);
-        raycaster.ray.intersectPlane(plane, intersection);
-        model.position.copy(intersection.sub(offset));
-      } else {
-        if (mode === "rotateX") model.rotation.x += event.movementY * 0.01;
-        if (mode === "rotateY") model.rotation.y += event.movementX * 0.01;
-        if (mode === "rotateZ") model.rotation.z += event.movementX * 0.01;
-      }
-    };
-    const handleMouseUp = () => {
-      isActive = false;
-      setDragging(false);
-    };
-    gl.domElement.addEventListener("mousedown", handleMouseDown);
-    gl.domElement.addEventListener("mousemove", handleMouseMove);
-    gl.domElement.addEventListener("mouseup", handleMouseUp);
-    return () => {
-      gl.domElement.removeEventListener("mousedown", handleMouseDown);
-      gl.domElement.removeEventListener("mousemove", handleMouseMove);
-      gl.domElement.removeEventListener("mouseup", handleMouseUp);
-    };
-  }, [mode, camera, gl, setDragging]);
+  const handlePointerDown = (e) => {
+  e.stopPropagation();
 
-  return <group ref={modelRef} position={position} />;
+  if (mode === "camera") return;
+
+  e.target.setPointerCapture(e.pointerId);
+
+  draggingRef.current = true;
+  setDragging(true);
+
+  onSelect(id);
+
+  if (mode === "drag") {
+    plane.setFromNormalAndCoplanarPoint(
+      camera.getWorldDirection(new THREE.Vector3()),
+      modelRef.current.position
+    );
+
+    raycaster.setFromCamera(e.pointer, camera);
+
+    raycaster.ray.intersectPlane(
+      plane,
+      intersection.current
+    );
+
+    offset.current
+      .copy(intersection.current)
+      .sub(modelRef.current.position);
+  }
+};
+
+const handlePointerMove = (e) => {
+  e.stopPropagation();
+
+  if (!draggingRef.current) return;
+
+  if (mode === "drag") {
+    raycaster.setFromCamera(e.pointer, camera);
+
+    raycaster.ray.intersectPlane(
+      plane,
+      intersection.current
+    );
+
+    modelRef.current.position.copy(
+      intersection.current.sub(offset.current)
+    );
+  } else {
+    if (mode === "rotateX")
+      modelRef.current.rotation.x += e.movementY * 0.01;
+
+    if (mode === "rotateY")
+      modelRef.current.rotation.y += e.movementX * 0.01;
+
+    if (mode === "rotateZ")
+      modelRef.current.rotation.z += e.movementX * 0.01;
+  }
+};
+
+const handlePointerUp = (e) => {
+  e.stopPropagation();
+
+  e.target.releasePointerCapture(e.pointerId);
+
+  draggingRef.current = false;
+  setDragging(false);
+};
+
+  return (
+  <group
+    ref={modelRef}
+    position={position}
+    onPointerDown={handlePointerDown}
+    onPointerMove={handlePointerMove}
+    onPointerUp={handlePointerUp}
+  />
+);
 }
 
 function SceneContent({ children, sceneRef }) {
@@ -322,6 +367,27 @@ function MainSection({ storeId }) {
   const sceneRef = useRef();
 
   useEffect(() => {
+  const loadSavedData = async () => {
+    const saved = await getDb("pending_order_meta");
+
+    if (!saved) return;
+
+    // OPTIONAL: pastikan dari shop yang sama
+    if (saved.shopId !== shopId) return;
+
+    setObjects(saved.objects || []);
+    setParcelColor(saved.parcelColor || "");
+    setRibbonColor(saved.ribbonColor || "");
+    setModelName(saved.modelName || "");
+
+    // OPTIONAL UX
+    showAlert("Draft buket berhasil dipulihkan ✨");
+  };
+
+  loadSavedData();
+}, [shopId]);
+
+  useEffect(() => {
     const fetchData = async () => {
       showLoading("Menyiapkan data model...");
       try {
@@ -361,7 +427,9 @@ function MainSection({ storeId }) {
           }
         });
         
-        
+        console.log("Flower List:", flowerList);
+        console.log("Wrapper List:", wrapperList);
+        console.log("Ribbon List:", ribbonList);
 
         if (
           flowerList.length === 0 ||
@@ -546,23 +614,39 @@ function MainSection({ storeId }) {
                 >
                   <FaCamera />
                 </button>
+
                 <button
                   className="Customizer-toolbar-btn"
                   onClick={() => {
-                    setObjects((prev) =>
-                      prev.filter((o) => o.id !== selectedId),
+                    const selectedObject = objects.find(
+                      (o) => o.id === selectedId
                     );
+
+                    if (!selectedObject) return;
+
+                    if (selectedObject.type === "Wrapper") {
+                      // showAlert("Wrapper tidak dapat dihapus");
+                      setSelectedId(null);
+                      return;
+                    }
+
+                    setObjects((prev) =>
+                      prev.filter((o) => o.id !== selectedId)
+                    );
+
                     setSelectedId(null);
                   }}
                 >
                   <FaTrash />
                 </button>
+
                 <button
                   className={`Customizer-toolbar-btn ${mode === "drag" ? "active" : ""}`}
                   onClick={() => setMode("drag")}
                 >
                   <FontAwesomeIcon icon={faHand} />
                 </button>
+
                 <div className="Customizer-rotate-menu-Wrapper">
                   <button
                     className={`Customizer-toolbar-btn ${
@@ -572,6 +656,7 @@ function MainSection({ storeId }) {
                   >
                     <FontAwesomeIcon icon={faRotate} />
                   </button>
+
                   {showRotateMenu && (
                     <div className="Customizer-rotate-submenu">
                       {["X", "Y", "Z"].map((axis) => (
@@ -590,7 +675,7 @@ function MainSection({ storeId }) {
                 </div>
               </div>
               <Canvas
-                camera={{ position: [1, 3, 4] }}
+                camera={{ position: [1, 0.1, 3] }}
                 gl={{ preserveDrawingBuffer: true }}
                 onPointerMissed={() => setSelectedId(null)}
               >
@@ -645,7 +730,7 @@ function MainSection({ storeId }) {
                   />
                 </div>
               </div>
-              <div
+                <div
                   className="Customizer-AddModel"
                   style={{
                     width: "90%",
@@ -681,7 +766,7 @@ function MainSection({ storeId }) {
                         id: Date.now(),
                         type: "flower",
                         modelPath: path,
-                        position: [prev.length * 0.1, 0.5, 0],
+                        position: [prev.length * 0.5, 0.5, 0],
                       },
                     ]);
                   }}
@@ -704,7 +789,7 @@ function MainSection({ storeId }) {
                 </div>
                 <div
                   className="Customizer-order-summary-container"
-                   style={{
+                  style={{
                     padding: "5px",
                     clear: "both",
                     maxHeight: "130px",   // 👈 batas tinggi

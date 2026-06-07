@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate, Outlet } from "react-router-dom";
 import React from "react";
 import Navbar from "./components/Navbar/NavBar";
-import FloristSidebar from "./components/FloristSidebar/FloristSidebar";
+import Sidebar from "./components/Sidebar/Sidebar";
 import Footer from "./components/Footer/Footer";
 import Home from "./pages/Home/Home";
 import Shop from "./pages/Shop/Shop";
@@ -24,6 +24,15 @@ import FloristManageBouquet from "./pages/FloristManageBouquet/FloristManageBouq
 import FloristManageItem from "./pages/FloristManageItem/FloristManageItem";
 import FloristManageOrder from "./pages/FloristManageOrder/FloristManageOrder";
 import FloristCustomization from "./pages/FloristCustomization/FloristCustomization";
+
+import AdminCustomerList from "./pages/AdminCustomerList/AdminCustomerList";
+import AdminManageCustomer from "./pages/AdminManageCustomer/AdminManageCustomer";
+import AdminFloristList from "./pages/AdminFloristList/AdminFloristList";
+import AdminManageFlorist from "./pages/AdminManageFlorist/AdminManageFlorist";
+import AdminOrderList from "./pages/AdminOrderList/AdminOrderList";
+import AdminManageOrder from "./pages/AdminManageOrder/AdminManageOrder";
+import AdminChangeLog from "./pages/AdminChangeLog/AdminChangeLog";
+
 import IdleTimer from "./components/IdleTimer";
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AlertProvider } from './contexts/AlertContext';
@@ -45,65 +54,56 @@ const NotFound = () => {
       <h1 className="h1 txt-color-primary">404</h1>
       <h2 className="h2">Halaman Tidak Ditemukan</h2>
       <p className="p1" style={{ margin: "20px 0" }}>Maaf, halaman yang Anda cari tidak ada atau Anda tidak memiliki akses.</p>
-      <a 
-        href="/" 
-        onClick={handleBackAndLogout} 
-        className="txt-color-primary weight-bold"
-        style={{ cursor: 'pointer', textDecoration: 'none' }}
-      >
-        Kembali ke Beranda
-      </a>
+      <a href="/" onClick={handleBackAndLogout} className="txt-color-primary weight-bold" style={{ cursor: 'pointer', textDecoration: 'none' }}>Kembali ke Beranda</a>
     </div>
   );
 };
 
-const CustomerLayout = ({ isFlorist }) => {
+const CustomerLayout = ({ isRestricted }) => {
   const location = useLocation();
-  const hideNavbarFooter = ["/profile", "/order-detail", "/login", "/register","/customizer", "/ar/:id", "/address", "/confirmation", "/payment", "/store"].some(path => 
+  const hideNavbarFooter = ["/profile", "/order-detail", "/login", "/register","/customizer", "/ar", "/address", "/confirmation", "/payment", "/store"].some(path => 
     location.pathname.startsWith(path)
   );
   
-  if (isFlorist) return <NotFound />;
+  if (isRestricted) return <NotFound />;
 
   return (
     <div className="AppCustomerLayout">
       {!hideNavbarFooter && <Navbar />}
-      <main>
-        <Outlet />
-      </main>
+      <main><Outlet /></main>
       {!hideNavbarFooter && <Footer />}
     </div>
   );
 };
 
-const FloristLayout = ({ isFlorist }) => {
-  if (!isFlorist) return <NotFound />;
+const DashboardLayout = ({ isAllowed }) => {
+  if (!isAllowed) return <NotFound />;
 
   return (
     <div className="AppFloristLayout">
-      <FloristSidebar />
-      <main className="MainFloristContent">
-        <Outlet />
-      </main>
+      <Sidebar />
+      <main className="MainFloristContent"><Outlet /></main>
     </div>
   );
 };
 
 function AppContent() {
-  const { user } = useAuth();
-  const isFlorist = user?.userType == 'florist';
+  const auth = useAuth();
+  const user = auth?.user; 
+  
+  const isFlorist = user?.userType === 'florist';
+  const isAdmin = user?.userType === 'admin';
+  const isRestricted = isFlorist || isAdmin;
 
   return (
     <>
       <IdleTimer timeout={300000} />
       <Routes>
-        {/* --- AUTH PAGES (No Nav/Footer) --- */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/ar/:id" element={<ARViewer />} />
 
-        {/* --- CUSTOMER AREA --- */}
-        <Route element={<CustomerLayout isFlorist={isFlorist} />}>
+        <Route element={<CustomerLayout isRestricted={isRestricted} />}>
           <Route path="/" element={<Home />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/store/:storeId" element={<ShopLanding />} />
@@ -117,8 +117,7 @@ function AppContent() {
           <Route path="/order-detail/:orderId" element={<OrderDetail />} />
         </Route>
 
-        {/* --- FLORIST AREA --- */}
-        <Route element={<FloristLayout isFlorist={isFlorist} />}>
+        <Route element={<DashboardLayout isAllowed={isFlorist} />}>
           <Route path="/dashboard" element={<FloristDashboard />} />
           <Route path="/inventory" element={<FloristProduct/>} />
           <Route path="/manage-orders" element={<FloristOrder />} />
@@ -130,7 +129,18 @@ function AppContent() {
           <Route path="/customization" element={<FloristCustomization />} />
         </Route>
 
-        {/* --- GLOBAL 404 (No Nav/Footer) --- */}
+        <Route element={<DashboardLayout isAllowed={isAdmin} />}>
+          <Route path="/admin/customers" element={<AdminCustomerList />} />
+          <Route path="/admin/customers/add" element={<AdminManageCustomer />} />
+          <Route path="/admin/customers/edit/:id" element={<AdminManageCustomer />} />
+          <Route path="/admin/florists" element={<AdminFloristList />} />
+          <Route path="/admin/florists/add" element={<AdminManageFlorist />} />
+          <Route path="/admin/florists/edit/:id" element={<AdminManageFlorist />} />
+          <Route path="/admin/orders" element={<AdminOrderList />} />
+          <Route path="/admin/orders/edit/:id" element={<AdminManageOrder />} />
+          <Route path="/admin/history" element={<AdminChangeLog />} />
+        </Route>
+
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>

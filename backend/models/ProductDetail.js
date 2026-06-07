@@ -1,8 +1,17 @@
 import mongoose from "mongoose";
 
 const productDetailSchema = new mongoose.Schema({
-  ItemId: { type: mongoose.Schema.Types.ObjectId, ref: 'Item', required: true },
-  Quantity: { type: Number, required: true },
+  ItemId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Item",
+    required: true,
+  },
+
+  Quantity: {
+    type: Number,
+    required: true,
+    min: 1,
+  },
 });
 
 export default mongoose.model("ProductDetail", productDetailSchema);

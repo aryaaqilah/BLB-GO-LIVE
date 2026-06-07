@@ -288,32 +288,6 @@ router.get("/florist/:id", async (req, res) => {
   }
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const restoreStock = async (orderId) => {
   const order = await Order.findById(orderId)
   .populate({ path: "UserId", select: "Name Email" })
@@ -378,6 +352,25 @@ router.patch("/update-status/:id", async (req, res) => {
   }
 });
 
+router.get("/admin/list", async (req, res) => {
+  try {
+    const orders = await Order.find({ IsDeleted: false })
+      .populate("UserId", "Name")
+      .populate("ShopId", "Name")
+      .sort({ CreatedAt: -1 });
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
+router.delete("/admin/:id", async (req, res) => {
+  try {
+    await Order.findByIdAndUpdate(req.params.id, { IsDeleted: true });
+    res.json({ message: "Pesanan berhasil dihapus dari sistem" });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
 
 export default router;

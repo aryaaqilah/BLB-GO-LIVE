@@ -30,6 +30,7 @@ import provinceRoutes from "./routes/ProvinceRoutes.js";
 import cityRoutes from "./routes/CityRoutes.js";
 import districtRoutes from "./routes/DistrictRoutes.js";
 import postalCodeRoutes from "./routes/PostalCodeRoutes.js";
+import changeLogRoutes from "./routes/ChangeLogRoutes.js";
 
 
 dotenv.config();
@@ -107,7 +108,7 @@ app.use("/api/provinces", provinceRoutes);
 app.use("/api/cities", cityRoutes);
 app.use("/api/districts", districtRoutes);
 app.use("/api/postalcodes", postalCodeRoutes);
-
+app.use("/api/changelogs", changeLogRoutes);
 
 app.get("/", (req, res) => {
   res.send("✅ Backend florist-3d API is running!");
