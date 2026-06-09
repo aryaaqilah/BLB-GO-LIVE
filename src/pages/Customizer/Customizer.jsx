@@ -521,7 +521,9 @@ function MainSection({ storeId }) {
     if (!modelName) return showAlert("Mohon lengkapi nama buket!");
     setShowGrid(false);
     await new Promise((resolve) => setTimeout(resolve, 100));
-    const screenshot = document.querySelector("canvas")?.toDataURL("image/png", 0.1);
+    const screenshot = document
+  .querySelector("canvas")
+  ?.toDataURL("image/jpeg", 0.1);
     setShowGrid(true);
 
     const exporter = new GLTFExporter();
